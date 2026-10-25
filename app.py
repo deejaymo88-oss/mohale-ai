@@ -25,13 +25,31 @@ st.markdown("""
         footer { visibility: hidden; }
         .stDeployButton { display: none; }
 
+        /* --- REMOVE THE UGLY SCROLL BOX/BORDER --- */
         .block-container { 
             padding-top: 0rem !important; 
             max-width: 100% !important;
             padding-left: 10% !important;
             padding-right: 10% !important;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
         }
 
+        [data-testid="stAppViewContainer"] {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+        }
+        
+        .stApp > div:first-child {
+            border: none !important;
+            outline: none !important;
+        }
+
+        /* Background */
         .stApp { 
             background: radial-gradient(circle at 50% 30%, #16233B 0%, #0A111E 70%, #05080F 100%) !important; 
             color: #FFFFFF;
@@ -69,7 +87,6 @@ st.markdown("""
             align-items: center !important;
         }
         
-        /* Force the inner HTML of the button to align left */
         [data-testid="stSidebar"] .stButton button > div {
             display: flex !important;
             justify-content: flex-start !important;
@@ -85,7 +102,6 @@ st.markdown("""
             background-color: rgba(197, 160, 89, 0.08) !important;
         }
         
-        /* Highlight the active page */
         [data-testid="stSidebar"] .stButton button:disabled {
             color: #C5A059 !important;
             background-color: rgba(197, 160, 89, 0.1) !important;
