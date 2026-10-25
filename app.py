@@ -20,20 +20,34 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
         
-        /* Hide the top header line completely */
-        header { visibility: hidden !important; display: none !important; }
-        
-        /* --- SURGICAL FIX FOR THE BOTTOM LINE --- */
-        /* Target the invisible container holding the chat input and remove its shadow */
-        [data-testid="stBottom"], 
-        [data-testid="stBottom"] > div,
-        [data-testid="stBottomBlockContainer"] {
-            box-shadow: none !important;
-            border-top: none !important;
-            background: transparent !important;
+        /* Hide default Streamlit elements */
+        header, #MainMenu, footer, [data-testid="stStatusWidget"], .stDeployButton, [data-testid="stDecoration"] { 
+            display: none !important; 
+            visibility: hidden !important;
         }
 
-        /* Background (No forced heights, so scrolling works normally) */
+        /* --- THE DEFINITIVE FIX FOR THE BOTTOM LINE --- */
+        /* This targets the invisible sticky container holding the chat input */
+        [data-testid="stBottom"], 
+        [data-testid="stBottom"] > div,
+        [data-testid="stBottomBlockContainer"],
+        [data-testid="stChatInputContainer"] {
+            box-shadow: none !important;
+            border: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
+            background-color: transparent !important;
+        }
+
+        /* Clean up main containers */
+        [data-testid="stAppViewContainer"],
+        [data-testid="stMain"] {
+            border: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+        }
+
+        /* Background */
         .stApp { 
             background: radial-gradient(circle at 50% 30%, #16233B 0%, #0A111E 70%, #05080F 100%) !important; 
             color: #FFFFFF;
