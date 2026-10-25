@@ -20,40 +20,37 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
         
-        /* Hide default Streamlit elements */
-        header, #MainMenu, footer, [data-testid="stStatusWidget"], .stDeployButton, [data-testid="stDecoration"] { 
-            display: none !important; 
-            visibility: hidden !important;
-        }
-
-        /* SAFELY REMOVE BORDERS WITHOUT BREAKING SCROLLING */
-        [data-testid="stAppViewContainer"],
-        [data-testid="stAppViewContainer"] > section,
-        [data-testid="stMain"],
-        [data-testid="stMainBlockContainer"],
-        [data-testid="stVerticalBlock"],
-        [data-testid="stVerticalBlockBorderWrapper"],
-        .block-container {
-            border: none !important;
-            outline: none !important;
+        /* Hide the top header line completely */
+        header { visibility: hidden !important; display: none !important; }
+        
+        /* Kill the ghost line at the bottom! This is the sticky container for the chat input */
+        [data-testid="stBottom"], 
+        [data-testid="stBottom"] > div,
+        [data-testid="stBottomBlockContainer"] {
+            border-top: none !important;
             box-shadow: none !important;
-            background-color: transparent !important;
+            background: transparent !important;
         }
 
-        /* Layout padding for a nice centered look */
-        .block-container { 
-            padding-top: 2rem !important; 
-            padding-bottom: 2rem !important;
-            max-width: 100% !important;
-            padding-left: 12% !important; 
-            padding-right: 12% !important;
-        }
-
-        /* Background */
+        /* Main background - NO forced heights, so scrolling works normally */
         .stApp { 
             background: radial-gradient(circle at 50% 30%, #16233B 0%, #0A111E 70%, #05080F 100%) !important; 
             color: #FFFFFF;
             font-family: 'Inter', sans-serif;
+        }
+
+        /* Clean up the main container borders */
+        [data-testid="stAppViewContainer"],
+        [data-testid="stMain"] {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Layout padding */
+        .block-container { 
+            padding-top: 2rem !important; 
+            padding-left: 12% !important; 
+            padding-right: 12% !important;
         }
 
         /* SIDEBAR */
@@ -64,8 +61,6 @@ st.markdown("""
             border-right: 1px solid rgba(197, 160, 89, 0.15) !important;
             width: 260px !important;
             min-width: 260px !important;
-            transform: translateX(0px) !important;
-            margin-left: 0px !important;
         }
         
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
@@ -143,9 +138,8 @@ st.markdown("""
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 75vh;
+            height: 65vh;
             text-align: center;
-            margin-top: -40px; 
         }
         
         .main-center-logo {
