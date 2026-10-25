@@ -26,42 +26,41 @@ st.markdown("""
             visibility: hidden !important;
         }
 
-        /* --- THE DEFINITIVE FIX FOR THE BOTTOM LINE --- */
-        /* This targets the invisible sticky container holding the chat input */
-        [data-testid="stBottom"], 
+        /* --- 1. THE CULPRIT: THE STICKY BOTTOM CONTAINER --- */
+        /* Streamlit adds a shadow here to separate the chat from the input. We kill it. */
+        [data-testid="stBottom"],
         [data-testid="stBottom"] > div,
         [data-testid="stBottomBlockContainer"],
         [data-testid="stChatInputContainer"] {
-            box-shadow: none !important;
             border: none !important;
             border-top: none !important;
             border-bottom: none !important;
-            background-color: transparent !important;
-        }
-
-        /* Clean up main containers */
-        [data-testid="stAppViewContainer"],
-        [data-testid="stMain"] {
-            border: none !important;
             box-shadow: none !important;
             background-color: transparent !important;
+            background: transparent !important;
         }
 
-        /* Background */
+        /* Just in case Streamlit injected a line, hide it */
+        [data-testid="stBottom"] hr,
+        [data-testid="stBottom"] * {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* --- 2. BACKGROUND & LAYOUT (SCROLLING FIXED) --- */
         .stApp { 
             background: radial-gradient(circle at 50% 30%, #16233B 0%, #0A111E 70%, #05080F 100%) !important; 
             color: #FFFFFF;
             font-family: 'Inter', sans-serif;
         }
 
-        /* Layout padding */
         .block-container { 
             padding-top: 2rem !important; 
             padding-left: 12% !important; 
             padding-right: 12% !important;
         }
 
-        /* SIDEBAR */
+        /* --- 3. SIDEBAR --- */
         [data-testid="collapsedControl"] { display: block !important; }
         section[data-testid="stSidebar"] { 
             display: block !important;
@@ -74,7 +73,6 @@ st.markdown("""
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
         [data-testid="stSidebar"] ::-webkit-scrollbar { display: none; }
 
-        /* SIDEBAR BUTTONS */
         [data-testid="stSidebar"] .stButton button {
             background: transparent !important;
             border: none !important;
@@ -140,7 +138,7 @@ st.markdown("""
             background-color: #252A37 !important;
         }
 
-        /* Main Hero Screen */
+        /* --- 4. HERO SCREEN --- */
         .main-hero {
             display: flex;
             flex-direction: column;
@@ -175,7 +173,7 @@ st.markdown("""
             letter-spacing: 0.5px;
         }
 
-        /* --- CHAT INPUT --- */
+        /* --- 5. CHAT INPUT & BUBBLES --- */
         [data-testid="stChatInput"] {
             background-color: rgba(10, 17, 31, 0.8) !important;
             backdrop-filter: blur(15px) !important;
@@ -194,7 +192,6 @@ st.markdown("""
             color: #FFFFFF !important; 
         }
 
-        /* Chat Bubbles */
         [data-testid="stChatMessageAvatarUser"],
         [data-testid="stChatMessageAvatarAssistant"] {
             display: none !important;
