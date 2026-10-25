@@ -20,33 +20,32 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
         
+        /* Hide default Streamlit elements */
         header { visibility: hidden !important; display: none !important; }
         #MainMenu { visibility: hidden; }
         footer { visibility: hidden; }
         .stDeployButton { display: none; }
 
-        /* --- REMOVE THE UGLY SCROLL BOX/BORDER --- */
-        .block-container { 
-            padding-top: 0rem !important; 
-            max-width: 100% !important;
-            padding-left: 10% !important;
-            padding-right: 10% !important;
+        /* --- KILL THE SCROLL BOX & BORDERS --- */
+        [data-testid="stAppViewContainer"],
+        [data-testid="stAppViewContainer"] > section,
+        [data-testid="stVerticalBlock"],
+        [data-testid="stVerticalBlockBorderWrapper"],
+        .block-container,
+        .main,
+        .stMain {
             border: none !important;
             outline: none !important;
             box-shadow: none !important;
             background-color: transparent !important;
         }
 
-        [data-testid="stAppViewContainer"] {
-            border: none !important;
-            outline: none !important;
-            box-shadow: none !important;
-            background-color: transparent !important;
-        }
-        
-        .stApp > div:first-child {
-            border: none !important;
-            outline: none !important;
+        /* Ensure the main area takes full height without boxes */
+        .block-container { 
+            padding-top: 0rem !important; 
+            max-width: 100% !important;
+            padding-left: 10% !important;
+            padding-right: 10% !important;
         }
 
         /* Background */
@@ -54,13 +53,15 @@ st.markdown("""
             background: radial-gradient(circle at 50% 30%, #16233B 0%, #0A111E 70%, #05080F 100%) !important; 
             color: #FFFFFF;
             font-family: 'Inter', sans-serif;
+            min-height: 100vh !important;
         }
 
+        /* SIDEBAR */
         [data-testid="collapsedControl"] { display: block !important; }
         section[data-testid="stSidebar"] { 
             display: block !important;
             background-color: #05080F !important;
-            border-right: 1px solid rgba(197, 160, 89, 0.15);
+            border-right: 1px solid rgba(197, 160, 89, 0.15) !important;
             width: 260px !important;
             min-width: 260px !important;
             transform: translateX(0px) !important;
@@ -70,7 +71,7 @@ st.markdown("""
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
         [data-testid="stSidebar"] ::-webkit-scrollbar { display: none; }
 
-        /* --- BULLETPROOF LEFT ALIGNMENT FOR SIDEBAR BUTTONS --- */
+        /* BULLETPROOF LEFT ALIGNMENT FOR SIDEBAR BUTTONS */
         [data-testid="stSidebar"] .stButton button {
             background: transparent !important;
             border: none !important;
@@ -102,6 +103,7 @@ st.markdown("""
             background-color: rgba(197, 160, 89, 0.08) !important;
         }
         
+        /* Highlight the active page */
         [data-testid="stSidebar"] .stButton button:disabled {
             color: #C5A059 !important;
             background-color: rgba(197, 160, 89, 0.1) !important;
@@ -109,6 +111,7 @@ st.markdown("""
             opacity: 1 !important;
         }
 
+        /* Logos */
         .boss-logo-container {
             width: 100px;
             margin-left: 15px;
@@ -136,6 +139,7 @@ st.markdown("""
             background-color: #252A37 !important;
         }
 
+        /* Main Hero Screen */
         .main-hero {
             display: flex;
             flex-direction: column;
@@ -171,6 +175,7 @@ st.markdown("""
             letter-spacing: 0.5px;
         }
 
+        /* Chat Input */
         [data-testid="stChatInput"] {
             background-color: rgba(10, 17, 31, 0.8) !important;
             backdrop-filter: blur(15px) !important;
@@ -180,6 +185,7 @@ st.markdown("""
         }
         [data-testid="stChatInput"] textarea { color: #FFFFFF !important; }
 
+        /* Chat Bubbles */
         [data-testid="stChatMessageAvatarUser"],
         [data-testid="stChatMessageAvatarAssistant"] {
             display: none !important;
