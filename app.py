@@ -26,7 +26,16 @@ st.markdown("""
             visibility: hidden !important;
         }
 
-        /* --- REMOVE BOXES AND SET BALANCED PADDING --- */
+        /* --- KILL THE SCROLLBAR AND GHOST BORDER --- */
+        
+        /* Hide the scrollbar completely so no grey line appears */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0px !important;
+            height: 0px !important;
+        }
+
+        /* Force EVERY wrapper to be completely borderless and transparent */
         [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > section,
         [data-testid="stMain"],
@@ -34,8 +43,15 @@ st.markdown("""
         [data-testid="stVerticalBlock"],
         [data-testid="stVerticalBlockBorderWrapper"],
         [data-testid="stChatMessageContainer"], 
-        [data-testid="stHorizontalBlock"] {
+        [data-testid="stHorizontalBlock"],
+        .block-container,
+        .main,
+        .stMain {
             border: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
+            border-left: none !important;
+            border-right: none !important;
             outline: none !important;
             box-shadow: none !important;
             background-color: transparent !important;
@@ -43,10 +59,11 @@ st.markdown("""
             border-radius: 0px !important;
         }
 
-        /* Perfect Middle Ground Padding (12% on both sides) */
+        /* --- MOVE IT UP & BALANCED PADDING --- */
         .block-container { 
             padding-top: 0rem !important; 
             padding-bottom: 0rem !important;
+            margin-top: -30px !important; /* PULLS THE CONTENT UP */
             max-width: 100% !important;
             padding-left: 12% !important; 
             padding-right: 12% !important;
