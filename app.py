@@ -67,6 +67,15 @@ def update_session_title(session_id, new_title):
     conn.commit()
     conn.close()
 
+# --- NEW FUNCTION TO CLEAR HISTORY ---
+def clear_all_history():
+    conn = sqlite3.connect('my_platform.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM sessions")
+    c.execute("DELETE FROM messages")
+    conn.commit()
+    conn.close()
+
 # --- SESSION STATE ---
 if "current_page" not in st.session_state:
     st.session_state.current_page = "Dashboard"
@@ -288,6 +297,14 @@ with st.sidebar:
     if encoded_logo_side:
         st.markdown(f'<div class="boss-logo-container"><img src="data:image/png;base64,{encoded_logo_side}" class="boss-logo"></div>', unsafe_allow_html=True)
 
+    # New Chat at the top
+    if st.button("➕ Start New Chat", use_container_width=True):
+        st.session_state.current_session = create_new_session()
+        st.session_state.current_page = "Dashboard"
+        st.rerun()
+
+    st.write("---")
+
     if st.button("🏠 Dashboard", use_container_width=True):
         st.session_state.current_page = "Dashboard"
         st.rerun()
@@ -303,11 +320,7 @@ with st.sidebar:
 
     st.write("")
     
-    if st.button("➕ Start New Chat", use_container_width=True):
-        st.session_state.current_session = create_new_session()
-        st.session_state.current_page = "Dashboard"
-        st.rerun()
-
+    # History Section
     st.write("### 💬 History")
     for sess in get_sessions()[:4]:
         sess_id, title = sess
@@ -321,8 +334,20 @@ with st.sidebar:
 
     st.write("")
     
+    # Clear History Button
+    if st.button("🗑️ Clear History", use_container_width=True):
+        clear_all_history()
+        st.session_state.current_session = create_new_session()
+        st.session_state.current_page = "Dashboard"
+        st.rerun()
+
+    st.write("---")
+
+    # Profile / Login at the bottom
     if st.button("👤 Log In / Register", use_container_width=True):
         pass 
+
+    st.caption("v1.0.0 · Mohale AI")
 
 # --- MAIN AREA ---
 if st.session_state.current_page == "Dashboard":
