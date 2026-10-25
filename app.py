@@ -52,7 +52,7 @@ st.markdown("""
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
         [data-testid="stSidebar"] ::-webkit-scrollbar { display: none; }
 
-        /* Sidebar Navigation Styling */
+        /* --- BULLETPROOF LEFT ALIGNMENT FOR SIDEBAR BUTTONS --- */
         [data-testid="stSidebar"] .stButton button {
             background: transparent !important;
             border: none !important;
@@ -65,8 +65,21 @@ st.markdown("""
             transition: all 0.2s ease !important;
             justify-content: flex-start !important;
             width: 100% !important;
+            display: flex !important;
+            align-items: center !important;
         }
         
+        /* Force the inner HTML of the button to align left */
+        [data-testid="stSidebar"] .stButton button > div {
+            display: flex !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            text-align: left !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
         [data-testid="stSidebar"] .stButton button:hover {
             color: #C5A059 !important;
             background-color: rgba(197, 160, 89, 0.08) !important;
@@ -77,7 +90,7 @@ st.markdown("""
             color: #C5A059 !important;
             background-color: rgba(197, 160, 89, 0.1) !important;
             border-left: 3px solid #C5A059 !important;
-            opacity: 1 !important; /* Make it fully visible */
+            opacity: 1 !important;
         }
 
         .boss-logo-container {
@@ -341,22 +354,16 @@ with st.sidebar:
         ("⚙️", "Settings")
     ]
     
-    # Bulletproof Navigation Logic
     for icon, p in pages:
         label = f"{icon} {p}"
         
         if st.session_state.current_page == p:
-            # If we are on this page, show it as highlighted/disabled
             st.button(label, key=f"nav_{p}", disabled=True, use_container_width=True)
         else:
-            # If we click another page
             if st.button(label, key=f"nav_{p}", use_container_width=True):
                 st.session_state.current_page = p
-                
-                # If they click Dashboard, let's reset them to the Home Screen
                 if p == "Dashboard":
                     st.session_state.current_session = create_new_session()
-                    
                 st.rerun()
 
     st.write("---")
