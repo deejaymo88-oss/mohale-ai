@@ -20,13 +20,11 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
         
-        /* Hide default top bar */
         header { visibility: hidden !important; display: none !important; }
         #MainMenu { visibility: hidden; }
         footer { visibility: hidden; }
         .stDeployButton { display: none; }
 
-        /* Make the main container full width but with some edge padding */
         .block-container { 
             padding-top: 0rem !important; 
             max-width: 100% !important;
@@ -34,14 +32,12 @@ st.markdown("""
             padding-right: 10% !important;
         }
 
-        /* Background */
         .stApp { 
             background: radial-gradient(circle at 50% 30%, #16233B 0%, #0A111E 70%, #05080F 100%) !important; 
             color: #FFFFFF;
             font-family: 'Inter', sans-serif;
         }
 
-        /* FORCE SIDEBAR TO STAY OPEN AND VISIBLE */
         [data-testid="collapsedControl"] { display: block !important; }
         section[data-testid="stSidebar"] { 
             display: block !important;
@@ -56,7 +52,6 @@ st.markdown("""
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
         [data-testid="stSidebar"] ::-webkit-scrollbar { display: none; }
 
-        /* Sidebar Navigation Buttons */
         [data-testid="stSidebar"] .stButton button {
             background: transparent !important;
             border: none !important;
@@ -76,14 +71,12 @@ st.markdown("""
             background-color: rgba(197, 160, 89, 0.08) !important;
         }
 
-        /* Active Page Styling */
         .active-page button {
             color: #C5A059 !important;
             background-color: rgba(197, 160, 89, 0.1) !important;
             border-left: 3px solid #C5A059 !important;
         }
 
-        /* MP Logo Container (Sidebar) */
         .boss-logo-container {
             width: 100px;
             margin-left: 15px;
@@ -97,7 +90,6 @@ st.markdown("""
             filter: brightness(1.1) contrast(1.1) sepia(0.2);
         }
 
-        /* Bottom Profile Popover */
         div[data-testid="stPopover"] > button {
             background-color: #1A1D27 !important;
             border-radius: 12px !important;
@@ -112,7 +104,6 @@ st.markdown("""
             background-color: #252A37 !important;
         }
 
-        /* Main Hero Section (Center) */
         .main-hero {
             display: flex;
             flex-direction: column;
@@ -148,7 +139,6 @@ st.markdown("""
             letter-spacing: 0.5px;
         }
 
-        /* Chat Input */
         [data-testid="stChatInput"] {
             background-color: rgba(10, 17, 31, 0.8) !important;
             backdrop-filter: blur(15px) !important;
@@ -158,17 +148,11 @@ st.markdown("""
         }
         [data-testid="stChatInput"] textarea { color: #FFFFFF !important; }
 
-        /* =========================================
-           CHAT BUBBLE ALIGNMENT WITH BREATHING ROOM
-           ========================================= */
-        
-        /* Hide Avatars */
         [data-testid="stChatMessageAvatarUser"],
         [data-testid="stChatMessageAvatarAssistant"] {
             display: none !important;
         }
 
-        /* Reset Container */
         [data-testid="stChatMessage"] {
             background-color: transparent !important;
             padding: 0 !important;
@@ -178,7 +162,6 @@ st.markdown("""
             align-items: flex-start !important;
         }
 
-        /* Base Bubble */
         [data-testid="stChatMessageContent"] {
             padding: 12px 18px !important;
             border-radius: 15px !important;
@@ -189,7 +172,6 @@ st.markdown("""
             text-align: left !important;
         }
 
-        /* USER (RIGHT SIDE) */
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
             justify-content: flex-end !important;
         }
@@ -201,7 +183,6 @@ st.markdown("""
             margin-right: 0 !important;
         }
 
-        /* ASSISTANT (LEFT SIDE) */
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
             justify-content: flex-start !important;
         }
@@ -215,7 +196,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- INITIALIZE SESSION STATE ---
 if "current_page" not in st.session_state:
     st.session_state.current_page = "Dashboard"
 if "current_session" not in st.session_state:
@@ -223,7 +203,6 @@ if "current_session" not in st.session_state:
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-# --- DATABASE SETUP ---
 def init_db():
     conn = sqlite3.connect('my_platform.db')
     c = conn.cursor()
@@ -235,7 +214,6 @@ def init_db():
 
 init_db()
 
-# --- DB FUNCTIONS ---
 def create_new_session():
     conn = sqlite3.connect('my_platform.db')
     c = conn.cursor()
@@ -310,18 +288,15 @@ def get_memo():
     conn.close()
     return row[0] if row else ""
 
-# Initialize first chat
 if len(get_sessions()) == 0:
     st.session_state.current_session = create_new_session()
 else:
     if st.session_state.current_session == 1:
         st.session_state.current_session = get_sessions()[0][0]
 
-# --- SMART LOGO FINDER ---
 encoded_logo_main = ""
 encoded_logo_side = ""
 
-# 1. Find Sidebar Logo
 side_logo_path = None
 for path in glob.glob("logo_side*"):
     if path.lower().endswith((".png", ".jpg", ".jpeg")):
@@ -335,7 +310,6 @@ if side_logo_path:
     except:
         pass
 
-# 2. Find Center Logo (No cropping)
 center_logo_path = None
 for path in glob.glob("logo*"):
     if "side" not in path.lower() and path.lower().endswith((".png", ".jpg", ".jpeg")):
@@ -349,11 +323,9 @@ if center_logo_path:
     except Exception as e:
         pass
 
-# Fallback
 if not encoded_logo_side:
     encoded_logo_side = encoded_logo_main 
 
-# --- SIDEBAR NAVIGATION ---
 with st.sidebar:
     if encoded_logo_side:
         st.markdown(f'<div class="boss-logo-container"><img src="data:image/png;base64,{encoded_logo_side}" class="boss-logo"></div>', unsafe_allow_html=True)
@@ -412,8 +384,6 @@ with st.sidebar:
             st.session_state.current_page = "Login"
             st.rerun()
 
-# --- MAIN AREA ROUTING ---
-
 if st.session_state.current_page == "Dashboard":
     messages = get_messages(st.session_state.current_session)
     
@@ -429,7 +399,6 @@ if st.session_state.current_page == "Dashboard":
             unsafe_allow_html=True
         )
 
-    # Display Chat History
     for msg in messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
@@ -482,9 +451,15 @@ if st.session_state.current_page == "Dashboard":
                         
                     api_messages.extend(current_history)
                     
+                    # --- INTERNET SEARCH LOGIC ADDED BACK ---
                     if image_data:
                         api_messages.append({"role": "user", "content": [{"type": "text", "text": final_prompt}, {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}}]})
                     else:
+                        if not extracted_text:
+                            search_results = tavily_client.search(query=f"{final_prompt} {today}", search_depth="advanced", max_results=5)
+                            context = "\n\n".join([result["content"] for result in search_results["results"]])
+                            final_prompt = f"Web Search Results:\n{context}\n\nUser Question: {final_prompt}"
+                            
                         api_messages.append({"role": "user", "content": final_prompt})
                     
                     response = client.chat.completions.create(model="gpt-4o-mini", messages=api_messages, stream=True)
