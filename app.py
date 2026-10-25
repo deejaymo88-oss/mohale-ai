@@ -13,8 +13,8 @@ from tavily import TavilyClient
 client = OpenAI()
 tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
-# FORCE SIDEBAR TO STAY OPEN
-st.set_page_config(page_title="Mohale AI", layout="wide", initial_sidebar_state="expanded")
+# Set sidebar to start collapsed so the button is needed
+st.set_page_config(page_title="Mohale AI", layout="wide", initial_sidebar_state="collapsed")
 
 # --- DATABASE SETUP ---
 def init_db():
@@ -86,30 +86,41 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
 
-        /* 1. Constrain the width to bring messages closer */
-        .block-container {
-            max-width: 900px !important;
-            margin: 0 auto !important;
-            padding-top: 2rem !important;
-            padding-bottom: 2rem !important;
-        }
-
-        /* 2. Header & Force Sidebar Toggle Button to be visible */
+        /* 1. Hide the ugly top line but keep the header space */
         header, [data-testid="stHeader"] { 
             background: transparent !important; 
             border: none !important; 
             box-shadow: none !important;
         }
-        [data-testid="stToolbar"] { display: none !important; }
         
-        /* Force the sidebar open button (>>) to show */
+        /* Hide the deploy button */
+        [data-testid="stToolbar"] { display: none !important; }
+
+        /* --- THE SIDEBAR BUTTON --- */
         [data-testid="collapsedControl"] {
-            display: block !important;
+            display: flex !important;
+            background-color: #1A1D27 !important;
+            border: 1px solid rgba(197, 160, 89, 0.4) !important;
+            border-radius: 8px !important;
+            margin: 10px !important;
+            padding: 8px !important;
+            color: #C5A059 !important; 
             z-index: 999999 !important;
-            color: #C5A059 !important;
+            box-shadow: 0 0 15px rgba(197, 160, 89, 0.2) !important;
         }
+        
         [data-testid="collapsedControl"] svg {
             fill: #C5A059 !important;
+            width: 24px !important;
+            height: 24px !important;
+        }
+
+        /* 2. Constrain the width to bring messages closer */
+        .block-container {
+            max-width: 900px !important;
+            margin: 0 auto !important;
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
         }
 
         /* 3. Background */
