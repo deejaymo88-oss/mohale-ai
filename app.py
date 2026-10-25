@@ -71,6 +71,14 @@ st.markdown("""
             color: #C5A059 !important;
             background-color: rgba(197, 160, 89, 0.08) !important;
         }
+        
+        /* Highlight the active page */
+        [data-testid="stSidebar"] .stButton button:disabled {
+            color: #C5A059 !important;
+            background-color: rgba(197, 160, 89, 0.1) !important;
+            border-left: 3px solid #C5A059 !important;
+            opacity: 1 !important; /* Make it fully visible */
+        }
 
         .boss-logo-container {
             width: 100px;
@@ -333,15 +341,23 @@ with st.sidebar:
         ("⚙️", "Settings")
     ]
     
-    # Simple, bulletproof button navigation
+    # Bulletproof Navigation Logic
     for icon, p in pages:
         label = f"{icon} {p}"
-        if st.button(label, key=f"nav_{p}", use_container_width=True):
-            st.session_state.current_page = p
-            # If they click Dashboard, let's make sure it takes them to a fresh view
-            if p == "Dashboard":
-                st.session_state.current_session = create_new_session()
-            st.rerun()
+        
+        if st.session_state.current_page == p:
+            # If we are on this page, show it as highlighted/disabled
+            st.button(label, key=f"nav_{p}", disabled=True, use_container_width=True)
+        else:
+            # If we click another page
+            if st.button(label, key=f"nav_{p}", use_container_width=True):
+                st.session_state.current_page = p
+                
+                # If they click Dashboard, let's reset them to the Home Screen
+                if p == "Dashboard":
+                    st.session_state.current_session = create_new_session()
+                    
+                st.rerun()
 
     st.write("---")
     
