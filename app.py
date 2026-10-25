@@ -26,55 +26,48 @@ st.markdown("""
             visibility: hidden !important;
         }
 
-        /* --- KILL THE SCROLLBAR AND GHOST BORDER --- */
+        /* --- ABSOLUTE NUCLEAR OPTION: DESTROY ALL GHOST LINES AND SCROLLBARS --- */
         
-        /* Hide the scrollbar completely so no grey line appears */
+        /* 1. Hide all scrollbars globally */
         ::-webkit-scrollbar {
             display: none !important;
             width: 0px !important;
             height: 0px !important;
         }
+        * {
+            scrollbar-width: none !important; 
+        }
 
-        /* Force EVERY wrapper to be completely borderless and transparent */
+        /* 2. Target every single wrapper, including the sticky bottom container */
         [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > section,
+        [data-testid="stAppViewContainer"] > div,
         [data-testid="stMain"],
-        [data-testid="stMainBlockContainer"],
+        [data-testid="stMain"] > div,
         [data-testid="stVerticalBlock"],
+        [data-testid="stVerticalBlock"] > div,
         [data-testid="stVerticalBlockBorderWrapper"],
-        [data-testid="stChatMessageContainer"], 
         [data-testid="stHorizontalBlock"],
+        [data-testid="stBottom"],
+        [data-testid="stBottom"] > div,
         .block-container,
-        .main,
-        .stMain {
+        .block-container > div {
             border: none !important;
             border-top: none !important;
             border-bottom: none !important;
-            border-left: none !important;
-            border-right: none !important;
             outline: none !important;
             box-shadow: none !important;
             background-color: transparent !important;
             background: transparent !important;
-            border-radius: 0px !important;
         }
 
-        /* --- MOVE IT UP & BALANCED PADDING --- */
+        /* 3. Layout padding */
         .block-container { 
             padding-top: 0rem !important; 
             padding-bottom: 0rem !important;
-            margin-top: -30px !important; /* PULLS THE CONTENT UP */
             max-width: 100% !important;
             padding-left: 12% !important; 
             padding-right: 12% !important;
-        }
-
-        /* Make sure the chat messages take full width inside the padding */
-        [data-testid="stChatMessageContainer"] {
-            max-width: 100% !important;
-            width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
         }
 
         /* Background */
@@ -98,7 +91,6 @@ st.markdown("""
         }
         
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
-        [data-testid="stSidebar"] ::-webkit-scrollbar { display: none; }
 
         /* SIDEBAR BUTTONS */
         [data-testid="stSidebar"] .stButton button {
@@ -240,7 +232,7 @@ st.markdown("""
             padding: 12px 18px !important;
             border-radius: 15px !important;
             width: fit-content !important;
-            max-width: 85% !important; /* Balanced bubble width */
+            max-width: 85% !important; 
             flex-grow: 0 !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
             text-align: left !important;
