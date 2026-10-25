@@ -147,20 +147,47 @@ st.markdown("""
         .boss-logo-container { width: 100px; margin-left: 15px; margin-bottom: 20px; margin-top: 10px; }
         .boss-logo { width: 100px; height: auto; mix-blend-mode: screen; filter: brightness(1.1) contrast(1.1) sepia(0.2); }
 
-        /* 5. Hero Screen */
+        /* 5. Hero Screen (THE FIX FOR CENTERING) */
         .hero-container { 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            height: 65vh; text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 65vh; 
+            width: 100%;
+            text-align: center; 
         }
+        
         .hero-logo { 
-            width: 400px; mix-blend-mode: screen; filter: brightness(1.1) contrast(1.1); 
-            margin-bottom: -80px; 
+            display: block;
+            margin: 0 auto; /* Forces image to center */
+            width: 400px; 
+            mix-blend-mode: screen; 
+            filter: brightness(1.1) contrast(1.1); 
+            margin-bottom: -60px; /* Adjusted spacing */
         }
+        
         .hero-title { 
-            font-family: 'Cinzel', serif; font-size: 60px; font-weight: 600; color: #F8FAFC; 
-            margin-top: 0px; margin-bottom: 15px; letter-spacing: 1px; text-shadow: 0px 4px 20px rgba(0,0,0,0.8); 
+            font-family: 'Cinzel', serif; 
+            font-size: 60px; 
+            font-weight: 600; 
+            color: #F8FAFC; 
+            margin-top: 0px; 
+            margin-bottom: 15px; 
+            letter-spacing: 1px; 
+            text-shadow: 0px 4px 20px rgba(0,0,0,0.8); 
+            width: 100%;
+            text-align: center;
         }
-        .hero-subtitle { font-size: 20px; color: #94A3B8; font-weight: 300; letter-spacing: 0.5px; }
+        
+        .hero-subtitle { 
+            font-size: 20px; 
+            color: #94A3B8; 
+            font-weight: 300; 
+            letter-spacing: 0.5px; 
+            width: 100%;
+            text-align: center;
+        }
 
         /* 6. Chat Input */
         [data-testid="stChatInput"] {
