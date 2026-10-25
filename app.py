@@ -26,16 +26,18 @@ st.markdown("""
             visibility: hidden !important;
         }
 
-        /* --- THE NUCLEAR OPTION: KILL ALL BORDERS AND BACKGROUNDS --- */
-        
-        /* Hide the scrollbar entirely so the grey line never appears */
-        ::-webkit-scrollbar {
+        /* --- NUCLEAR OPTION: KILL ALL SCROLLBARS AND GHOST BORDERS --- */
+        * {
+            scrollbar-width: none !important; /* Firefox */
+            -ms-overflow-style: none !important; /* IE/Edge */
+        }
+        *::-webkit-scrollbar {
             display: none !important;
             width: 0px !important;
             height: 0px !important;
         }
 
-        /* Force EVERY wrapper, container, and block to be transparent and borderless */
+        /* Remove borders from every single wrapper/container */
         [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > section,
         [data-testid="stMain"],
@@ -44,10 +46,15 @@ st.markdown("""
         [data-testid="stVerticalBlockBorderWrapper"],
         [data-testid="stHorizontalBlock"],
         [data-testid="stChatMessageContainer"],
+        [data-testid="stChatMessage"],
         .block-container,
         .main,
         .stMain {
             border: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
+            border-left: none !important;
+            border-right: none !important;
             border-radius: 0px !important;
             outline: none !important;
             box-shadow: none !important;
@@ -55,12 +62,12 @@ st.markdown("""
             background: transparent !important;
         }
 
-        /* Ensure the full width is used */
+        /* Make the layout much wider */
         .block-container { 
             padding-top: 0rem !important; 
             max-width: 100% !important;
-            padding-left: 10% !important;
-            padding-right: 10% !important;
+            padding-left: 2rem !important; 
+            padding-right: 2rem !important;
         }
 
         /* Background */
@@ -84,9 +91,8 @@ st.markdown("""
         }
         
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
-        [data-testid="stSidebar"] ::-webkit-scrollbar { display: none; }
 
-        /* BULLETPROOF LEFT ALIGNMENT FOR SIDEBAR BUTTONS */
+        /* SIDEBAR BUTTONS */
         [data-testid="stSidebar"] .stButton button {
             background: transparent !important;
             border: none !important;
@@ -118,7 +124,6 @@ st.markdown("""
             background-color: rgba(197, 160, 89, 0.08) !important;
         }
         
-        /* Highlight the active page */
         [data-testid="stSidebar"] .stButton button:disabled {
             color: #C5A059 !important;
             background-color: rgba(197, 160, 89, 0.1) !important;
@@ -126,7 +131,6 @@ st.markdown("""
             opacity: 1 !important;
         }
 
-        /* Logos */
         .boss-logo-container {
             width: 100px;
             margin-left: 15px;
@@ -166,72 +170,76 @@ st.markdown("""
         }
         
         .main-center-logo {
-            width: 400px;
+            width: 500px;
             height: auto;
             mix-blend-mode: screen;
             filter: brightness(1.1) contrast(1.1) sepia(0.2);
-            margin-bottom: -100px; 
+            margin-bottom: -120px; 
         }
 
         .hero-title {
             font-family: 'Cinzel', serif;
-            font-size: 55px;
+            font-size: 65px;
             font-weight: 600;
             color: #F8FAFC;
             margin-top: 0px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             letter-spacing: 1px;
             text-shadow: 0px 4px 20px rgba(0,0,0,0.8);
         }
         .hero-subtitle {
-            font-size: 18px;
+            font-size: 20px;
             color: #94A3B8;
             font-weight: 300;
             letter-spacing: 0.5px;
         }
 
-        /* Chat Input */
+        /* --- CHAT INPUT WITH HUGE BORDER --- */
         [data-testid="stChatInput"] {
-            background-color: rgba(10, 17, 31, 0.8) !important;
+            background-color: rgba(10, 17, 31, 0.9) !important;
             backdrop-filter: blur(15px) !important;
-            border: 1px solid rgba(197, 160, 89, 0.4) !important;
-            border-radius: 30px !important;
-            padding: 5px 15px !important;
+            border: 5px solid #C5A059 !important; /* Huge Gold Border */
+            border-radius: 40px !important; /* More rounded */
+            padding: 15px 20px !important; /* More padding inside */
+            box-shadow: 0 0 40px rgba(197, 160, 89, 0.4) !important; /* Stronger Glow */
+            transition: all 0.3s ease;
         }
-        [data-testid="stChatInput"] textarea { color: #FFFFFF !important; }
+        
+        [data-testid="stChatInput"]:focus-within {
+            border: 5px solid #FDE047 !important; /* Brighter gold when typing */
+            box-shadow: 0 0 50px rgba(197, 160, 89, 0.6) !important;
+        }
 
-        /* Chat Bubbles (we DO want borders here, but only on the bubbles themselves) */
+        [data-testid="stChatInput"] textarea { 
+            color: #FFFFFF !important; 
+            font-size: 18px !important; /* Bigger text */
+        }
+
+        /* Chat Bubbles */
         [data-testid="stChatMessageAvatarUser"],
         [data-testid="stChatMessageAvatarAssistant"] {
             display: none !important;
         }
 
-        [data-testid="stChatMessage"] {
-            background-color: transparent !important;
-            padding: 0 !important;
-            margin-bottom: 15px !important;
-            display: flex !important;
-            width: 100% !important;
-            align-items: flex-start !important;
-            border: none !important;
-        }
-
+        /* Target the actual content bubble for borders */
         [data-testid="stChatMessageContent"] {
-            padding: 12px 18px !important;
+            padding: 15px 20px !important; /* Bigger padding inside bubbles */
             border-radius: 15px !important;
             width: fit-content !important;
-            max-width: 75% !important;
+            max-width: 80% !important;
             flex-grow: 0 !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important;
             text-align: left !important;
         }
 
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
             justify-content: flex-end !important;
         }
+        
+        /* --- USER BUBBLE WITH HUGE BORDER --- */
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) > [data-testid="stChatMessageContent"] {
             background-color: #1A1D27 !important;
-            border: 1px solid rgba(197, 160, 89, 0.3) !important;
+            border: 4px solid rgba(197, 160, 89, 0.8) !important; /* Huge Border */
             border-bottom-right-radius: 2px !important;
             margin-left: auto !important;
             margin-right: 0 !important;
@@ -240,9 +248,11 @@ st.markdown("""
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
             justify-content: flex-start !important;
         }
+        
+        /* --- ASSISTANT BUBBLE WITH HUGE BORDER --- */
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) > [data-testid="stChatMessageContent"] {
             background-color: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border: 4px solid rgba(255, 255, 255, 0.3) !important; /* Huge Border */
             border-bottom-left-radius: 2px !important;
             margin-right: auto !important;
             margin-left: 0 !important;
