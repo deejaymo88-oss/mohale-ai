@@ -23,11 +23,13 @@ st.markdown("""
         /* Hide the top header line completely */
         header { visibility: hidden !important; display: none !important; }
         
-        /* Kill the ghost line at the bottom! This is the sticky container for the chat input */
+        /* --- THE EXACT FIX FOR THE BOTTOM LINE --- */
+        /* This targets the invisible container holding the chat input */
         [data-testid="stBottom"], 
         [data-testid="stBottom"] > div,
         [data-testid="stBottomBlockContainer"] {
             border-top: none !important;
+            border-bottom: none !important;
             box-shadow: none !important;
             background: transparent !important;
         }
