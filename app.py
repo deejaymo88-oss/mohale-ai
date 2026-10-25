@@ -21,26 +21,29 @@ st.markdown("""
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
         
         /* Hide default Streamlit elements */
-        header { visibility: hidden !important; display: none !important; }
-        #MainMenu { visibility: hidden; }
-        footer { visibility: hidden; }
-        .stDeployButton { display: none; }
-
-        /* --- NUCLEAR OPTION: KILL ALL BOXES, BORDERS, AND SCROLLBARS --- */
-        
-        /* Hide main scrollbar to remove the grey line */
-        ::-webkit-scrollbar {
-            width: 0px !important;
-            background: transparent !important;
+        header, #MainMenu, footer, [data-testid="stStatusWidget"], .stDeployButton { 
+            display: none !important; 
+            visibility: hidden !important;
         }
 
-        /* Force EVERY wrapper to be completely transparent and borderless */
+        /* --- THE NUCLEAR OPTION: KILL ALL BORDERS AND BACKGROUNDS --- */
+        
+        /* Hide the scrollbar entirely so the grey line never appears */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0px !important;
+            height: 0px !important;
+        }
+
+        /* Force EVERY wrapper, container, and block to be transparent and borderless */
         [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > section,
         [data-testid="stMain"],
+        [data-testid="stMainBlockContainer"],
         [data-testid="stVerticalBlock"],
         [data-testid="stVerticalBlockBorderWrapper"],
         [data-testid="stHorizontalBlock"],
+        [data-testid="stChatMessageContainer"],
         .block-container,
         .main,
         .stMain {
@@ -197,7 +200,7 @@ st.markdown("""
         }
         [data-testid="stChatInput"] textarea { color: #FFFFFF !important; }
 
-        /* Chat Bubbles */
+        /* Chat Bubbles (we DO want borders here, but only on the bubbles themselves) */
         [data-testid="stChatMessageAvatarUser"],
         [data-testid="stChatMessageAvatarAssistant"] {
             display: none !important;
@@ -210,6 +213,7 @@ st.markdown("""
             display: flex !important;
             width: 100% !important;
             align-items: flex-start !important;
+            border: none !important;
         }
 
         [data-testid="stChatMessageContent"] {
