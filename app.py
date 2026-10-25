@@ -20,33 +20,66 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
         
-        header { visibility: hidden !important; display: none !important; }
-        #MainMenu { visibility: hidden; }
-        footer { visibility: hidden; }
-        .stDeployButton { display: none; }
-
-        .block-container { 
-            padding-top: 0rem !important; 
-            max-width: 100% !important;
-            padding-left: 10% !important;
-            padding-right: 10% !important;
+        /* Hide default Streamlit headers and menus */
+        header, #MainMenu, footer, [data-testid="stStatusWidget"], .stDeployButton, [data-testid="stDecoration"] { 
+            display: none !important; 
+            visibility: hidden !important;
         }
 
+        /* --- REMOVE EVERYTHING ON THE RIGHT SIDE --- */
+        
+        /* 1. Remove all borders, backgrounds, and shadows from the main wrappers */
+        [data-testid="stAppViewContainer"],
+        [data-testid="stMain"],
+        [data-testid="stMainBlockContainer"],
+        [data-testid="stVerticalBlock"],
+        [data-testid="stVerticalBlockBorderWrapper"],
+        [data-testid="stBottom"],
+        [data-testid="stBottom"] > div,
+        .block-container {
+            border: none !important;
+            border-top: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+            background: transparent !important;
+        }
+
+        /* 2. Make the scrollbar completely invisible, but keep it functional so scrolling doesn't break */
+        [data-testid="stAppViewContainer"]::-webkit-scrollbar {
+            width: 0px !important;
+            background: transparent !important;
+        }
+        [data-testid="stAppViewContainer"]::-webkit-scrollbar-thumb {
+            background: transparent !important;
+        }
+        [data-testid="stAppViewContainer"] {
+            scrollbar-width: none !important; /* Firefox */
+            -ms-overflow-style: none !important; /* IE/Edge */
+        }
+
+        /* 3. Clean layout padding */
+        .block-container { 
+            padding-top: 2rem !important; 
+            padding-bottom: 1rem !important;
+            padding-left: 12% !important; 
+            padding-right: 12% !important;
+        }
+
+        /* Background */
         .stApp { 
             background: radial-gradient(circle at 50% 30%, #16233B 0%, #0A111E 70%, #05080F 100%) !important; 
             color: #FFFFFF;
             font-family: 'Inter', sans-serif;
         }
 
+        /* --- SIDEBAR (Keep this looking good) --- */
         [data-testid="collapsedControl"] { display: block !important; }
         section[data-testid="stSidebar"] { 
             display: block !important;
             background-color: #05080F !important;
-            border-right: 1px solid rgba(197, 160, 89, 0.15);
+            border-right: 1px solid rgba(197, 160, 89, 0.15) !important;
             width: 260px !important;
             min-width: 260px !important;
-            transform: translateX(0px) !important;
-            margin-left: 0px !important;
         }
         
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
@@ -64,17 +97,30 @@ st.markdown("""
             transition: all 0.2s ease !important;
             justify-content: flex-start !important;
             width: 100% !important;
+            display: flex !important;
+            align-items: center !important;
         }
         
+        [data-testid="stSidebar"] .stButton button > div {
+            display: flex !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            text-align: left !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
         [data-testid="stSidebar"] .stButton button:hover {
             color: #C5A059 !important;
             background-color: rgba(197, 160, 89, 0.08) !important;
         }
-
-        .active-page button {
+        
+        [data-testid="stSidebar"] .stButton button:disabled {
             color: #C5A059 !important;
             background-color: rgba(197, 160, 89, 0.1) !important;
             border-left: 3px solid #C5A059 !important;
+            opacity: 1 !important;
         }
 
         .boss-logo-container {
@@ -104,49 +150,59 @@ st.markdown("""
             background-color: #252A37 !important;
         }
 
+        /* --- HERO SCREEN --- */
         .main-hero {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 75vh;
+            height: 65vh;
             text-align: center;
-            margin-top: -40px; 
         }
         
         .main-center-logo {
-            width: 400px;
+            width: 500px;
             height: auto;
             mix-blend-mode: screen;
             filter: brightness(1.1) contrast(1.1) sepia(0.2);
-            margin-bottom: -100px; 
+            margin-bottom: -120px; 
         }
 
         .hero-title {
             font-family: 'Cinzel', serif;
-            font-size: 55px;
+            font-size: 65px;
             font-weight: 600;
             color: #F8FAFC;
             margin-top: 0px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             letter-spacing: 1px;
             text-shadow: 0px 4px 20px rgba(0,0,0,0.8);
         }
         .hero-subtitle {
-            font-size: 18px;
+            font-size: 20px;
             color: #94A3B8;
             font-weight: 300;
             letter-spacing: 0.5px;
         }
 
+        /* --- CHAT INPUT & BUBBLES --- */
         [data-testid="stChatInput"] {
             background-color: rgba(10, 17, 31, 0.8) !important;
             backdrop-filter: blur(15px) !important;
-            border: 1px solid rgba(197, 160, 89, 0.4) !important;
+            border: 2px solid rgba(197, 160, 89, 0.6) !important; 
             border-radius: 30px !important;
             padding: 5px 15px !important;
+            box-shadow: 0 0 20px rgba(197, 160, 89, 0.15) !important;
         }
-        [data-testid="stChatInput"] textarea { color: #FFFFFF !important; }
+        
+        [data-testid="stChatInput"]:focus-within {
+            border: 2px solid #C5A059 !important; 
+            box-shadow: 0 0 25px rgba(197, 160, 89, 0.3) !important;
+        }
+
+        [data-testid="stChatInput"] textarea { 
+            color: #FFFFFF !important; 
+        }
 
         [data-testid="stChatMessageAvatarUser"],
         [data-testid="stChatMessageAvatarAssistant"] {
@@ -160,13 +216,14 @@ st.markdown("""
             display: flex !important;
             width: 100% !important;
             align-items: flex-start !important;
+            border: none !important;
         }
 
         [data-testid="stChatMessageContent"] {
             padding: 12px 18px !important;
             border-radius: 15px !important;
             width: fit-content !important;
-            max-width: 75% !important;
+            max-width: 85% !important; 
             flex-grow: 0 !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
             text-align: left !important;
@@ -175,9 +232,10 @@ st.markdown("""
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
             justify-content: flex-end !important;
         }
+        
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) > [data-testid="stChatMessageContent"] {
             background-color: #1A1D27 !important;
-            border: 1px solid rgba(197, 160, 89, 0.3) !important;
+            border: 1px solid rgba(197, 160, 89, 0.4) !important; 
             border-bottom-right-radius: 2px !important;
             margin-left: auto !important;
             margin-right: 0 !important;
@@ -186,9 +244,10 @@ st.markdown("""
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
             justify-content: flex-start !important;
         }
+        
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) > [data-testid="stChatMessageContent"] {
             background-color: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important; 
             border-bottom-left-radius: 2px !important;
             margin-right: auto !important;
             margin-left: 0 !important;
@@ -326,6 +385,7 @@ if center_logo_path:
 if not encoded_logo_side:
     encoded_logo_side = encoded_logo_main 
 
+# --- SIDEBAR ---
 with st.sidebar:
     if encoded_logo_side:
         st.markdown(f'<div class="boss-logo-container"><img src="data:image/png;base64,{encoded_logo_side}" class="boss-logo"></div>', unsafe_allow_html=True)
@@ -339,15 +399,14 @@ with st.sidebar:
     
     for icon, p in pages:
         label = f"{icon} {p}"
+        
         if st.session_state.current_page == p:
-            st.markdown('<div class="active-page">', unsafe_allow_html=True)
-            if st.button(label, key=f"nav_{p}"):
-                st.session_state.current_page = p
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.button(label, key=f"nav_{p}", disabled=True, use_container_width=True)
         else:
-            if st.button(label, key=f"nav_{p}"):
+            if st.button(label, key=f"nav_{p}", use_container_width=True):
                 st.session_state.current_page = p
+                if p == "Dashboard":
+                    st.session_state.current_session = create_new_session()
                 st.rerun()
 
     st.write("---")
@@ -384,6 +443,7 @@ with st.sidebar:
             st.session_state.current_page = "Login"
             st.rerun()
 
+# --- MAIN AREA ---
 if st.session_state.current_page == "Dashboard":
     messages = get_messages(st.session_state.current_session)
     
@@ -451,7 +511,6 @@ if st.session_state.current_page == "Dashboard":
                         
                     api_messages.extend(current_history)
                     
-                    # --- INTERNET SEARCH LOGIC ADDED BACK ---
                     if image_data:
                         api_messages.append({"role": "user", "content": [{"type": "text", "text": final_prompt}, {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}}]})
                     else:
