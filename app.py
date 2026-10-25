@@ -20,44 +20,57 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
         
-        /* Hide default Streamlit headers and menus */
-        header, #MainMenu, footer, [data-testid="stStatusWidget"], .stDeployButton, [data-testid="stDecoration"] { 
+        /* Hide default Streamlit header and menus completely */
+        header, [data-testid="stHeader"], #MainMenu, footer, [data-testid="stStatusWidget"], .stDeployButton, [data-testid="stDecoration"] { 
             display: none !important; 
             visibility: hidden !important;
+            height: 0px !important;
         }
 
-        /* --- REMOVE EVERYTHING ON THE RIGHT SIDE --- */
+        /* --- REMOVE EVERY LINE ON THE RIGHT SIDE --- */
         
-        /* 1. Remove all borders, backgrounds, and shadows from the main wrappers */
-        [data-testid="stAppViewContainer"],
-        [data-testid="stMain"],
-        [data-testid="stMainBlockContainer"],
-        [data-testid="stVerticalBlock"],
-        [data-testid="stVerticalBlockBorderWrapper"],
-        [data-testid="stBottom"],
-        [data-testid="stBottom"] > div,
-        .block-container {
+        /* Target EVERY element inside the main container */
+        [data-testid="stAppViewContainer"] div,
+        [data-testid="stMain"] div,
+        [data-testid="stVerticalBlock"] div,
+        [data-testid="stBottom"] div {
             border: none !important;
             border-top: none !important;
+            border-bottom: none !important;
+            outline: none !important;
             box-shadow: none !important;
-            background-color: transparent !important;
+        }
+
+        /* Kill any invisible horizontal lines Streamlit injects */
+        hr, [data-testid="stAppViewContainer"] hr, [data-testid="stBottom"] hr {
+            display: none !important;
+            border: none !important;
             background: transparent !important;
         }
 
-        /* 2. Make the scrollbar completely invisible, but keep it functional so scrolling doesn't break */
-        [data-testid="stAppViewContainer"]::-webkit-scrollbar {
-            width: 0px !important;
+        /* Make sure the main wrappers are transparent */
+        [data-testid="stAppViewContainer"],
+        [data-testid="stMain"],
+        [data-testid="stBottom"],
+        [data-testid="stBottomBlockContainer"],
+        .block-container {
+            border: none !important;
+            box-shadow: none !important;
             background: transparent !important;
         }
-        [data-testid="stAppViewContainer"]::-webkit-scrollbar-thumb {
-            background: transparent !important;
-        }
+
+        /* Make the scrollbar invisible so it doesn't look like a line, but keep scrolling working */
         [data-testid="stAppViewContainer"] {
             scrollbar-width: none !important; /* Firefox */
             -ms-overflow-style: none !important; /* IE/Edge */
         }
+        [data-testid="stAppViewContainer"]::-webkit-scrollbar {
+            width: 0px !important;
+            height: 0px !important;
+            background: transparent !important;
+        }
 
-        /* 3. Clean layout padding */
+        /* Layout padding */
         .block-container { 
             padding-top: 2rem !important; 
             padding-bottom: 1rem !important;
@@ -72,7 +85,7 @@ st.markdown("""
             font-family: 'Inter', sans-serif;
         }
 
-        /* --- SIDEBAR (Keep this looking good) --- */
+        /* --- SIDEBAR --- */
         [data-testid="collapsedControl"] { display: block !important; }
         section[data-testid="stSidebar"] { 
             display: block !important;
@@ -185,7 +198,9 @@ st.markdown("""
             letter-spacing: 0.5px;
         }
 
-        /* --- CHAT INPUT & BUBBLES --- */
+        /* --- RE-APPLY BORDERS TO CHAT INPUT & BUBBLES --- */
+        
+        /* Chat Input */
         [data-testid="stChatInput"] {
             background-color: rgba(10, 17, 31, 0.8) !important;
             backdrop-filter: blur(15px) !important;
@@ -204,6 +219,7 @@ st.markdown("""
             color: #FFFFFF !important; 
         }
 
+        /* Chat Bubbles */
         [data-testid="stChatMessageAvatarUser"],
         [data-testid="stChatMessageAvatarAssistant"] {
             display: none !important;
@@ -216,7 +232,6 @@ st.markdown("""
             display: flex !important;
             width: 100% !important;
             align-items: flex-start !important;
-            border: none !important;
         }
 
         [data-testid="stChatMessageContent"] {
@@ -225,7 +240,6 @@ st.markdown("""
             width: fit-content !important;
             max-width: 85% !important; 
             flex-grow: 0 !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
             text-align: left !important;
         }
 
