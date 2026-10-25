@@ -86,7 +86,15 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
 
-        /* 1. Header & Sidebar Toggle */
+        /* 1. Constrain the width to bring messages closer */
+        .block-container {
+            max-width: 900px !important;
+            margin: 0 auto !important;
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+        }
+
+        /* 2. Header & Sidebar Toggle */
         header, [data-testid="stHeader"] { 
             background: transparent !important; 
             border: none !important; 
@@ -94,14 +102,14 @@ st.markdown("""
         }
         [data-testid="stToolbar"] { display: none !important; }
 
-        /* 2. Background */
+        /* 3. Background */
         .stApp { 
             background: radial-gradient(circle at 50% 40%, #1E2E4A 0%, #0C1421 60%, #05080F 100%) !important; 
             color: #FFFFFF; 
             font-family: 'Inter', sans-serif; 
         }
 
-        /* 3. Sidebar */
+        /* 4. Sidebar */
         [data-testid="stSidebar"] { 
             background-color: #05080F !important; 
             border-right: 1px solid rgba(197, 160, 89, 0.15) !important;
@@ -139,7 +147,7 @@ st.markdown("""
         .boss-logo-container { width: 100px; margin-left: 15px; margin-bottom: 20px; margin-top: 10px; }
         .boss-logo { width: 100px; height: auto; mix-blend-mode: screen; filter: brightness(1.1) contrast(1.1) sepia(0.2); }
 
-        /* 4. Hero Screen */
+        /* 5. Hero Screen */
         .hero-container { 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             height: 65vh; text-align: center; 
@@ -154,7 +162,7 @@ st.markdown("""
         }
         .hero-subtitle { font-size: 20px; color: #94A3B8; font-weight: 300; letter-spacing: 0.5px; }
 
-        /* 5. Chat Input */
+        /* 6. Chat Input */
         [data-testid="stChatInput"] {
             background-color: rgba(10, 17, 31, 0.8) !important; 
             backdrop-filter: blur(15px) !important;
@@ -169,11 +177,10 @@ st.markdown("""
         }
         [data-testid="stChatInput"] textarea { color: #FFFFFF !important; }
 
-        /* 6. Chat Bubbles (THE EXACT FIX) */
+        /* 7. Chat Bubbles */
         [data-testid="stChatMessageAvatarUser"], 
         [data-testid="stChatMessageAvatarAssistant"] { display: none !important; }
         
-        /* Force flex layout and width 100% on the parent */
         [data-testid="stChatMessage"] { 
             background-color: transparent !important; 
             padding: 0 !important; 
@@ -184,17 +191,16 @@ st.markdown("""
             width: 100% !important;
         }
         
-        /* Shrink the bubble to fit the text */
         [data-testid="stChatMessageContent"] { 
             padding: 12px 18px !important; 
             border-radius: 15px !important; 
             width: fit-content !important; 
             max-width: 80% !important; 
-            flex-grow: 0 !important; /* Prevents stretching */
+            flex-grow: 0 !important; 
             text-align: left !important; 
         }
         
-        /* User Message - Push to Right */
+        /* User Message - Right */
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
             justify-content: flex-end !important;
         }
@@ -206,7 +212,7 @@ st.markdown("""
             margin-right: 0 !important;
         }
         
-        /* Assistant Message - Keep Left */
+        /* Assistant Message - Left */
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
             justify-content: flex-start !important;
         }
