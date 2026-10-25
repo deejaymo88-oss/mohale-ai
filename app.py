@@ -26,26 +26,38 @@ st.markdown("""
             visibility: hidden !important;
         }
 
-        /* Remove borders from the main background containers */
+        /* --- KILL THE BOX AND ALIGN LEFT --- */
         [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > section,
         [data-testid="stMain"],
         [data-testid="stMainBlockContainer"],
-        .block-container,
-        .main,
-        .stMain {
+        [data-testid="stVerticalBlock"],
+        [data-testid="stVerticalBlockBorderWrapper"],
+        [data-testid="stChatMessageContainer"], /* The chat container box */
+        [data-testid="stHorizontalBlock"] {
             border: none !important;
             outline: none !important;
             box-shadow: none !important;
             background-color: transparent !important;
+            background: transparent !important;
+            border-radius: 0px !important;
         }
 
-        /* Make the layout much wider */
+        /* Force the layout to be full width with NO left padding */
         .block-container { 
             padding-top: 0rem !important; 
+            padding-bottom: 0rem !important;
             max-width: 100% !important;
-            padding-left: 2rem !important; 
-            padding-right: 2rem !important;
+            padding-left: 1rem !important; /* Pushed to the left */
+            padding-right: 1rem !important;
+        }
+
+        /* Make sure the chat messages take full width and align left */
+        [data-testid="stChatMessageContainer"] {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
 
         /* Background */
@@ -173,7 +185,7 @@ st.markdown("""
             letter-spacing: 0.5px;
         }
 
-        /* --- CHAT INPUT (NORMAL CLEAN BORDER) --- */
+        /* --- CHAT INPUT --- */
         [data-testid="stChatInput"] {
             background-color: rgba(10, 17, 31, 0.8) !important;
             backdrop-filter: blur(15px) !important;
@@ -211,7 +223,7 @@ st.markdown("""
             padding: 12px 18px !important;
             border-radius: 15px !important;
             width: fit-content !important;
-            max-width: 80% !important;
+            max-width: 90% !important; /* Made wider since we moved it left */
             flex-grow: 0 !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
             text-align: left !important;
@@ -221,7 +233,6 @@ st.markdown("""
             justify-content: flex-end !important;
         }
         
-        /* --- USER BUBBLE (CLEAN BORDER) --- */
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) > [data-testid="stChatMessageContent"] {
             background-color: #1A1D27 !important;
             border: 1px solid rgba(197, 160, 89, 0.4) !important; 
@@ -234,7 +245,6 @@ st.markdown("""
             justify-content: flex-start !important;
         }
         
-        /* --- ASSISTANT BUBBLE (CLEAN BORDER) --- */
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) > [data-testid="stChatMessageContent"] {
             background-color: rgba(255, 255, 255, 0.05) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important; 
