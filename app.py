@@ -26,14 +26,14 @@ st.markdown("""
             visibility: hidden !important;
         }
 
-        /* --- KILL THE BOX AND ALIGN LEFT --- */
+        /* --- REMOVE BOXES AND SET BALANCED PADDING --- */
         [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > section,
         [data-testid="stMain"],
         [data-testid="stMainBlockContainer"],
         [data-testid="stVerticalBlock"],
         [data-testid="stVerticalBlockBorderWrapper"],
-        [data-testid="stChatMessageContainer"], /* The chat container box */
+        [data-testid="stChatMessageContainer"], 
         [data-testid="stHorizontalBlock"] {
             border: none !important;
             outline: none !important;
@@ -43,16 +43,16 @@ st.markdown("""
             border-radius: 0px !important;
         }
 
-        /* Force the layout to be full width with NO left padding */
+        /* Perfect Middle Ground Padding (12% on both sides) */
         .block-container { 
             padding-top: 0rem !important; 
             padding-bottom: 0rem !important;
             max-width: 100% !important;
-            padding-left: 1rem !important; /* Pushed to the left */
-            padding-right: 1rem !important;
+            padding-left: 12% !important; 
+            padding-right: 12% !important;
         }
 
-        /* Make sure the chat messages take full width and align left */
+        /* Make sure the chat messages take full width inside the padding */
         [data-testid="stChatMessageContainer"] {
             max-width: 100% !important;
             width: 100% !important;
@@ -223,7 +223,7 @@ st.markdown("""
             padding: 12px 18px !important;
             border-radius: 15px !important;
             width: fit-content !important;
-            max-width: 90% !important; /* Made wider since we moved it left */
+            max-width: 85% !important; /* Balanced bubble width */
             flex-grow: 0 !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
             text-align: left !important;
