@@ -13,7 +13,7 @@ from tavily import TavilyClient
 client = OpenAI()
 tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
-# Set sidebar to start collapsed so the button is needed
+# Start with sidebar collapsed so the button shows
 st.set_page_config(page_title="Mohale AI", layout="wide", initial_sidebar_state="collapsed")
 
 # --- DATABASE SETUP ---
@@ -86,17 +86,16 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
 
-        /* 1. Hide the ugly top line but keep the header space */
+        /* 1. Make header transparent but keep the sidebar toggle */
         header, [data-testid="stHeader"] { 
             background: transparent !important; 
             border: none !important; 
             box-shadow: none !important;
         }
-        
         /* Hide the deploy button */
         [data-testid="stToolbar"] { display: none !important; }
 
-        /* --- THE SIDEBAR BUTTON --- */
+        /* Style the sidebar toggle button (>>) */
         [data-testid="collapsedControl"] {
             display: flex !important;
             background-color: #1A1D27 !important;
@@ -108,29 +107,20 @@ st.markdown("""
             z-index: 999999 !important;
             box-shadow: 0 0 15px rgba(197, 160, 89, 0.2) !important;
         }
-        
         [data-testid="collapsedControl"] svg {
             fill: #C5A059 !important;
             width: 24px !important;
             height: 24px !important;
         }
 
-        /* 2. Constrain the width to bring messages closer */
-        .block-container {
-            max-width: 900px !important;
-            margin: 0 auto !important;
-            padding-top: 2rem !important;
-            padding-bottom: 2rem !important;
-        }
-
-        /* 3. Background */
+        /* 2. Background */
         .stApp { 
             background: radial-gradient(circle at 50% 40%, #1E2E4A 0%, #0C1421 60%, #05080F 100%) !important; 
             color: #FFFFFF; 
             font-family: 'Inter', sans-serif; 
         }
 
-        /* 4. Sidebar */
+        /* 3. Sidebar */
         [data-testid="stSidebar"] { 
             background-color: #05080F !important; 
             border-right: 1px solid rgba(197, 160, 89, 0.15) !important;
@@ -168,7 +158,7 @@ st.markdown("""
         .boss-logo-container { width: 100px; margin-left: 15px; margin-bottom: 20px; margin-top: 10px; }
         .boss-logo { width: 100px; height: auto; mix-blend-mode: screen; filter: brightness(1.1) contrast(1.1) sepia(0.2); }
 
-        /* 5. Hero Screen (Centered logo and text) */
+        /* 4. Hero Screen (Centered logo and text) */
         .hero-container { 
             display: flex; 
             flex-direction: column; 
@@ -210,7 +200,7 @@ st.markdown("""
             text-align: center;
         }
 
-        /* 6. Chat Input */
+        /* 5. Chat Input */
         [data-testid="stChatInput"] {
             background-color: rgba(10, 17, 31, 0.8) !important; 
             backdrop-filter: blur(15px) !important;
@@ -225,7 +215,7 @@ st.markdown("""
         }
         [data-testid="stChatInput"] textarea { color: #FFFFFF !important; }
 
-        /* 7. Chat Bubbles */
+        /* 6. Chat Bubbles (Proper Alignment, No Gaps) */
         [data-testid="stChatMessageAvatarUser"], 
         [data-testid="stChatMessageAvatarAssistant"] { display: none !important; }
         
