@@ -52,6 +52,7 @@ st.markdown("""
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
         [data-testid="stSidebar"] ::-webkit-scrollbar { display: none; }
 
+        /* Sidebar Navigation Styling */
         [data-testid="stSidebar"] .stButton button {
             background: transparent !important;
             border: none !important;
@@ -69,12 +70,6 @@ st.markdown("""
         [data-testid="stSidebar"] .stButton button:hover {
             color: #C5A059 !important;
             background-color: rgba(197, 160, 89, 0.08) !important;
-        }
-
-        .active-page button {
-            color: #C5A059 !important;
-            background-color: rgba(197, 160, 89, 0.1) !important;
-            border-left: 3px solid #C5A059 !important;
         }
 
         .boss-logo-container {
@@ -326,6 +321,7 @@ if center_logo_path:
 if not encoded_logo_side:
     encoded_logo_side = encoded_logo_main 
 
+# --- SIDEBAR ---
 with st.sidebar:
     if encoded_logo_side:
         st.markdown(f'<div class="boss-logo-container"><img src="data:image/png;base64,{encoded_logo_side}" class="boss-logo"></div>', unsafe_allow_html=True)
@@ -337,18 +333,15 @@ with st.sidebar:
         ("⚙️", "Settings")
     ]
     
+    # Simple, bulletproof button navigation
     for icon, p in pages:
         label = f"{icon} {p}"
-        if st.session_state.current_page == p:
-            st.markdown('<div class="active-page">', unsafe_allow_html=True)
-            if st.button(label, key=f"nav_{p}"):
-                st.session_state.current_page = p
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-        else:
-            if st.button(label, key=f"nav_{p}"):
-                st.session_state.current_page = p
-                st.rerun()
+        if st.button(label, key=f"nav_{p}", use_container_width=True):
+            st.session_state.current_page = p
+            # If they click Dashboard, let's make sure it takes them to a fresh view
+            if p == "Dashboard":
+                st.session_state.current_session = create_new_session()
+            st.rerun()
 
     st.write("---")
     
@@ -384,6 +377,7 @@ with st.sidebar:
             st.session_state.current_page = "Login"
             st.rerun()
 
+# --- MAIN AREA ---
 if st.session_state.current_page == "Dashboard":
     messages = get_messages(st.session_state.current_session)
     
@@ -451,7 +445,6 @@ if st.session_state.current_page == "Dashboard":
                         
                     api_messages.extend(current_history)
                     
-                    # --- INTERNET SEARCH LOGIC ADDED BACK ---
                     if image_data:
                         api_messages.append({"role": "user", "content": [{"type": "text", "text": final_prompt}, {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}}]})
                     else:
