@@ -86,13 +86,12 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
 
-        /* 1. Remove the ugly top line but KEEP the sidebar toggle */
+        /* 1. Header & Sidebar Toggle */
         header, [data-testid="stHeader"] { 
             background: transparent !important; 
             border: none !important; 
             box-shadow: none !important;
         }
-        /* Hide the deploy button and menu */
         [data-testid="stToolbar"] { display: none !important; }
 
         /* 2. Background */
@@ -111,7 +110,6 @@ st.markdown("""
         }
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
         
-        /* Sidebar Buttons */
         [data-testid="stSidebar"] .stButton button {
             background: transparent !important; 
             border: none !important; 
@@ -171,42 +169,53 @@ st.markdown("""
         }
         [data-testid="stChatInput"] textarea { color: #FFFFFF !important; }
 
-        /* 6. Chat Bubbles (Proper Alignment, No Gaps) */
+        /* 6. Chat Bubbles (THE EXACT FIX) */
         [data-testid="stChatMessageAvatarUser"], 
         [data-testid="stChatMessageAvatarAssistant"] { display: none !important; }
         
+        /* Force flex layout and width 100% on the parent */
         [data-testid="stChatMessage"] { 
             background-color: transparent !important; 
             padding: 0 !important; 
             margin-bottom: 10px !important; 
             border: none !important; 
             box-shadow: none !important; 
+            display: flex !important;
+            width: 100% !important;
         }
         
+        /* Shrink the bubble to fit the text */
         [data-testid="stChatMessageContent"] { 
             padding: 12px 18px !important; 
             border-radius: 15px !important; 
             width: fit-content !important; 
             max-width: 80% !important; 
+            flex-grow: 0 !important; /* Prevents stretching */
             text-align: left !important; 
         }
         
-        /* User Message (Right) */
+        /* User Message - Push to Right */
+        [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
+            justify-content: flex-end !important;
+        }
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) > [data-testid="stChatMessageContent"] {
             background-color: #1A1D27 !important; 
             border: 1px solid rgba(197, 160, 89, 0.4) !important; 
             border-bottom-right-radius: 2px !important; 
-            margin-left: auto !important; 
+            margin-left: 0 !important;
             margin-right: 0 !important;
         }
         
-        /* Assistant Message (Left) */
+        /* Assistant Message - Keep Left */
+        [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
+            justify-content: flex-start !important;
+        }
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) > [data-testid="stChatMessageContent"] {
             background-color: rgba(255, 255, 255, 0.05) !important; 
             border: 1px solid rgba(255, 255, 255, 0.1) !important; 
             border-bottom-left-radius: 2px !important; 
-            margin-right: auto !important; 
             margin-left: 0 !important;
+            margin-right: 0 !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -275,7 +284,6 @@ with st.sidebar:
 if st.session_state.current_page == "Dashboard":
     messages = get_messages(st.session_state.current_session)
     
-    # Hero Screen (Only shows when chat is empty)
     if len(messages) == 0:
         if encoded_logo_main:
             st.markdown(f"""
@@ -288,15 +296,12 @@ if st.session_state.current_page == "Dashboard":
         else:
             st.markdown('<div class="hero-container"><div class="hero-title">Hi, I\'m Mohale</div><div class="hero-subtitle">How can I assist you today?</div></div>', unsafe_allow_html=True)
 
-    # Chat History
     for msg in messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # Chat Input
     prompt = st.chat_input("Ask anything...", accept_file=True, file_type=["png", "jpg", "jpeg", "pdf", "txt"])
 
-    # Processing logic
     if prompt:
         user_text = prompt.text
         user_files = prompt.files if prompt.files else []
