@@ -26,34 +26,13 @@ st.markdown("""
             visibility: hidden !important;
         }
 
-        /* --- DESTROY THE GHOST LINE (STICKY BOTTOM CONTAINER) --- */
-        
-        /* Target the exact container that holds the chat input */
-        [data-testid="stBottom"],
-        [data-testid="stBottom"] > div,
-        [data-testid="stBottomBlockContainer"],
-        [data-testid="stBottomBlockContainer"] > div {
-            border: none !important;
-            border-top: none !important;
-            border-bottom: none !important;
-            outline: none !important;
-            box-shadow: none !important;
-            background: transparent !important;
-            background-color: transparent !important;
-        }
-
-        /* Global scrollbar hide */
-        ::-webkit-scrollbar {
-            display: none !important;
-            width: 0px !important;
-            height: 0px !important;
-        }
-
-        /* Main app containers */
+        /* SAFELY REMOVE BORDERS WITHOUT BREAKING SCROLLING */
         [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > section,
         [data-testid="stMain"],
         [data-testid="stMainBlockContainer"],
+        [data-testid="stVerticalBlock"],
+        [data-testid="stVerticalBlockBorderWrapper"],
         .block-container {
             border: none !important;
             outline: none !important;
@@ -61,10 +40,10 @@ st.markdown("""
             background-color: transparent !important;
         }
 
-        /* Layout padding */
+        /* Layout padding for a nice centered look */
         .block-container { 
-            padding-top: 0rem !important; 
-            padding-bottom: 0rem !important;
+            padding-top: 2rem !important; 
+            padding-bottom: 2rem !important;
             max-width: 100% !important;
             padding-left: 12% !important; 
             padding-right: 12% !important;
@@ -75,7 +54,6 @@ st.markdown("""
             background: radial-gradient(circle at 50% 30%, #16233B 0%, #0A111E 70%, #05080F 100%) !important; 
             color: #FFFFFF;
             font-family: 'Inter', sans-serif;
-            min-height: 100vh !important;
         }
 
         /* SIDEBAR */
@@ -91,6 +69,7 @@ st.markdown("""
         }
         
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
+        [data-testid="stSidebar"] ::-webkit-scrollbar { display: none; }
 
         /* SIDEBAR BUTTONS */
         [data-testid="stSidebar"] .stButton button {
@@ -196,7 +175,7 @@ st.markdown("""
 
         /* --- CHAT INPUT --- */
         [data-testid="stChatInput"] {
-            background-color: rgba(10, 17, 31, 0.9) !important;
+            background-color: rgba(10, 17, 31, 0.8) !important;
             backdrop-filter: blur(15px) !important;
             border: 2px solid rgba(197, 160, 89, 0.6) !important; 
             border-radius: 30px !important;
