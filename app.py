@@ -26,40 +26,18 @@ st.markdown("""
             visibility: hidden !important;
         }
 
-        /* --- NUCLEAR OPTION: KILL ALL SCROLLBARS AND GHOST BORDERS --- */
-        * {
-            scrollbar-width: none !important; /* Firefox */
-            -ms-overflow-style: none !important; /* IE/Edge */
-        }
-        *::-webkit-scrollbar {
-            display: none !important;
-            width: 0px !important;
-            height: 0px !important;
-        }
-
-        /* Remove borders from every single wrapper/container */
+        /* Remove borders from the main background containers */
         [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > section,
         [data-testid="stMain"],
         [data-testid="stMainBlockContainer"],
-        [data-testid="stVerticalBlock"],
-        [data-testid="stVerticalBlockBorderWrapper"],
-        [data-testid="stHorizontalBlock"],
-        [data-testid="stChatMessageContainer"],
-        [data-testid="stChatMessage"],
         .block-container,
         .main,
         .stMain {
             border: none !important;
-            border-top: none !important;
-            border-bottom: none !important;
-            border-left: none !important;
-            border-right: none !important;
-            border-radius: 0px !important;
             outline: none !important;
             box-shadow: none !important;
             background-color: transparent !important;
-            background: transparent !important;
         }
 
         /* Make the layout much wider */
@@ -91,6 +69,7 @@ st.markdown("""
         }
         
         [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
+        [data-testid="stSidebar"] ::-webkit-scrollbar { display: none; }
 
         /* SIDEBAR BUTTONS */
         [data-testid="stSidebar"] .stButton button {
@@ -194,25 +173,23 @@ st.markdown("""
             letter-spacing: 0.5px;
         }
 
-        /* --- CHAT INPUT WITH HUGE BORDER --- */
+        /* --- CHAT INPUT (NORMAL CLEAN BORDER) --- */
         [data-testid="stChatInput"] {
-            background-color: rgba(10, 17, 31, 0.9) !important;
+            background-color: rgba(10, 17, 31, 0.8) !important;
             backdrop-filter: blur(15px) !important;
-            border: 5px solid #C5A059 !important; /* Huge Gold Border */
-            border-radius: 40px !important; /* More rounded */
-            padding: 15px 20px !important; /* More padding inside */
-            box-shadow: 0 0 40px rgba(197, 160, 89, 0.4) !important; /* Stronger Glow */
-            transition: all 0.3s ease;
+            border: 2px solid rgba(197, 160, 89, 0.6) !important; 
+            border-radius: 30px !important;
+            padding: 5px 15px !important;
+            box-shadow: 0 0 20px rgba(197, 160, 89, 0.15) !important;
         }
         
         [data-testid="stChatInput"]:focus-within {
-            border: 5px solid #FDE047 !important; /* Brighter gold when typing */
-            box-shadow: 0 0 50px rgba(197, 160, 89, 0.6) !important;
+            border: 2px solid #C5A059 !important; 
+            box-shadow: 0 0 25px rgba(197, 160, 89, 0.3) !important;
         }
 
         [data-testid="stChatInput"] textarea { 
             color: #FFFFFF !important; 
-            font-size: 18px !important; /* Bigger text */
         }
 
         /* Chat Bubbles */
@@ -221,14 +198,22 @@ st.markdown("""
             display: none !important;
         }
 
-        /* Target the actual content bubble for borders */
+        [data-testid="stChatMessage"] {
+            background-color: transparent !important;
+            padding: 0 !important;
+            margin-bottom: 15px !important;
+            display: flex !important;
+            width: 100% !important;
+            align-items: flex-start !important;
+        }
+
         [data-testid="stChatMessageContent"] {
-            padding: 15px 20px !important; /* Bigger padding inside bubbles */
+            padding: 12px 18px !important;
             border-radius: 15px !important;
             width: fit-content !important;
             max-width: 80% !important;
             flex-grow: 0 !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
             text-align: left !important;
         }
 
@@ -236,10 +221,10 @@ st.markdown("""
             justify-content: flex-end !important;
         }
         
-        /* --- USER BUBBLE WITH HUGE BORDER --- */
+        /* --- USER BUBBLE (CLEAN BORDER) --- */
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) > [data-testid="stChatMessageContent"] {
             background-color: #1A1D27 !important;
-            border: 4px solid rgba(197, 160, 89, 0.8) !important; /* Huge Border */
+            border: 1px solid rgba(197, 160, 89, 0.4) !important; 
             border-bottom-right-radius: 2px !important;
             margin-left: auto !important;
             margin-right: 0 !important;
@@ -249,10 +234,10 @@ st.markdown("""
             justify-content: flex-start !important;
         }
         
-        /* --- ASSISTANT BUBBLE WITH HUGE BORDER --- */
+        /* --- ASSISTANT BUBBLE (CLEAN BORDER) --- */
         [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) > [data-testid="stChatMessageContent"] {
             background-color: rgba(255, 255, 255, 0.05) !important;
-            border: 4px solid rgba(255, 255, 255, 0.3) !important; /* Huge Border */
+            border: 1px solid rgba(255, 255, 255, 0.1) !important; 
             border-bottom-left-radius: 2px !important;
             margin-right: auto !important;
             margin-left: 0 !important;
