@@ -26,21 +26,33 @@ st.markdown("""
         footer { visibility: hidden; }
         .stDeployButton { display: none; }
 
-        /* --- KILL THE SCROLL BOX & BORDERS --- */
+        /* --- NUCLEAR OPTION: KILL ALL BOXES, BORDERS, AND SCROLLBARS --- */
+        
+        /* Hide main scrollbar to remove the grey line */
+        ::-webkit-scrollbar {
+            width: 0px !important;
+            background: transparent !important;
+        }
+
+        /* Force EVERY wrapper to be completely transparent and borderless */
         [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > section,
+        [data-testid="stMain"],
         [data-testid="stVerticalBlock"],
         [data-testid="stVerticalBlockBorderWrapper"],
+        [data-testid="stHorizontalBlock"],
         .block-container,
         .main,
         .stMain {
             border: none !important;
+            border-radius: 0px !important;
             outline: none !important;
             box-shadow: none !important;
             background-color: transparent !important;
+            background: transparent !important;
         }
 
-        /* Ensure the main area takes full height without boxes */
+        /* Ensure the full width is used */
         .block-container { 
             padding-top: 0rem !important; 
             max-width: 100% !important;
