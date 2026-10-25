@@ -20,54 +20,54 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
         
-        /* Hide default Streamlit elements */
-        header, #MainMenu, footer, [data-testid="stStatusWidget"], .stDeployButton { 
+        /* Hide default Streamlit elements, including the top loading bar */
+        header, #MainMenu, footer, [data-testid="stStatusWidget"], .stDeployButton, [data-testid="stDecoration"] { 
             display: none !important; 
             visibility: hidden !important;
         }
 
-        /* --- ABSOLUTE NUCLEAR OPTION: DESTROY ALL GHOST LINES AND SCROLLBARS --- */
+        /* --- NUCLEAR OPTION: DESTROY ALL BORDERS IN THE MAIN AREA --- */
         
-        /* 1. Hide all scrollbars globally */
+        /* 1. Globally hide scrollbars */
         ::-webkit-scrollbar {
             display: none !important;
             width: 0px !important;
             height: 0px !important;
         }
-        * {
-            scrollbar-width: none !important; 
-        }
 
-        /* 2. Target every single wrapper, including the sticky bottom container */
+        /* 2. Target absolutely EVERY container in the main area and remove borders/shadows */
         [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > section,
         [data-testid="stAppViewContainer"] > div,
         [data-testid="stMain"],
         [data-testid="stMain"] > div,
+        [data-testid="stBottom"],
+        [data-testid="stBottom"] > div,
+        [data-testid="stChatInputContainer"],
         [data-testid="stVerticalBlock"],
         [data-testid="stVerticalBlock"] > div,
         [data-testid="stVerticalBlockBorderWrapper"],
-        [data-testid="stHorizontalBlock"],
-        [data-testid="stBottom"],
-        [data-testid="stBottom"] > div,
         .block-container,
         .block-container > div {
-            border: none !important;
-            border-top: none !important;
-            border-bottom: none !important;
+            border: 0px solid transparent !important;
+            border-top: 0px solid transparent !important;
+            border-bottom: 0px solid transparent !important;
+            border-left: 0px solid transparent !important;
+            border-right: 0px solid transparent !important;
             outline: none !important;
             box-shadow: none !important;
             background-color: transparent !important;
             background: transparent !important;
         }
 
-        /* 3. Layout padding */
+        /* 3. Layout padding and pull up */
         .block-container { 
             padding-top: 0rem !important; 
             padding-bottom: 0rem !important;
             max-width: 100% !important;
             padding-left: 12% !important; 
             padding-right: 12% !important;
+            margin-top: -15px !important;
         }
 
         /* Background */
@@ -226,6 +226,7 @@ st.markdown("""
             display: flex !important;
             width: 100% !important;
             align-items: flex-start !important;
+            border: none !important;
         }
 
         [data-testid="stChatMessageContent"] {
