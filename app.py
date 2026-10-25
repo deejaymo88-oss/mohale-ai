@@ -13,7 +13,7 @@ from tavily import TavilyClient
 client = OpenAI()
 tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
-# FORCE SIDEBAR OPEN
+# FORCE SIDEBAR TO STAY OPEN
 st.set_page_config(page_title="Mohale AI", layout="wide", initial_sidebar_state="expanded")
 
 # --- DATABASE SETUP ---
@@ -94,13 +94,23 @@ st.markdown("""
             padding-bottom: 2rem !important;
         }
 
-        /* 2. Header & Sidebar Toggle */
+        /* 2. Header & Force Sidebar Toggle Button to be visible */
         header, [data-testid="stHeader"] { 
             background: transparent !important; 
             border: none !important; 
             box-shadow: none !important;
         }
         [data-testid="stToolbar"] { display: none !important; }
+        
+        /* Force the sidebar open button (>>) to show */
+        [data-testid="collapsedControl"] {
+            display: block !important;
+            z-index: 999999 !important;
+            color: #C5A059 !important;
+        }
+        [data-testid="collapsedControl"] svg {
+            fill: #C5A059 !important;
+        }
 
         /* 3. Background */
         .stApp { 
@@ -147,7 +157,7 @@ st.markdown("""
         .boss-logo-container { width: 100px; margin-left: 15px; margin-bottom: 20px; margin-top: 10px; }
         .boss-logo { width: 100px; height: auto; mix-blend-mode: screen; filter: brightness(1.1) contrast(1.1) sepia(0.2); }
 
-        /* 5. Hero Screen (THE FIX FOR CENTERING) */
+        /* 5. Hero Screen (Centered logo and text) */
         .hero-container { 
             display: flex; 
             flex-direction: column; 
@@ -160,11 +170,11 @@ st.markdown("""
         
         .hero-logo { 
             display: block;
-            margin: 0 auto; /* Forces image to center */
+            margin: 0 auto; 
             width: 400px; 
             mix-blend-mode: screen; 
             filter: brightness(1.1) contrast(1.1); 
-            margin-bottom: -60px; /* Adjusted spacing */
+            margin-bottom: -60px; 
         }
         
         .hero-title { 
