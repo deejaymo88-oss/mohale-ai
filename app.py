@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from google import genai
 
-# --- 1. PAGE SETUP (Force sidebar to stay open) ---
+# --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 
 # --- 2. CUSTOM CSS STYLING ---
@@ -22,19 +22,10 @@ st.markdown("""
         border-right: 1px solid #cda34f;
     }
     
-    /* Make top header transparent so we keep the sidebar arrow, but look clean */
-    header {
-        background: transparent !important;
-    }
+    header { background: transparent !important; }
     
-    /* Keep the sidebar toggle arrow gold and visible */
-    [data-testid="collapsedControl"], [data-testid="stSidebarNav"] {
-        color: #cda34f !important;
-        display: block !important;
-    }
-    
-    /* Sidebar Buttons */
-    .stButton>button {
+    /* Sidebar Buttons (Remove the grey boxes) */
+    [data-testid="stSidebar"] .stButton>button {
         background-color: transparent !important;
         color: #a0a0a0 !important;
         border: none !important;
@@ -42,14 +33,15 @@ st.markdown("""
         padding: 10px 20px !important;
         font-size: 16px !important;
         transition: 0.3s;
+        width: 100%;
     }
-    .stButton>button:hover {
+    [data-testid="stSidebar"] .stButton>button:hover {
         color: #cda34f !important;
         background-color: rgba(205, 163, 79, 0.1) !important;
     }
     
-    /* The Active Dashboard Button (Yellow Line) */
-    .stButton>button:first-child {
+    /* The Active Dashboard Button */
+    [data-testid="stSidebar"] .stButton>button:first-child {
         border-left: 3px solid #cda34f !important;
         background-color: rgba(205, 163, 79, 0.05) !important;
     }
@@ -73,13 +65,20 @@ st.markdown("""
         margin-top: -10px;
     }
     
-    /* Hero Section */
     .hero-section {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         margin-top: 30px;
+    }
+    
+    /* --- THE MAGIC FIX FOR THE WHITE LOGO BACKGROUND --- */
+    /* multiply blends white backgrounds into the dark theme */
+    [data-testid="stImage"] img {
+        mix-blend-mode: multiply; 
+        filter: brightness(1.4) contrast(1.2); /* Brightens the logo so it's not too dark */
+        border-radius: 10px;
     }
     
     /* Chat Input Styling */
@@ -94,7 +93,7 @@ st.markdown("""
 # Check if the logo image exists
 logo_exists = os.path.exists("logo.png")
 
-# --- 3. SIDEBAR (Left Menu) ---
+# --- 3. SIDEBAR ---
 with st.sidebar:
     if logo_exists:
         st.image("logo.png", width=100)
