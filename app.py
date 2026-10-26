@@ -25,11 +25,9 @@ st.markdown("""
     /* Make top header transparent */
     header { background: transparent !important; }
     
-    /* --- AGGRESSIVE SIDEBAR BUTTON FIX --- */
-    /* Targets every button element in the sidebar and removes all default styles */
+    /* --- SIDEBAR BUTTONS --- */
     [data-testid="stSidebar"] button {
         background-color: transparent !important;
-        background: transparent !important;
         border: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
@@ -44,19 +42,18 @@ st.markdown("""
     [data-testid="stSidebar"] button:hover {
         color: #cda34f !important;
         background-color: rgba(205, 163, 79, 0.1) !important;
-        border: none !important;
     }
     
-    /* Targets the text inside the button to ensure it aligns left */
     [data-testid="stSidebar"] button p {
         text-align: left !important;
         justify-content: flex-start !important;
     }
 
-    /* The Active Dashboard Button (Gold Left Line) */
+    /* The Active Dashboard Button (Gold Line) */
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div:first-child button {
         border-left: 3px solid #cda34f !important;
         background-color: rgba(205, 163, 79, 0.05) !important;
+        color: #cda34f !important;
     }
 
     /* Main Content Box Border */
@@ -86,10 +83,11 @@ st.markdown("""
         margin-top: 30px;
     }
     
-    /* --- LOGO FIX --- */
-    [data-testid="stImage"] img {
+    /* --- MIDDLE LOGO FIX --- */
+    .main [data-testid="stImage"] img {
         mix-blend-mode: screen; 
-        filter: invert(1) hue-rotate(180deg) contrast(1.2) brightness(1.2);
+        -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%);
+        mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%);
     }
     
     /* Chat Input Styling */
@@ -101,17 +99,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Check if the logo image exists
+# Check if the logo image exists for the middle
 logo_exists = os.path.exists("logo.png")
 
 # --- 3. SIDEBAR ---
 with st.sidebar:
-    if logo_exists:
-        st.image("logo.png", width=100)
-    else:
-        st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
-        
-    st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 12px; margin-top: -10px;'>Mohale M. Professional</p>", unsafe_allow_html=True)
+    # SIDEBAR LOGO: Clean Text (Not the image)
+    st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0; padding-top: 20px;'>MP</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>", unsafe_allow_html=True)
     
     st.write("<br>", unsafe_allow_html=True)
     
@@ -132,7 +127,7 @@ with st.sidebar:
 st.markdown("<div class='main-box'>", unsafe_allow_html=True)
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
 
-# Center Logo
+# MIDDLE LOGO: Using the image
 if logo_exists:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
