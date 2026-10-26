@@ -22,7 +22,6 @@ st.markdown("""
         border-right: 1px solid #cda34f;
     }
     
-    /* Make top header transparent */
     header { background: transparent !important; }
     
     /* --- SIDEBAR BUTTONS --- */
@@ -83,9 +82,9 @@ st.markdown("""
         margin-top: 30px;
     }
     
-    /* --- MIDDLE LOGO FIX --- */
+    /* --- HIDING THE WHITE BOX EDGES --- */
     .main [data-testid="stImage"] img {
-        mix-blend-mode: screen; 
+        /* This radial mask fades out the outer 30% of the image */
         -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%);
         mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%);
     }
