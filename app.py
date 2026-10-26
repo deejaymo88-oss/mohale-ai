@@ -6,7 +6,7 @@ from google import genai
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. CUSTOM CSS STYLING (The Exact Look) ---
+# --- 2. CUSTOM CSS STYLING ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -22,12 +22,12 @@ st.markdown("""
         border-right: 1px solid #cda34f;
     }
     
-    /* Hide Streamlit Default Elements */
+    /* Keep the sidebar toggle arrow visible, but hide Streamlit menu/footer */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
+    header {background: transparent !important;}
     
-    /* Sidebar Buttons (Menu Items) */
+    /* Sidebar Buttons */
     .stButton>button {
         background-color: transparent !important;
         color: #a0a0a0 !important;
@@ -42,7 +42,7 @@ st.markdown("""
         background-color: rgba(205, 163, 79, 0.1) !important;
     }
     
-    /* The Active Dashboard Button (Yellow Line) */
+    /* The Active Dashboard Button */
     .stButton>button:first-child {
         border-left: 3px solid #cda34f !important;
         background-color: rgba(205, 163, 79, 0.05) !important;
@@ -59,12 +59,6 @@ st.markdown("""
     }
 
     /* Typography */
-    .serif-gold {
-        font-family: 'Cinzel', serif;
-        color: #cda34f;
-        text-align: center;
-    }
-    
     .subtitle {
         font-family: 'Cinzel', serif;
         color: #e0d0b0;
@@ -73,13 +67,20 @@ st.markdown("""
         margin-top: -10px;
     }
     
-    /* Center alignment for hero */
+    /* Hero Section */
     .hero-section {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         margin-top: 30px;
+    }
+    
+    /* --- THE MAGIC FIX FOR THE LOGO --- */
+    /* This targets the image and blends white backgrounds into the dark theme */
+    [data-testid="stImage"] img {
+        mix-blend-mode: screen; 
+        filter: contrast(1.1) brightness(1.1);
     }
     
     /* Chat Input Styling */
@@ -91,12 +92,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Check if the logo image exists to avoid errors
+# Check if the logo image exists
 logo_exists = os.path.exists("logo.png")
 
-# --- 3. SIDEBAR (Left Menu) ---
+# --- 3. SIDEBAR ---
 with st.sidebar:
-    # Logo in sidebar
     if logo_exists:
         st.image("logo.png", width=100)
     else:
@@ -106,7 +106,6 @@ with st.sidebar:
     
     st.write("<br>", unsafe_allow_html=True)
     
-    # Menu Items
     st.button("🏠  Dashboard", use_container_width=True)
     st.button("💬  All Chats", use_container_width=True)
     st.button("📄  Document Analysis", use_container_width=True)
@@ -116,20 +115,16 @@ with st.sidebar:
     
     st.write("<br><br><br><br><br><br>", unsafe_allow_html=True)
     
-    # Bottom Profile & Logout
     st.markdown("---")
     st.markdown("👤 **M. Mohale**")
     st.button("🚪  Logout", use_container_width=True)
 
 # --- 4. MAIN CONTENT ---
 st.markdown("<div class='main-box'>", unsafe_allow_html=True)
-
-# Hero Section
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
 
-# Logo in the center
+# Center Logo
 if logo_exists:
-    # We use columns to center the image perfectly
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.image("logo.png", use_column_width=True)
@@ -153,12 +148,10 @@ load_dotenv()
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display chat messages
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Chat Input
 if prompt := st.chat_input("Ask anything..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -167,10 +160,8 @@ if prompt := st.chat_input("Ask anything..."):
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                # Use st.secrets for Streamlit Cloud, or os.getenv for local
                 api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
                 client = genai.Client(api_key=api_key)
-                
                 response = client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=prompt
