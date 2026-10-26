@@ -22,26 +22,31 @@ st.markdown("""
         border-right: 1px solid #cda34f;
     }
     
+    /* Make top header transparent */
     header { background: transparent !important; }
     
-    /* Sidebar Buttons (Remove the grey boxes) */
-    [data-testid="stSidebar"] .stButton>button {
+    /* --- SIDEBAR BUTTONS FIX --- */
+    /* Removes the grey box, shadow, and centers them left */
+    [data-testid="stSidebar"] .stButton > button {
         background-color: transparent !important;
         color: #a0a0a0 !important;
         border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
         text-align: left !important;
+        justify-content: flex-start !important; /* Aligns text to the left */
         padding: 10px 20px !important;
         font-size: 16px !important;
         transition: 0.3s;
         width: 100%;
     }
-    [data-testid="stSidebar"] .stButton>button:hover {
+    [data-testid="stSidebar"] .stButton > button:hover {
         color: #cda34f !important;
         background-color: rgba(205, 163, 79, 0.1) !important;
     }
     
-    /* The Active Dashboard Button */
-    [data-testid="stSidebar"] .stButton>button:first-child {
+    /* The Active Dashboard Button (Gold Left Line) */
+    [data-testid="stSidebar"] .stButton:first-child > button {
         border-left: 3px solid #cda34f !important;
         background-color: rgba(205, 163, 79, 0.05) !important;
     }
@@ -73,12 +78,11 @@ st.markdown("""
         margin-top: 30px;
     }
     
-    /* --- THE MAGIC FIX FOR THE WHITE LOGO BACKGROUND --- */
-    /* multiply blends white backgrounds into the dark theme */
+    /* --- THE FINAL LOGO FIX --- */
+    /* Inverts white bg to black, makes black transparent, restores gold color */
     [data-testid="stImage"] img {
-        mix-blend-mode: multiply; 
-        filter: brightness(1.4) contrast(1.2); /* Brightens the logo so it's not too dark */
-        border-radius: 10px;
+        mix-blend-mode: screen; 
+        filter: invert(1) hue-rotate(180deg) brightness(1.3) contrast(1.2);
     }
     
     /* Chat Input Styling */
