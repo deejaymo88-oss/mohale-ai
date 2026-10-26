@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from google import genai
 
-# --- 1. PAGE SETUP ---
+# --- 1. PAGE SETUP (Force sidebar to stay open) ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 
 # --- 2. CUSTOM CSS STYLING ---
@@ -18,14 +18,20 @@ st.markdown("""
     
     /* Sidebar Background and Border */
     [data-testid="stSidebar"] {
-        background-color: #0a1128;
+        background-color: #0a1128 !important;
         border-right: 1px solid #cda34f;
     }
     
-    /* Keep the sidebar toggle arrow visible, but hide Streamlit menu/footer */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {background: transparent !important;}
+    /* Make top header transparent so we keep the sidebar arrow, but look clean */
+    header {
+        background: transparent !important;
+    }
+    
+    /* Keep the sidebar toggle arrow gold and visible */
+    [data-testid="collapsedControl"], [data-testid="stSidebarNav"] {
+        color: #cda34f !important;
+        display: block !important;
+    }
     
     /* Sidebar Buttons */
     .stButton>button {
@@ -42,7 +48,7 @@ st.markdown("""
         background-color: rgba(205, 163, 79, 0.1) !important;
     }
     
-    /* The Active Dashboard Button */
+    /* The Active Dashboard Button (Yellow Line) */
     .stButton>button:first-child {
         border-left: 3px solid #cda34f !important;
         background-color: rgba(205, 163, 79, 0.05) !important;
@@ -76,13 +82,6 @@ st.markdown("""
         margin-top: 30px;
     }
     
-    /* --- THE MAGIC FIX FOR THE LOGO --- */
-    /* This targets the image and blends white backgrounds into the dark theme */
-    [data-testid="stImage"] img {
-        mix-blend-mode: screen; 
-        filter: contrast(1.1) brightness(1.1);
-    }
-    
     /* Chat Input Styling */
     .stChatInput {
         border: 1px solid #cda34f !important;
@@ -95,7 +94,7 @@ st.markdown("""
 # Check if the logo image exists
 logo_exists = os.path.exists("logo.png")
 
-# --- 3. SIDEBAR ---
+# --- 3. SIDEBAR (Left Menu) ---
 with st.sidebar:
     if logo_exists:
         st.image("logo.png", width=100)
