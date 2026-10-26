@@ -10,31 +10,25 @@ st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_s
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-    /* --- 1. THE WIREFRAME GLOBE BACKGROUND --- */
+    /* --- 1. SMOOTH DARK BACKGROUND (No more huge web lines) --- */
     .stApp { 
-        background-color: #0a1128;
-        background-image: 
-            /* The glowing center */
-            radial-gradient(circle at 50% 40%, rgba(205, 163, 79, 0.15) 0%, transparent 50%),
-            /* The concentric rings */
-            repeating-radial-gradient(circle at 50% 40%, transparent 0, transparent 60px, rgba(205, 163, 79, 0.05) 61px, transparent 62px),
-            /* The radiating lines (the web) */
-            repeating-conic-gradient(from 0deg at 50% 40%, rgba(205, 163, 79, 0.04) 0deg, transparent 1deg 15deg);
+        background: radial-gradient(circle at center, #111b3a 0%, #050a1f 100%);
         font-family: 'Inter', sans-serif;
     }
     
-    /* --- 2. THE TOP GOLD BORDER --- */
-    /* Completely remove Streamlit's top header so the border goes to the top */
+    /* --- 2. REMOVE TOP HEADER & FRAME THE WHOLE PAGE --- */
+    /* Hides Streamlit's top bar completely */
     [data-testid="stHeader"] { display: none !important; }
     
-    /* Frame the entire main area */
-    .main .block-container {
+    /* The gold border that wraps the entire screen */
+    .block-container {
         border: 1px solid #cda34f;
-        border-radius: 4px;
-        padding: 3rem 2rem 6rem 2rem;
-        margin-top: 1.5rem;
-        margin-bottom: 1.5rem;
-        max-width: 96%;
+        border-radius: 6px;
+        padding: 2rem 3rem 5rem 3rem !important;
+        margin-top: 2vh !important;
+        margin-bottom: 2vh !important;
+        max-width: 97% !important;
+        min-height: 95vh;
     }
     
     /* Sidebar Background and Border */
@@ -68,7 +62,7 @@ st.markdown("""
         justify-content: flex-start !important;
     }
 
-    /* The Active Dashboard Button (Gold Line) */
+    /* Active Dashboard Button */
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div:first-child button {
         border-left: 3px solid #cda34f !important;
         background-color: rgba(205, 163, 79, 0.05) !important;
@@ -84,27 +78,26 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* --- THE IMAGE CROP --- */
-    /* This aggressively cuts off the bottom 25% of your image where the text is */
+    /* --- 3. CROP THE TEXT OUT OF THE LOGO IMAGE --- */
     .main [data-testid="stImage"] img {
-        clip-path: inset(0 0 25% 0);
-        margin-bottom: -25%; /* Pulls the next line up tightly */
+        clip-path: inset(0 0 26% 0); /* Chops off the bottom 26% where the text is */
+        margin-bottom: -20%; /* Pulls the clean text below it up */
     }
     
-    /* --- 3. THE CHAT BAR FIX --- */
-    /* Fully rounded pill shape, centered, with a gold border */
+    /* --- 4. THE CHAT BAR (Perfect Pill Shape) --- */
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
-        border-radius: 50px !important; 
-        background-color: rgba(10, 17, 40, 0.95) !important;
-        max-width: 90% !important;
-        margin: 0 auto 2rem auto !important;
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.6);
+        border-radius: 50px !important; /* This makes it a perfect pill */
+        background-color: rgba(10, 17, 40, 0.8) !important;
+        max-width: 85% !important;
+        margin: 0 auto !important;
+        padding: 5px 15px !important;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Check if the logo image exists for the middle
+# Check if the logo image exists
 logo_exists = os.path.exists("logo.png")
 
 # --- 3. SIDEBAR ---
@@ -121,7 +114,8 @@ with st.sidebar:
     st.button("⚙️  Settings", use_container_width=True)
     st.button("❓  Get Help", use_container_width=True)
     
-    st.write("<br><br><br><br><br><br>", unsafe_allow_html=True)
+    # Reduced spacing so the Logout button fits perfectly
+    st.write("<br><br><br><br>", unsafe_allow_html=True) 
     
     st.markdown("---")
     st.markdown("👤 **M. Mohale**")
@@ -138,11 +132,12 @@ if logo_exists:
 else:
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
-# TEXT BELOW LOGO (Duplicate text removed, spacing fixed)
+# TEXT BELOW LOGO (Clean, delicate serif)
 st.markdown("""
-        <br>
+        <p style='font-family: "Cinzel", serif; color: #e0d0b0; text-align: center; font-size: 20px; margin-top: 5px;'>Mohale M. Professional</p>
+        <br><br>
         <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; text-align: center; margin-top: 10px;'>HI, I'M MOHALE</h1>
-        <p style='color: #a0a0a0; font-size: 16px; text-align: center; margin-bottom: 50px;'>How can I assist you today?</p>
+        <p style='color: #a0a0a0; font-size: 16px; text-align: center; margin-bottom: 60px;'>How can I assist you today?</p>
     </div>
 """, unsafe_allow_html=True)
 
