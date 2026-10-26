@@ -10,36 +10,39 @@ st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_s
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-    /* --- BACKGROUND PATTERN FIX --- */
-    /* Creates the dark blue background with a subtle radial mesh/globe pattern */
+    /* --- 1. THE WIREFRAME GLOBE BACKGROUND --- */
     .stApp { 
         background-color: #0a1128;
         background-image: 
-            radial-gradient(circle at 50% 40%, rgba(205, 163, 79, 0.08) 0%, transparent 60%),
-            repeating-radial-gradient(circle at 50% 40%, transparent, transparent 40px, rgba(205, 163, 79, 0.03) 41px, transparent 42px);
-        background-size: 100% 100%;
+            /* The glowing center */
+            radial-gradient(circle at 50% 40%, rgba(205, 163, 79, 0.15) 0%, transparent 50%),
+            /* The concentric rings */
+            repeating-radial-gradient(circle at 50% 40%, transparent 0, transparent 60px, rgba(205, 163, 79, 0.05) 61px, transparent 62px),
+            /* The radiating lines (the web) */
+            repeating-conic-gradient(from 0deg at 50% 40%, rgba(205, 163, 79, 0.04) 0deg, transparent 1deg 15deg);
         font-family: 'Inter', sans-serif;
     }
     
-    /* --- TOP GOLD BORDER FIX --- */
-    /* Frames the entire main content area like the picture */
+    /* --- 2. THE TOP GOLD BORDER --- */
+    /* Completely remove Streamlit's top header so the border goes to the top */
+    [data-testid="stHeader"] { display: none !important; }
+    
+    /* Frame the entire main area */
     .main .block-container {
         border: 1px solid #cda34f;
         border-radius: 4px;
         padding: 3rem 2rem 6rem 2rem;
-        margin-top: 1rem;
-        margin-bottom: 2rem;
-        max-width: 95%;
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+        max-width: 96%;
     }
     
     /* Sidebar Background and Border */
     [data-testid="stSidebar"] {
         background-color: #0a1128 !important;
         border-right: 1px solid #cda34f;
+        padding-top: 2rem;
     }
-    
-    /* Make top header transparent */
-    header { background: transparent !important; }
     
     /* --- SIDEBAR BUTTONS --- */
     [data-testid="stSidebar"] button {
@@ -73,14 +76,6 @@ st.markdown("""
     }
 
     /* Typography */
-    .subtitle {
-        font-family: 'Cinzel', serif;
-        color: #e0d0b0;
-        text-align: center;
-        font-size: 18px;
-        margin-top: -10px;
-    }
-    
     .hero-section {
         display: flex;
         flex-direction: column;
@@ -89,20 +84,22 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* --- CROP THE TEXT OUT OF THE IMAGE --- */
+    /* --- THE IMAGE CROP --- */
+    /* This aggressively cuts off the bottom 25% of your image where the text is */
     .main [data-testid="stImage"] img {
-        clip-path: inset(0 0 28% 0); /* Chops off the bottom text of the image */
-        margin-bottom: -28%; /* Pulls the text below it up perfectly */
+        clip-path: inset(0 0 25% 0);
+        margin-bottom: -25%; /* Pulls the next line up tightly */
     }
     
-    /* --- CHAT BAR FIX (Rounded, Gold Border, Inside) --- */
+    /* --- 3. THE CHAT BAR FIX --- */
+    /* Fully rounded pill shape, centered, with a gold border */
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
-        border-radius: 30px !important;
-        background-color: rgba(20, 30, 60, 0.9) !important;
-        max-width: 85%; /* Keeps it from touching the edges */
-        margin: 0 auto 2rem auto; /* Centers it at the bottom */
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
+        border-radius: 50px !important; 
+        background-color: rgba(10, 17, 40, 0.95) !important;
+        max-width: 90% !important;
+        margin: 0 auto 2rem auto !important;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.6);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -112,7 +109,7 @@ logo_exists = os.path.exists("logo.png")
 
 # --- 3. SIDEBAR ---
 with st.sidebar:
-    st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0; padding-top: 20px;'>MP</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>", unsafe_allow_html=True)
     
     st.write("<br>", unsafe_allow_html=True)
@@ -141,11 +138,10 @@ if logo_exists:
 else:
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
-# TEXT BELOW LOGO
+# TEXT BELOW LOGO (Duplicate text removed, spacing fixed)
 st.markdown("""
-        <p class='subtitle'>Mohale M. Professional</p>
-        <br><br>
-        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; text-align: center;'>HI, I'M MOHALE</h1>
+        <br>
+        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; text-align: center; margin-top: 10px;'>HI, I'M MOHALE</h1>
         <p style='color: #a0a0a0; font-size: 16px; text-align: center; margin-bottom: 50px;'>How can I assist you today?</p>
     </div>
 """, unsafe_allow_html=True)
