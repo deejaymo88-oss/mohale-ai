@@ -3,3 +3,5 @@ openai
 tavily-python
 pypdf
 Pillow
+python-dotenv
+google-genai
