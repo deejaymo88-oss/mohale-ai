@@ -64,15 +64,6 @@ st.markdown("""
         min-height: 80vh;
         position: relative;
     }
-
-    /* Typography */
-    .subtitle {
-        font-family: 'Cinzel', serif;
-        color: #e0d0b0; /* Light gold */
-        text-align: center;
-        font-size: 18px;
-        margin-top: 10px;
-    }
     
     .hero-section {
         display: flex;
@@ -82,11 +73,10 @@ st.markdown("""
         margin-top: 30px;
     }
     
-    /* --- THE TRICK TO CROP THE TEXT OUT OF THE IMAGE --- */
-    /* This crops the bottom 25% of the image so the baked-in text disappears */
+    /* --- THE TRICK TO CROP THE TEXT OUT OF THE IMAGE & FIX SPACING --- */
     .main [data-testid="stImage"] img {
-        clip-path: inset(0 0 25% 0);
-        margin-bottom: -25%; /* Pulls the text below it closer */
+        clip-path: inset(0 0 25% 0); /* Crops the bottom text baked into the image */
+        margin-bottom: -20%; /* Pulls the title closer to fix the gap */
     }
     
     /* Chat Input Styling */
@@ -109,7 +99,7 @@ with st.sidebar:
     
     st.write("<br>", unsafe_allow_html=True)
     
-    # Menu Items with Icons
+    # Menu Items
     st.button("🏠  Dashboard", use_container_width=True)
     st.button("💬  All Chats", use_container_width=True)
     st.button("📄  Document Analysis", use_container_width=True)
@@ -136,14 +126,11 @@ else:
     # Fallback if image is missing
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
-# THE TEXT BELOW THE LOGO
+# MAIN TITLE (The extra "Mohale M. Professional" is now completely removed here)
 st.markdown("""
-        <p class='subtitle'>Mohale M. Professional</p>
-        <br><br>
-        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; text-align: center;'>HI, I'M MOHALE</h1>
-        <p style='color: #a0a0a0; font-size: 16px; text-align: center;'>How can I assist you today?</p>
+        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; text-align: center; margin-top: 20px;'>HI, I'M MOHALE</h1>
+        <p style='color: #a0a0a0; font-size: 16px; text-align: center; margin-bottom: 50px;'>How can I assist you today?</p>
     </div>
-    <br><br><br>
 """, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
