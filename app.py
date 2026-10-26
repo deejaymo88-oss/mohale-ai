@@ -22,9 +22,10 @@ st.markdown("""
         border-right: 1px solid #cda34f;
     }
     
+    /* Make top header transparent */
     header { background: transparent !important; }
     
-    /* --- SIDEBAR BUTTONS --- */
+    /* --- SIDEBAR BUTTONS (Flat and Clean) --- */
     [data-testid="stSidebar"] button {
         background-color: transparent !important;
         border: none !important;
@@ -82,13 +83,6 @@ st.markdown("""
         margin-top: 30px;
     }
     
-    /* --- HIDING THE WHITE BOX EDGES --- */
-    .main [data-testid="stImage"] img {
-        /* This radial mask fades out the outer 30% of the image */
-        -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%);
-        mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%);
-    }
-    
     /* Chat Input Styling */
     .stChatInput {
         border: 1px solid #cda34f !important;
@@ -103,7 +97,7 @@ logo_exists = os.path.exists("logo.png")
 
 # --- 3. SIDEBAR ---
 with st.sidebar:
-    # SIDEBAR LOGO: Clean Text (Not the image)
+    # Sidebar Text Logo
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0; padding-top: 20px;'>MP</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>", unsafe_allow_html=True)
     
@@ -126,12 +120,13 @@ with st.sidebar:
 st.markdown("<div class='main-box'>", unsafe_allow_html=True)
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
 
-# MIDDLE LOGO: Using the image
+# Center Logo (Uses your transparent image)
 if logo_exists:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.image("logo.png", use_column_width=True)
 else:
+    # Fallback if image is missing
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
 st.markdown("""
@@ -148,28 +143,38 @@ st.markdown("</div>", unsafe_allow_html=True)
 # --- 5. CHAT LOGIC ---
 load_dotenv()
 
+# Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Display chat messages from history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+# Accept user input
 if prompt := st.chat_input("Ask anything..."):
+    # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # Get AI response
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
+                # Check for API key in Streamlit secrets (for cloud) or .env (for local)
                 api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
-                client = genai.Client(api_key=api_key)
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt
-                )
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
+                
+                if not api_key:
+                    st.error("API Key not found. Please check your .env file or Streamlit Secrets.")
+                else:
+                    client = genai.Client(api_key=api_key)
+                    response = client.models.generate_content(
+                        model="gemini-2.5-flash",
+                        contents=prompt
+                    )
+                    st.markdown(response.text)
+                    st.session_state.messages.append({"role": "assistant", "content": response.text})
             except Exception as e:
-                st.error(f"Error: Check your API key. Details: {e}")
+                st.error(f"An error occurred: {e}")
