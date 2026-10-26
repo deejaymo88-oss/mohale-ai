@@ -10,10 +10,26 @@ st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_s
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-    /* Main App Background */
+    /* --- BACKGROUND PATTERN FIX --- */
+    /* Creates the dark blue background with a subtle radial mesh/globe pattern */
     .stApp { 
-        background: radial-gradient(circle at center, #111b3a 0%, #050a1f 100%);
+        background-color: #0a1128;
+        background-image: 
+            radial-gradient(circle at 50% 40%, rgba(205, 163, 79, 0.08) 0%, transparent 60%),
+            repeating-radial-gradient(circle at 50% 40%, transparent, transparent 40px, rgba(205, 163, 79, 0.03) 41px, transparent 42px);
+        background-size: 100% 100%;
         font-family: 'Inter', sans-serif;
+    }
+    
+    /* --- TOP GOLD BORDER FIX --- */
+    /* Frames the entire main content area like the picture */
+    .main .block-container {
+        border: 1px solid #cda34f;
+        border-radius: 4px;
+        padding: 3rem 2rem 6rem 2rem;
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+        max-width: 95%;
     }
     
     /* Sidebar Background and Border */
@@ -22,6 +38,7 @@ st.markdown("""
         border-right: 1px solid #cda34f;
     }
     
+    /* Make top header transparent */
     header { background: transparent !important; }
     
     /* --- SIDEBAR BUTTONS --- */
@@ -55,14 +72,13 @@ st.markdown("""
         color: #cda34f !important;
     }
 
-    /* Main Content Box Border */
-    .main-box {
-        border: 1px solid #cda34f;
-        border-radius: 5px;
-        padding: 20px;
-        margin: 20px 40px;
-        min-height: 80vh;
-        position: relative;
+    /* Typography */
+    .subtitle {
+        font-family: 'Cinzel', serif;
+        color: #e0d0b0;
+        text-align: center;
+        font-size: 18px;
+        margin-top: -10px;
     }
     
     .hero-section {
@@ -70,20 +86,23 @@ st.markdown("""
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin-top: 30px;
+        margin-top: 20px;
     }
     
-    /* --- THE TRICK TO CROP THE TEXT OUT OF THE IMAGE & FIX SPACING --- */
+    /* --- CROP THE TEXT OUT OF THE IMAGE --- */
     .main [data-testid="stImage"] img {
-        clip-path: inset(0 0 25% 0); /* Crops the bottom text baked into the image */
-        margin-bottom: -20%; /* Pulls the title closer to fix the gap */
+        clip-path: inset(0 0 28% 0); /* Chops off the bottom text of the image */
+        margin-bottom: -28%; /* Pulls the text below it up perfectly */
     }
     
-    /* Chat Input Styling */
-    .stChatInput {
+    /* --- CHAT BAR FIX (Rounded, Gold Border, Inside) --- */
+    [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
         border-radius: 30px !important;
-        background-color: rgba(20, 30, 60, 0.8) !important;
+        background-color: rgba(20, 30, 60, 0.9) !important;
+        max-width: 85%; /* Keeps it from touching the edges */
+        margin: 0 auto 2rem auto; /* Centers it at the bottom */
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -93,13 +112,11 @@ logo_exists = os.path.exists("logo.png")
 
 # --- 3. SIDEBAR ---
 with st.sidebar:
-    # Sidebar Logo Text
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0; padding-top: 20px;'>MP</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>", unsafe_allow_html=True)
     
     st.write("<br>", unsafe_allow_html=True)
     
-    # Menu Items
     st.button("🏠  Dashboard", use_container_width=True)
     st.button("💬  All Chats", use_container_width=True)
     st.button("📄  Document Analysis", use_container_width=True)
@@ -114,7 +131,6 @@ with st.sidebar:
     st.button("🚪  Logout", use_container_width=True)
 
 # --- 4. MAIN CONTENT ---
-st.markdown("<div class='main-box'>", unsafe_allow_html=True)
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
 
 # MIDDLE LOGO
@@ -123,17 +139,16 @@ if logo_exists:
     with col2:
         st.image("logo.png", use_column_width=True)
 else:
-    # Fallback if image is missing
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
-# MAIN TITLE (The extra "Mohale M. Professional" is now completely removed here)
+# TEXT BELOW LOGO
 st.markdown("""
-        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; text-align: center; margin-top: 20px;'>HI, I'M MOHALE</h1>
+        <p class='subtitle'>Mohale M. Professional</p>
+        <br><br>
+        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; text-align: center;'>HI, I'M MOHALE</h1>
         <p style='color: #a0a0a0; font-size: 16px; text-align: center; margin-bottom: 50px;'>How can I assist you today?</p>
     </div>
 """, unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
 
 # --- 5. CHAT LOGIC ---
 load_dotenv()
