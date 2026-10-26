@@ -79,7 +79,7 @@ st.markdown("""
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin-top: 50px;
+        margin-top: 30px;
     }
     
     /* Chat Input Styling */
@@ -88,21 +88,20 @@ st.markdown("""
         border-radius: 30px !important;
         background-color: rgba(20, 30, 60, 0.8) !important;
     }
-    
-    /* Sidebar bottom user profile */
-    .profile-text {
-        font-size: 16px;
-        color: #ffffff;
-        margin-left: 10px;
-        margin-top: 5px;
-    }
 </style>
 """, unsafe_allow_html=True)
 
+# Check if the logo image exists to avoid errors
+logo_exists = os.path.exists("logo.png")
+
 # --- 3. SIDEBAR (Left Menu) ---
 with st.sidebar:
-    # You can replace these with st.image('assets/logo.png') if you have the images
-    st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
+    # Logo in sidebar
+    if logo_exists:
+        st.image("logo.png", width=100)
+    else:
+        st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
+        
     st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 12px; margin-top: -10px;'>Mohale M. Professional</p>", unsafe_allow_html=True)
     
     st.write("<br>", unsafe_allow_html=True)
@@ -123,17 +122,25 @@ with st.sidebar:
     st.button("🚪  Logout", use_container_width=True)
 
 # --- 4. MAIN CONTENT ---
-# Wrap everything in a custom div to get the gold border
 st.markdown("<div class='main-box'>", unsafe_allow_html=True)
 
 # Hero Section
+st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
+
+# Logo in the center
+if logo_exists:
+    # We use columns to center the image perfectly
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("logo.png", use_column_width=True)
+else:
+    st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
+
 st.markdown("""
-    <div class='hero-section'>
-        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>
         <p class='subtitle'>Mohale M. Professional</p>
         <br><br>
-        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px;'>HI, I'M MOHALE</h1>
-        <p style='color: #a0a0a0; font-size: 16px;'>How can I assist you today?</p>
+        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; text-align: center;'>HI, I'M MOHALE</h1>
+        <p style='color: #a0a0a0; font-size: 16px; text-align: center;'>How can I assist you today?</p>
     </div>
     <br><br><br>
 """, unsafe_allow_html=True)
