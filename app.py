@@ -155,30 +155,43 @@ st.markdown("""
         border-top: none !important;
     }
 
+    /* Outer Pill Container */
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
         border-radius: 50px !important; 
         background-color: #1a1a1a !important; 
-        max-width: 85% !important;
+        width: 85% !important; /* Fixed width */
         margin: 0 auto 3rem auto !important; 
         padding: 5px 15px !important;
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6);
         z-index: 100;
-        display: flex;
-        align-items: center;
     }
-    
-    [data-testid="stChatInput"] > div, 
+
+    /* Inner Container: Forces items to spread out */
+    [data-testid="stChatInput"] > div {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important; /* Pushes + to left, send to right */
+        width: 100% !important;
+        background-color: transparent !important;
+        border: none !important;
+    }
+
+    /* The Text Area: Takes up all middle space */
     [data-testid="stChatInput"] textarea {
+        flex-grow: 1 !important; /* Expands to fill space */
+        text-align: left !important; /* Aligns text to left */
         border: none !important;
         background-color: transparent !important;
         color: #ffffff !important;
-        margin-top: 5px !important; 
+        padding-left: 10px !important;
     }
 
-    /* Style the native Plus (+) button inside the chat bar */
+    /* The Plus (+) and Send (↑) Buttons */
     [data-testid="stChatInput"] button {
-        color: #cda34f !important; /* Gold color for the plus sign */
+        color: #cda34f !important; /* Gold color */
+        background-color: transparent !important;
     }
 
     .hero-section {
@@ -304,14 +317,11 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# WE ADD accept_file=True HERE! This adds the working + button.
 if prompt := st.chat_input("Ask anything...", accept_file=True):
     
-    # Handle the text and the uploaded files
     text_input = prompt.text if prompt.text else ""
     uploaded_files = prompt.files
     
-    # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": text_input})
     with st.chat_message("user"):
         st.markdown(text_input)
@@ -319,16 +329,13 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
             for file in uploaded_files:
                 st.info(f"📎 Attached File: {file.name}")
 
-    # Generate AI response
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                # If a file was uploaded, we just acknowledge it for now
                 if uploaded_files:
                     file_names = ", ".join([f.name for f in uploaded_files])
                     response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
                 else:
-                    # Standard text response from Gemini
                     api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
                     client = genai.Client(api_key=api_key)
                     response = client.models.generate_content(
