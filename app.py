@@ -325,7 +325,35 @@ def get_ai_response(api_key, user_text):
         }]
     }
 
-    # Try up to 3 times if Google's servers are busy
+      # Try up to 3 times if Google's servers are busy
+    for attempt in range(3):
+        try:
+            # INCREASED TIMEOUT TO 60 SECONDS
+            response = requests.post(url, headers=headers, json=payload, timeout=60)
+            response_data = response.json()
+
+            if "candidates" in response_data:
+                return response_data["candidates"][0]["content"]["parts"][0]["text"]
+            
+            # If Google is busy (503), wait 3 seconds and retry
+            if response.status_code == 503:
+                if attempt < 2:
+                    time.sleep(3)
+                    continue
+                else:
+                    return "Google's servers are super busy right now. Please wait a minute and try again."
+            
+            return f"API Error: {response_data}"
+            
+        except requests.exceptions.Timeout:
+            # If it times out, wait 3 seconds and try again
+            if attempt < 2:
+                time.sleep(3)
+                continue
+            else:
+                return "Timeout error: Google took too long to respond after 3 tries."
+        except Exception as e:
+            return f"Connection Error: {str(e)}"  # Try up to 3 times if Google's servers are busy
     for attempt in range(3):
         try:
             response = requests.post(url, headers=headers, json=payload, timeout=15)
