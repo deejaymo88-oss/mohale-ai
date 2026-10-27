@@ -317,21 +317,23 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 def get_ai_response(api_key, user_text):
-    # Using REST API directly to bypass SDK bugs
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
-    headers = {'Content-Type': 'application/json'}
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent"
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": api_key
+    }
     payload = {
         "contents": [{
-            "parts":[{"text": user_text}]
+            "parts": [{"text": user_text}]
         }]
     }
-    
+
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=15)
         response_data = response.json()
-        
-        if 'candidates' in response_data:
-            return response_data['candidates'][0]['content']['parts'][0]['text']
+
+        if "candidates" in response_data:
+            return response_data["candidates"][0]["content"]["parts"][0]["text"]
         else:
             return f"API Error: {response_data}"
     except requests.exceptions.Timeout:
