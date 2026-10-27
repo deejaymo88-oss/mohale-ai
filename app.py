@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import base64
-import textwrap
+import re
 from dotenv import load_dotenv
 from google import genai
 from PIL import Image
@@ -81,7 +81,6 @@ st.markdown("""
         border-right: 1px solid #cda34f;
     }
     
-    /* Fix Streamlit's default sidebar container to allow flexbox */
     [data-testid="stSidebar"] > div:first-child {
         height: 100vh;
         padding-top: 2rem;
@@ -89,7 +88,7 @@ st.markdown("""
         flex-direction: column;
     }
 
-    /* --- FLEXBOX LAYOUT FOR MENU & FOOTER --- */
+    /* --- FLEXBOX LAYOUT --- */
     .sidebar-container {
         display: flex;
         flex-direction: column;
@@ -127,7 +126,6 @@ st.markdown("""
         background-color: rgba(205, 163, 79, 0.05);
     }
     
-    /* Active Dashboard State */
     .menu-item.active {
         background-color: #2a2a2a;
         border-left: 3px solid #cda34f;
@@ -135,7 +133,6 @@ st.markdown("""
     }
     .menu-item.active svg { stroke: #cda34f; }
 
-    /* Icons */
     .menu-icon {
         width: 20px;
         height: 20px;
@@ -147,7 +144,7 @@ st.markdown("""
         stroke-linejoin: round;
     }
 
-    /* --- CHAT BAR SURROUNDING AREA --- */
+    /* --- CHAT BAR --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"],
     .stChatFloatingInputContainer {
@@ -156,7 +153,6 @@ st.markdown("""
         border-top: none !important;
     }
 
-    /* --- CHAT BAR PILL (Dark Grey Inside) --- */
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
         border-radius: 50px !important; 
@@ -189,8 +185,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- 5. CUSTOM SIDEBAR (HTML) ---
-# We use textwrap.dedent to completely remove indentation so Streamlit doesn't treat it as code
-sidebar_html = textwrap.dedent("""
+raw_html = """
 <div class="sidebar-container">
     <div style="text-align: center; margin-bottom: 30px;">
         <h1 style='font-family: Cinzel; color: #cda34f; font-size: 60px; margin-bottom: 0;'>MP</h1>
@@ -236,10 +231,13 @@ sidebar_html = textwrap.dedent("""
         </div>
     </div>
 </div>
-""")
+"""
+
+# This uses a regex to strip out every newline and extra space so Streamlit reads it as pure HTML
+clean_html = re.sub(r'\n\s*', '', raw_html)
 
 with st.sidebar:
-    st.markdown(sidebar_html, unsafe_allow_html=True)
+    st.markdown(clean_html, unsafe_allow_html=True)
 
 # --- 6. MAIN CONTENT ---
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
