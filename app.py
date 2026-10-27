@@ -1,360 +1,373 @@
 import streamlit as st
 import os
 import base64
-import re
-import time
-import concurrent.futures
-from dotenv import load_dotenv
-from google import genai
-from PIL import Image
+import pypdf
+import io
+import datetime
+import sqlite3
+import glob
+from openai import OpenAI
+from tavily import TavilyClient
 
-# --- 1. PAGE SETUP ---
-st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
+# --- SET UP AI & SEARCH ---
+client = OpenAI()
+tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
-# Load environment variables
-load_dotenv()
+# FORCE SIDEBAR OPEN
+st.set_page_config(page_title="Mohale AI", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. ROUTING LOGIC ---
-page = st.query_params.get("page", "dashboard")
+# --- DATABASE SETUP ---
+def init_db():
+    conn = sqlite3.connect('my_platform.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS sessions (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, created_at TEXT)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, session_id INTEGER, role TEXT, content TEXT)''')
+    conn.commit()
+    conn.close()
 
-# --- 3. CONVERT WALLPAPER TO BASE64 ---
-def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
+init_db()
 
-wallpaper_file = "wallpaper.jpg"
-if os.path.exists("wallpaper.png"):
-    wallpaper_file = "wallpaper.png"
+def create_new_session():
+    conn = sqlite3.connect('my_platform.db')
+    c = conn.cursor()
+    title = "New Chat"
+    c.execute("INSERT INTO sessions (title, created_at) VALUES (?, ?)", (title, str(datetime.datetime.now())))
+    session_id = c.lastrowid
+    conn.commit()
+    conn.close()
+    return session_id
 
-if os.path.exists(wallpaper_file):
-    img_base64 = get_base64_of_bin_file(wallpaper_file)
-    bg_css = f"background-image: url('data:image/jpeg;base64,{img_base64}');"
+def get_sessions():
+    conn = sqlite3.connect('my_platform.db')
+    c = conn.cursor()
+    c.execute("SELECT id, title FROM sessions ORDER BY id DESC")
+    rows = c.fetchall()
+    conn.close()
+    return rows
+
+def get_messages(session_id):
+    conn = sqlite3.connect('my_platform.db')
+    c = conn.cursor()
+    c.execute("SELECT role, content FROM messages WHERE session_id = ? ORDER BY id ASC", (session_id,))
+    rows = c.fetchall()
+    conn.close()
+    return [{"role": r[0], "content": r[1]} for r in rows]
+
+def save_message(session_id, role, content):
+    conn = sqlite3.connect('my_platform.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO messages (session_id, role, content) VALUES (?, ?, ?)", (session_id, role, content))
+    conn.commit()
+    conn.close()
+
+def update_session_title(session_id, new_title):
+    conn = sqlite3.connect('my_platform.db')
+    c = conn.cursor()
+    c.execute("UPDATE sessions SET title = ? WHERE id = ?", (new_title, session_id))
+    conn.commit()
+    conn.close()
+
+# --- SESSION STATE ---
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "Dashboard"
+if "current_session" not in st.session_state:
+    st.session_state.current_session = 1
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if len(get_sessions()) == 0:
+    st.session_state.current_session = create_new_session()
 else:
-    bg_css = "background-color: #0a1128;"
+    if st.session_state.current_session == 1:
+        st.session_state.current_session = get_sessions()[0][0]
 
-# --- 4. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
-st.markdown(f"""
-<style>
-    .stApp, [data-testid="stAppViewContainer"] {{
-        background: transparent !important;
-    }}
-    html, body {{
-        background-color: #0a1128 !important;
-    }}
-    .web-bg {{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw; 
-        height: 100vh;
-        z-index: -2;
-        {bg_css}
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        pointer-events: none;
-    }}
-    .gold-frame {{
-        position: fixed;
-        top: 1rem;
-        bottom: 1rem;
-        left: 1rem;
-        right: 1rem;
-        border: 1px solid #cda34f;
-        border-radius: 8px;
-        pointer-events: none; 
-        z-index: 9999;
-    }}
-</style>
-<div class="web-bg"></div>
-<div class="gold-frame"></div>
-""", unsafe_allow_html=True)
-
-# --- 5. APP STYLING ---
+# --- CSS STYLING ---
 st.markdown("""
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-    [data-testid="stHeader"] { display: none !important; }
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
 
-    .main .block-container {
-        padding: 4rem 3rem 8rem 3rem !important;
-        max-width: 100% !important;
-        background: transparent !important;
-    }
-    
-    /* --- SIDEBAR --- */
-    [data-testid="stSidebar"] {
-        background-color: #1a1a1a !important; 
-        border-right: 1px solid #cda34f;
-    }
-    
-    [data-testid="stSidebar"] > div:first-child {
-        height: 100vh;
-        padding-top: 2rem;
-        display: flex;
-        flex-direction: column;
-    }
+        /* 1. Remove the ugly top line but KEEP the sidebar toggle */
+        header, [data-testid="stHeader"] { 
+            background: transparent !important; 
+            border: none !important; 
+            box-shadow: none !important;
+        }
+        /* Hide the deploy button and menu */
+        [data-testid="stToolbar"] { display: none !important; }
 
-    .sidebar-container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        min-height: 85vh; 
-    }
-    
-    .sidebar-menu {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1; 
-    }
-    
-    .sidebar-footer {
-        margin-top: auto; 
-        padding-bottom: 20px;
-    }
+        /* 2. Background */
+        .stApp { 
+            background: radial-gradient(circle at 50% 40%, #1E2E4A 0%, #0C1421 60%, #05080F 100%) !important; 
+            color: #FFFFFF; 
+            font-family: 'Inter', sans-serif; 
+        }
 
-    .menu-item {
-        display: flex;
-        align-items: center;
-        padding: 12px 20px;
-        margin-bottom: 5px;
-        cursor: pointer;
-        color: #d1d5db;
-        font-family: 'Inter', sans-serif;
-        font-size: 16px;
-        text-decoration: none !important; 
-        transition: 0.3s;
-        white-space: nowrap;
-    }
-    
-    .menu-item:hover {
-        color: #cda34f;
-        background-color: rgba(205, 163, 79, 0.05);
-    }
-    
-    .menu-item.active {
-        background-color: #2a2a2a;
-        border-left: 3px solid #cda34f;
-        color: #ffffff;
-    }
-    .menu-item.active svg { stroke: #cda34f; }
+        /* 3. Sidebar */
+        [data-testid="stSidebar"] { 
+            background-color: #05080F !important; 
+            border-right: 1px solid rgba(197, 160, 89, 0.15) !important;
+            width: 260px !important; 
+            min-width: 260px !important;
+        }
+        [data-testid="stSidebar"] > div:first-child { padding-top: 10px; }
+        
+        /* Sidebar Buttons */
+        [data-testid="stSidebar"] .stButton button {
+            background: transparent !important; 
+            border: none !important; 
+            color: #8892B0 !important;
+            text-align: left !important; 
+            font-size: 15px !important; 
+            font-weight: 500 !important;
+            padding: 10px 15px !important; 
+            border-radius: 6px !important; 
+            transition: all 0.2s ease !important;
+            justify-content: flex-start !important; 
+            width: 100% !important; 
+            display: flex !important; 
+            align-items: center !important;
+        }
+        [data-testid="stSidebar"] .stButton button:hover { 
+            color: #C5A059 !important; 
+            background-color: rgba(197, 160, 89, 0.08) !important; 
+        }
+        [data-testid="stSidebar"] .stButton button:disabled { 
+            color: #C5A059 !important; 
+            background-color: rgba(197, 160, 89, 0.1) !important; 
+            border-left: 3px solid #C5A059 !important; 
+            opacity: 1 !important; 
+        }
 
-    .menu-icon {
-        width: 20px;
-        height: 20px;
-        margin-right: 15px;
-        stroke: #a0a0a0;
-        stroke-width: 2;
-        fill: none;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
+        .boss-logo-container { width: 100px; margin-left: 15px; margin-bottom: 20px; margin-top: 10px; }
+        .boss-logo { width: 100px; height: auto; mix-blend-mode: screen; filter: brightness(1.1) contrast(1.1) sepia(0.2); }
 
-    /* --- CHAT BAR --- */
-    [data-testid="stBottom"], 
-    [data-testid="stBottomBlockContainer"],
-    .stChatFloatingInputContainer {
-        background-color: #0a1128 !important; 
-        background: #0a1128 !important;
-        border-top: none !important;
-    }
+        /* 4. Hero Screen */
+        .hero-container { 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            height: 65vh; text-align: center; 
+        }
+        .hero-logo { 
+            width: 400px; mix-blend-mode: screen; filter: brightness(1.1) contrast(1.1); 
+            margin-bottom: -80px; 
+        }
+        .hero-title { 
+            font-family: 'Cinzel', serif; font-size: 60px; font-weight: 600; color: #F8FAFC; 
+            margin-top: 0px; margin-bottom: 15px; letter-spacing: 1px; text-shadow: 0px 4px 20px rgba(0,0,0,0.8); 
+        }
+        .hero-subtitle { font-size: 20px; color: #94A3B8; font-weight: 300; letter-spacing: 0.5px; }
 
-    [data-testid="stChatInput"] {
-        border: 1px solid #cda34f !important;
-        border-radius: 50px !important; 
-        background-color: #1a1a1a !important; 
-        width: 85% !important; 
-        margin: 0 auto 3rem auto !important; 
-        padding: 5px 15px !important;
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.6);
-        z-index: 100;
-    }
+        /* 5. Chat Input */
+        [data-testid="stChatInput"] {
+            background-color: rgba(10, 17, 31, 0.8) !important; 
+            backdrop-filter: blur(15px) !important;
+            border: 2px solid rgba(197, 160, 89, 0.6) !important; 
+            border-radius: 30px !important;
+            padding: 5px 15px !important; 
+            box-shadow: 0 0 20px rgba(197, 160, 89, 0.15) !important;
+        }
+        [data-testid="stChatInput"]:focus-within { 
+            border: 2px solid #C5A059 !important; 
+            box-shadow: 0 0 25px rgba(197, 160, 89, 0.3) !important; 
+        }
+        [data-testid="stChatInput"] textarea { color: #FFFFFF !important; }
 
-    [data-testid="stChatInput"] > div {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important; 
-        width: 100% !important;
-        background-color: transparent !important;
-        border: none !important;
-    }
-
-    [data-testid="stChatInput"] textarea {
-        flex-grow: 1 !important; 
-        text-align: left !important; 
-        border: none !important;
-        background-color: transparent !important;
-        color: #ffffff !important;
-        padding-left: 10px !important;
-    }
-
-    [data-testid="stChatInput"] button {
-        color: #cda34f !important; 
-        background-color: transparent !important;
-    }
-
-    .hero-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 20px;
-    }
-</style>
+        /* 6. Chat Bubbles (Proper Alignment, No Gaps) */
+        [data-testid="stChatMessageAvatarUser"], 
+        [data-testid="stChatMessageAvatarAssistant"] { display: none !important; }
+        
+        [data-testid="stChatMessage"] { 
+            background-color: transparent !important; 
+            padding: 0 !important; 
+            margin-bottom: 10px !important; 
+            border: none !important; 
+            box-shadow: none !important; 
+        }
+        
+        [data-testid="stChatMessageContent"] { 
+            padding: 12px 18px !important; 
+            border-radius: 15px !important; 
+            width: fit-content !important; 
+            max-width: 80% !important; 
+            text-align: left !important; 
+        }
+        
+        /* User Message (Right) */
+        [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) > [data-testid="stChatMessageContent"] {
+            background-color: #1A1D27 !important; 
+            border: 1px solid rgba(197, 160, 89, 0.4) !important; 
+            border-bottom-right-radius: 2px !important; 
+            margin-left: auto !important; 
+            margin-right: 0 !important;
+        }
+        
+        /* Assistant Message (Left) */
+        [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) > [data-testid="stChatMessageContent"] {
+            background-color: rgba(255, 255, 255, 0.05) !important; 
+            border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+            border-bottom-left-radius: 2px !important; 
+            margin-right: auto !important; 
+            margin-left: 0 !important;
+        }
+    </style>
 """, unsafe_allow_html=True)
 
-# --- 6. CUSTOM SIDEBAR (HTML) ---
-raw_html = f"""
-<div class="sidebar-container">
-    <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 60px; margin-bottom: 0;'>MP</h1>
-        <p style='color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>
-    </div>
-    
-    <div class="sidebar-menu">
-        <a href="?page=dashboard" target="_self" class="menu-item {'active' if page == 'dashboard' else ''}">
-            <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            Dashboard
-        </a>
-        <a href="?page=chats" target="_self" class="menu-item {'active' if page == 'chats' else ''}">
-            <svg class="menu-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            All Chats
-        </a>
-        <a href="?page=document" target="_self" class="menu-item {'active' if page == 'document' else ''}">
-            <svg class="menu-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            Document Analysis
-        </a>
-        <a href="?page=meeting" target="_self" class="menu-item {'active' if page == 'meeting' else ''}">
-            <svg class="menu-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            Meeting Notes
-        </a>
-        <a href="?page=settings" target="_self" class="menu-item {'active' if page == 'settings' else ''}">
-            <svg class="menu-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            Settings
-        </a>
-        <a href="?page=help" target="_self" class="menu-item {'active' if page == 'help' else ''}">
-            <svg class="menu-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            Get Help
-        </a>
-    </div>
+# --- LOAD LOGOS ---
+encoded_logo_main = ""
+encoded_logo_side = ""
 
-    <div class="sidebar-footer">
-        <hr style="border-color: #333; margin: 0 20px 15px 20px;">
-        <div style="display: flex; align-items: center; padding: 10px 20px; margin-bottom: 5px;">
-            <img src="https://i.pravatar.cc/150?img=11" style="border-radius: 50%; width: 35px; height: 35px; margin-right: 15px; border: 1px solid #cda34f;">
-            <span style="color: #e0d0b0; font-size: 15px; font-family: 'Inter', sans-serif;">M. Mohale</span>
-        </div>
-        <a href="?page=logout" target="_self" class="menu-item">
-            <svg class="menu-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            Logout
-        </a>
-    </div>
-</div>
-"""
+for path in glob.glob("logo_side*"):
+    if path.lower().endswith((".png", ".jpg", ".jpeg")):
+        with open(path, "rb") as f:
+            encoded_logo_side = base64.b64encode(f.read()).decode()
+        break
 
-clean_html = re.sub(r'\n\s*', '', raw_html)
+for path in glob.glob("logo*"):
+    if "side" not in path.lower() and path.lower().endswith((".png", ".jpg", ".jpeg")):
+        with open(path, "rb") as f:
+            encoded_logo_main = base64.b64encode(f.read()).decode()
+        break
 
+if not encoded_logo_side:
+    encoded_logo_side = encoded_logo_main 
+
+# --- SIDEBAR CONTENT ---
 with st.sidebar:
-    st.markdown(clean_html, unsafe_allow_html=True)
+    if encoded_logo_side:
+        st.markdown(f'<div class="boss-logo-container"><img src="data:image/png;base64,{encoded_logo_side}" class="boss-logo"></div>', unsafe_allow_html=True)
 
-# --- 7. MAIN CONTENT ROUTING ---
-if page == "dashboard":
-    st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
+    if st.button("🏠 Dashboard", use_container_width=True):
+        st.session_state.current_page = "Dashboard"
+        st.rerun()
+    if st.button("📈 Strategy Memos", use_container_width=True):
+        st.session_state.current_page = "Strategy Memos"
+        st.rerun()
+    if st.button("📄 Reports", use_container_width=True):
+        st.session_state.current_page = "Reports"
+        st.rerun()
+    if st.button("⚙️ Settings", use_container_width=True):
+        st.session_state.current_page = "Settings"
+        st.rerun()
+
+    st.write("")
     
-    logo_exists = os.path.exists("logo.png")
-    if logo_exists:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            img = Image.open("logo.png")
-            width, height = img.size
-            crop_height = int(height * 0.70) 
-            cropped_img = img.crop((0, 0, width, crop_height))
-            st.image(cropped_img, use_column_width=True)
-    else:
-        st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
+    if st.button("➕ Start New Chat", use_container_width=True):
+        st.session_state.current_session = create_new_session()
+        st.session_state.current_page = "Dashboard"
+        st.rerun()
 
-    st.markdown("""
-            <div style='text-align: center; margin-top: 20px;'>
-                <p style='font-family: "Cinzel", serif; color: #e0d0b0; font-size: 20px;'>Mohale M. Professional</p>
-                <br>
-                <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px;'>HI, I'M MOHALE</h1>
-                <p style='color: #a0a0a0; font-size: 16px; margin-bottom: 50px;'>How can I assist you today?</p>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+    st.write("### 💬 History")
+    for sess in get_sessions()[:4]:
+        sess_id, title = sess
+        if st.session_state.current_session == sess_id:
+            st.button(f"👉 {title[:18]}", key=f"active_{sess_id}", disabled=True, use_container_width=True)
+        else:
+            if st.button(title[:20], key=f"sess_{sess_id}", use_container_width=True):
+                st.session_state.current_session = sess_id
+                st.session_state.current_page = "Dashboard"
+                st.rerun()
 
-elif page == "chats":
-    st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>All Chats</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #a0a0a0; text-align: center;'>Your chat history will appear here.</p>", unsafe_allow_html=True)
-
-elif page == "document":
-    st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Document Analysis</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #a0a0a0; text-align: center;'>Upload a document to get started.</p>", unsafe_allow_html=True)
-
-elif page == "meeting":
-    st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Meeting Notes</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #a0a0a0; text-align: center;'>Take and review your meeting notes here.</p>", unsafe_allow_html=True)
-
-elif page == "settings":
-    st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Settings</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #a0a0a0; text-align: center;'>Adjust your application preferences here.</p>", unsafe_allow_html=True)
-
-elif page == "help":
-    st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Get Help</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #a0a0a0; text-align: center;'>How can we help you today?</p>", unsafe_allow_html=True)
-
-elif page == "logout":
-    st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #a0a0a0; text-align: center;'>You have been logged out.</p>", unsafe_allow_html=True)
-
-
-# --- 8. CHAT LOGIC (Working with gemini-2.5-flash) ---
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-def get_ai_response(api_key, user_text):
-    client = genai.Client(api_key=api_key)
-    response = client.models.generate_content(
-        model="gemini-2.5-flash", 
-        contents=user_text
-    )
-    return response.text
-
-if prompt := st.chat_input("Ask anything...", accept_file=True):
+    st.write("")
     
-    text_input = prompt.text if prompt.text else ""
-    uploaded_files = prompt.files
-    
-    st.session_state.messages.append({"role": "user", "content": text_input})
-    with st.chat_message("user"):
-        st.markdown(text_input)
-        if uploaded_files:
-            for file in uploaded_files:
-                st.info(f"📎 Attached File: {file.name}")
+    if st.button("👤 Log In / Register", use_container_width=True):
+        pass 
 
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            try:
-                if uploaded_files:
-                    file_names = ", ".join([f.name for f in uploaded_files])
-                    response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
-                else:
-                    api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
+# --- MAIN AREA ---
+if st.session_state.current_page == "Dashboard":
+    messages = get_messages(st.session_state.current_session)
+    
+    # Hero Screen (Only shows when chat is empty)
+    if len(messages) == 0:
+        if encoded_logo_main:
+            st.markdown(f"""
+                <div class="hero-container">
+                    <img src="data:image/png;base64,{encoded_logo_main}" class="hero-logo">
+                    <div class="hero-title">Hi, I'm Mohale</div>
+                    <div class="hero-subtitle">How can I assist you today?</div>
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="hero-container"><div class="hero-title">Hi, I\'m Mohale</div><div class="hero-subtitle">How can I assist you today?</div></div>', unsafe_allow_html=True)
+
+    # Chat History
+    for msg in messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    # Chat Input
+    prompt = st.chat_input("Ask anything...", accept_file=True, file_type=["png", "jpg", "jpeg", "pdf", "txt"])
+
+    # Processing logic
+    if prompt:
+        user_text = prompt.text
+        user_files = prompt.files if prompt.files else []
+        
+        if len(messages) == 0 and user_text:
+            new_title = user_text[:20] + "..." if len(user_text) > 20 else user_text
+            update_session_title(st.session_state.current_session, new_title)
+        
+        display_text = user_text if user_text else "Attached file(s)"
+        if user_files:
+            display_text += f"\n\n📎 *Attached {len(user_files)} file(s)*"
+            
+        save_message(st.session_state.current_session, "user", display_text)
+        with st.chat_message("user"):
+            st.markdown(display_text)
+            
+        image_data = None
+        extracted_text = ""
+        
+        for file in user_files:
+            if file.type.startswith("image"):
+                image_data = base64.b64encode(file.read()).decode()
+            elif file.name.endswith(".pdf"):
+                pdf_reader = pypdf.PdfReader(file)
+                extracted_text += "\n".join([page.extract_text() for page in pdf_reader.pages])
+            elif file.name.endswith(".txt"):
+                extracted_text += file.read().decode("utf-8")
+
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            with st.spinner("🧠 Thinking..."):
+                try:
+                    today = datetime.date.today().strftime("%B %d, %Y")
+                    final_prompt = user_text if user_text else "Analyze this."
                     
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
-                        future = executor.submit(get_ai_response, api_key, text_input)
-                        response_text = future.result(timeout=15)
-                
-                st.markdown(response_text)
-                st.session_state.messages.append({"role": "assistant", "content": response_text})
-                
-            except concurrent.futures.TimeoutError:
-                st.error("The AI is taking too long to respond. Google's servers might be busy. Please try again.")
-            except Exception as e:
-                st.error(f"Error: {e}")
+                    if extracted_text:
+                        final_prompt = f"User uploaded a document. Content:\n{extracted_text[:3000]}\n\nUser Question: {user_text}"
+
+                    system_prompt = f"You are Mohale AI, an elite, professional AI assistant. Today is {today}. Respond politely and professionally."
+                    api_messages = [{"role": "system", "content": system_prompt}]
+                    
+                    current_history = get_messages(st.session_state.current_session)
+                    if current_history and current_history[-1]["content"] == display_text:
+                        current_history = current_history[:-1]
+                        
+                    api_messages.extend(current_history)
+                    
+                    if image_data:
+                        api_messages.append({"role": "user", "content": [{"type": "text", "text": final_prompt}, {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}}]})
+                    else:
+                        if not extracted_text:
+                            search_results = tavily_client.search(query=f"{final_prompt} {today}", search_depth="advanced", max_results=5)
+                            context = "\n\n".join([result["content"] for result in search_results["results"]])
+                            final_prompt = f"Web Search Results:\n{context}\n\nUser Question: {final_prompt}"
+                            
+                        api_messages.append({"role": "user", "content": final_prompt})
+                    
+                    response = client.chat.completions.create(model="gpt-4o-mini", messages=api_messages, stream=True)
+                    
+                    full_response = ""
+                    for chunk in response:
+                        if chunk.choices[0].delta.content:
+                            full_response += chunk.choices[0].delta.content
+                            message_placeholder.markdown(full_response + "▌")
+                    
+                    message_placeholder.markdown(full_response)
+                    save_message(st.session_state.current_session, "assistant", full_response)
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"🚨 Error: {e}")
+
+elif st.session_state.current_page in ["Strategy Memos", "Reports", "Settings"]:
+    st.title(f"📈 {st.session_state.current_page}")
+    st.write("This page is coming soon.")
