@@ -275,7 +275,6 @@ if page == "dashboard":
     else:
         st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
-    # The text is placed cleanly below the image with normal spacing (no overlapping)
     st.markdown("""
             <div style='text-align: center; margin-top: 20px;'>
                 <p style='font-family: "Cinzel", serif; color: #e0d0b0; font-size: 20px;'>Mohale M. Professional</p>
@@ -311,7 +310,7 @@ elif page == "logout":
     st.markdown("<p style='color: #a0a0a0; text-align: center;'>You have been logged out.</p>", unsafe_allow_html=True)
 
 
-# --- 8. CHAT LOGIC (Untouched & Working) ---
+# --- 8. CHAT LOGIC (Working with gemini-2.5-flash) ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -322,7 +321,7 @@ for message in st.session_state.messages:
 def get_ai_response(api_key, user_text):
     client = genai.Client(api_key=api_key)
     response = client.models.generate_content(
-        model="gemini-1.5-flash", 
+        model="gemini-2.5-flash", 
         contents=user_text
     )
     return response.text
