@@ -14,12 +14,10 @@ def get_base64_of_bin_file(bin_file):
         data = f.read()
     return base64.b64encode(data).decode()
 
-# Look for the wallpaper file
 wallpaper_file = "wallpaper.jpg"
 if os.path.exists("wallpaper.png"):
     wallpaper_file = "wallpaper.png"
 
-# Convert it to text so Streamlit cannot ignore it
 if os.path.exists(wallpaper_file):
     img_base64 = get_base64_of_bin_file(wallpaper_file)
     bg_css = f"background-image: url('data:image/jpeg;base64,{img_base64}');"
@@ -34,7 +32,7 @@ st.markdown(f"""
         background: transparent !important;
     }}
 
-    /* YOUR REAL WALLPAPER (Loaded via Base64) */
+    /* YOUR REAL WALLPAPER */
     .web-bg {{
         position: fixed;
         top: 0;
@@ -122,15 +120,16 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* --- THE PERFECT FLOATING PILL CHAT BAR --- */
+    /* --- CHANGED: FIXED THE BLACK BACKGROUND AT THE BOTTOM --- */
     [data-testid="stBottom"], .stChatInputContainer {
-        background-color: transparent !important;
+        background-color: #0a1128 !important; /* Changed to dark blue */
+        background: #0a1128 !important;
     }
 
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
         border-radius: 50px !important; 
-        background-color: rgba(10, 17, 40, 0.95) !important;
+        background-color: #0a1128 !important; /* Changed to dark blue */
         max-width: 85% !important;
         margin: 0 auto 3rem auto !important; 
         padding: 5px 15px !important;
