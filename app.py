@@ -72,6 +72,7 @@ st.markdown(f"""
 # --- 4. APP STYLING (Sidebar, Chat) ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     [data-testid="stHeader"] { display: none !important; }
 
@@ -83,49 +84,70 @@ st.markdown("""
     
     /* --- SIDEBAR: DARK GREY --- */
     [data-testid="stSidebar"] {
-        background-color: #1a1a1a !important; 
+        background-color: #1a1a1a !important; /* Kept Dark Grey */
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
         z-index: 10;
     }
     
+    /* General Sidebar Button Styling */
     [data-testid="stSidebar"] button {
         background-color: transparent !important;
         border: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
-        color: #a0a0a0 !important;
+        color: #d1d5db !important; 
         text-align: left !important;
         justify-content: flex-start !important;
-        padding: 10px 20px !important;
+        padding: 12px 20px !important;
         font-size: 16px !important;
         width: 100%;
+        display: flex;
+        align-items: center;
+        transition: 0.3s;
     }
     
+    /* Hover state */
     [data-testid="stSidebar"] button:hover {
         color: #cda34f !important;
-        background-color: rgba(205, 163, 79, 0.1) !important;
+        background-color: rgba(205, 163, 79, 0.05) !important;
     }
     
     [data-testid="stSidebar"] button p {
         text-align: left !important;
         justify-content: flex-start !important;
+        font-size: 16px !important;
+        margin: 0 !important;
     }
 
-    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div:first-child button {
+    /* --- CUSTOM ICONS --- */
+    [data-testid="stSidebar"] button::before {
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        margin-right: 15px;
+        font-size: 18px;
+        color: #a0a0a0;
+    }
+    
+    /* Specific icons */
+    [data-testid="stSidebar"] button:nth-of-type(1)::before { content: "\f015"; } /* Home */
+    [data-testid="stSidebar"] button:nth-of-type(2)::before { content: "\f086"; } /* Chat */
+    [data-testid="stSidebar"] button:nth-of-type(3)::before { content: "\f15c"; } /* Document */
+    [data-testid="stSidebar"] button:nth-of-type(4)::before { content: "\f133"; } /* Calendar */
+    [data-testid="stSidebar"] button:nth-of-type(5)::before { content: "\f013"; } /* Settings */
+    [data-testid="stSidebar"] button:nth-of-type(6)::before { content: "\f059"; } /* Help */
+    [data-testid="stSidebar"] button:nth-of-type(7)::before { content: "\f2f5"; } /* Logout */
+
+    /* --- ACTIVE BUTTON HIGHLIGHT (Dashboard) --- */
+    [data-testid="stSidebar"] button:nth-of-type(1) {
+        background-color: #2a2a2a !important; /* Slightly lighter grey for active state */
         border-left: 3px solid #cda34f !important;
-        background-color: rgba(205, 163, 79, 0.05) !important;
+        color: #ffffff !important;
+    }
+    [data-testid="stSidebar"] button:nth-of-type(1)::before {
         color: #cda34f !important;
     }
 
-    .hero-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 20px;
-    }
-    
     /* --- CHAT BAR SURROUNDING AREA (Dark Blue) --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"],
@@ -139,7 +161,7 @@ st.markdown("""
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
         border-radius: 50px !important; 
-        background-color: #1a1a1a !important; /* Changed to Dark Grey */
+        background-color: #1a1a1a !important; 
         max-width: 85% !important;
         margin: 0 auto 3rem auto !important; 
         padding: 5px 15px !important;
@@ -147,12 +169,19 @@ st.markdown("""
         z-index: 100;
     }
     
-    /* Ensure the inner text area is transparent so the grey shows */
     [data-testid="stChatInput"] > div, 
     [data-testid="stChatInput"] textarea {
         border: none !important;
         background-color: transparent !important;
         color: #ffffff !important;
+    }
+
+    .hero-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -160,22 +189,29 @@ st.markdown("""
 # --- 5. SIDEBAR ---
 with st.sidebar:
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel; margin-bottom: 30px;'>Mohale M. Professional</p>", unsafe_allow_html=True)
     
-    st.write("<br>", unsafe_allow_html=True)
-    
-    st.button("🏠  Dashboard", use_container_width=True)
-    st.button("💬  All Chats", use_container_width=True)
-    st.button("📄  Document Analysis", use_container_width=True)
-    st.button("📅  Meeting Notes", use_container_width=True)
-    st.button("⚙️  Settings", use_container_width=True)
-    st.button("❓  Get Help", use_container_width=True)
+    # Text without Emojis (CSS handles the icons)
+    st.button("Dashboard", use_container_width=True)
+    st.button("All Chats", use_container_width=True)
+    st.button("Document Analysis", use_container_width=True)
+    st.button("Meeting Notes", use_container_width=True)
+    st.button("Settings", use_container_width=True)
+    st.button("Get Help", use_container_width=True)
     
     st.write("<br><br><br>", unsafe_allow_html=True) 
     
     st.markdown("---")
-    st.markdown("👤 **M. Mohale**")
-    st.button("🚪  Logout", use_container_width=True)
+    
+    # Custom Profile Section
+    st.markdown("""
+        <div style="display: flex; align-items: center; padding: 10px 0;">
+            <img src="https://i.pravatar.cc/150?img=11" style="border-radius: 50%; width: 35px; height: 35px; margin-right: 15px; border: 1px solid #cda34f;">
+            <span style="color: #e0d0b0; font-size: 15px; font-family: 'Inter', sans-serif;">M. Mohale</span>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.button("Logout", use_container_width=True)
 
 # --- 6. MAIN CONTENT ---
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
