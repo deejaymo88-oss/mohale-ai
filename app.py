@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import base64
 from dotenv import load_dotenv
 from google import genai
 from PIL import Image
@@ -7,13 +8,23 @@ from PIL import Image
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. DETECT YOUR WALLPAPER IMAGE ---
-# This checks if your image is a .jpg or .png and sets it automatically
+# --- 2. CONVERT WALLPAPER TO BASE64 ---
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+# Look for the wallpaper file
 wallpaper_file = "wallpaper.jpg"
 if os.path.exists("wallpaper.png"):
     wallpaper_file = "wallpaper.png"
-elif os.path.exists("wallpaper.jpeg"):
-    wallpaper_file = "wallpaper.jpeg"
+
+# Convert it to text so Streamlit cannot ignore it
+if os.path.exists(wallpaper_file):
+    img_base64 = get_base64_of_bin_file(wallpaper_file)
+    bg_css = f"background-image: url('data:image/jpeg;base64,{img_base64}');"
+else:
+    bg_css = "background-color: #0a1128;"
 
 # --- 3. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
 st.markdown(f"""
@@ -23,7 +34,7 @@ st.markdown(f"""
         background: transparent !important;
     }}
 
-    /* YOUR REAL WALLPAPER */
+    /* YOUR REAL WALLPAPER (Loaded via Base64) */
     .web-bg {{
         position: fixed;
         top: 0;
@@ -31,8 +42,7 @@ st.markdown(f"""
         width: 100vw; 
         height: 100vh;
         z-index: -2;
-        /* It will load your image file here */
-        background-image: url('{wallpaper_file}'); 
+        {bg_css}
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -69,7 +79,7 @@ st.markdown("""
     }
     
     [data-testid="stSidebar"] {
-        background-color: rgba(10, 17, 40, 0.85) !important; /* Slight transparency */
+        background-color: rgba(10, 17, 40, 0.85) !important; 
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
         z-index: 10;
@@ -158,7 +168,7 @@ with st.sidebar:
 # --- 6. MAIN CONTENT ---
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
 
-# MIDDLE LOGO (Python Crop applied)
+# MIDDLE LOGO
 logo_exists = os.path.exists("logo.png")
 if logo_exists:
     col1, col2, col3 = st.columns([1, 2, 1])
