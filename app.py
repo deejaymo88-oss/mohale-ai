@@ -6,56 +6,60 @@ from google import genai
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. CUSTOM CSS STYLING ---
+# --- 2. INJECT THE FIXED WEB BACKGROUND ---
+# This creates an absolute layer behind everything that cannot be covered by Streamlit's default colors
+st.markdown("""
+<style>
+    /* Force all Streamlit containers to be transparent */
+    .stApp, [data-testid="stAppViewContainer"], .main, .block-container {
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+
+    /* The fixed background web layer */
+    .web-bg {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 150vw; /* Huge to cover wide screens */
+        height: 150vw;
+        z-index: -1; /* Puts it behind everything */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23cda34f' stroke-width='1.5' fill='none' opacity='0.2'%3E%3Ccircle cx='500' cy='500' r='100'/%3E%3Ccircle cx='500' cy='500' r='200'/%3E%3Ccircle cx='500' cy='500' r='300'/%3E%3Ccircle cx='500' cy='500' r='400'/%3E%3Ccircle cx='500' cy='500' r='500'/%3E%3Ccircle cx='500' cy='500' r='600'/%3E%3Ccircle cx='500' cy='500' r='700'/%3E%3Cline x1='500' y1='-100' x2='500' y2='1100'/%3E%3Cline x1='-100' y1='500' x2='1100' y2='500'/%3E%3Cline x1='75' y1='75' x2='925' y2='925'/%3E%3Cline x1='925' y1='75' x2='75' y2='925'/%3E%3Cline x1='200' y1='0' x2='800' y2='1000'/%3E%3Cline x1='800' y1='0' x2='200' y2='1000'/%3E%3Cline x1='0' y1='200' x2='1000' y2='800'/%3E%3Cline x1='0' y1='800' x2='1000' y2='200'/%3E%3C/g%3E%3C/svg%3E");
+        background-size: cover;
+        background-position: center;
+        pointer-events: none;
+    }
+</style>
+<div class="web-bg"></div>
+""", unsafe_allow_html=True)
+
+# --- 3. MAIN APP STYLING (Locked Frame, Sidebar, etc.) ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+    /* Dark blue base */
+    .stApp { background-color: #0a1128; font-family: 'Inter', sans-serif; }
+    
     /* Hide Streamlit's default top bar */
     [data-testid="stHeader"] { display: none !important; }
 
-    /* Base App Background */
-    .stApp { 
-        background-color: #0a1128;
-        font-family: 'Inter', sans-serif;
-    }
-    
-    /* --- THE LOCKED FRAME --- */
+    /* --- THE LOCKED GOLD FRAME --- */
     .main {
         border: 1px solid #cda34f;
         border-radius: 8px;
         height: calc(100vh - 2rem); 
         margin: 1rem;
         overflow: hidden; 
-        position: relative; /* Required for the background overlay */
-        background: radial-gradient(circle at 50% 30%, #152244 0%, #0a1128 60%, #050a1f 100%);
-    }
-
-    /* --- THE WIREFRAME WEB BACKGROUND (Guaranteed to show) --- */
-    .main::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        /* Highly visible SVG wireframe globe */
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23cda34f' stroke-width='1.5' fill='none' opacity='0.25' transform='translate(500,350)'%3E%3Cellipse cx='0' cy='-300' rx='200' ry='50'/%3E%3Cellipse cx='0' cy='-150' rx='350' ry='90'/%3E%3Cellipse cx='0' cy='0' rx='500' ry='130'/%3E%3Cellipse cx='0' cy='150' rx='350' ry='90'/%3E%3Cellipse cx='0' cy='300' rx='200' ry='50'/%3E%3Cellipse cx='0' cy='0' rx='80' ry='400'/%3E%3Cellipse cx='0' cy='0' rx='200' ry='450'/%3E%3Cellipse cx='0' cy='0' rx='350' ry='450'/%3E%3Cellipse cx='0' cy='0' rx='500' ry='450'/%3E%3Cline x1='-500' y1='0' x2='500' y2='0'/%3E%3Cline x1='0' y1='-450' x2='0' y2='450'/%3E%3C/g%3E%3C/svg%3E");
-        background-size: cover;
-        background-position: center top;
-        background-repeat: no-repeat;
-        z-index: 0;
-        pointer-events: none; /* So you can click through it */
+        position: relative;
     }
     
     /* Inner scrolling area */
     .main .block-container {
-        position: relative;
-        z-index: 1; /* Keeps your text above the web */
         height: 100%;
         overflow-y: auto; 
         padding: 3rem 3rem 8rem 3rem !important;
         max-width: 100% !important;
-        background: transparent !important; /* Ensures the web shows through */
     }
     
     /* Sidebar Background and Border */
@@ -63,7 +67,6 @@ st.markdown("""
         background-color: #0a1128 !important;
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
-        z-index: 2;
     }
     
     /* --- SIDEBAR BUTTONS --- */
@@ -136,7 +139,7 @@ st.markdown("""
 # Check if the logo image exists
 logo_exists = os.path.exists("logo.png")
 
-# --- 3. SIDEBAR ---
+# --- 4. SIDEBAR ---
 with st.sidebar:
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>", unsafe_allow_html=True)
@@ -156,7 +159,7 @@ with st.sidebar:
     st.markdown("👤 **M. Mohale**")
     st.button("🚪  Logout", use_container_width=True)
 
-# --- 4. MAIN CONTENT ---
+# --- 5. MAIN CONTENT ---
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
 
 # MIDDLE LOGO
@@ -176,7 +179,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- 5. CHAT LOGIC ---
+# --- 6. CHAT LOGIC ---
 load_dotenv()
 
 if "messages" not in st.session_state:
