@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import base64
+import textwrap
 from dotenv import load_dotenv
 from google import genai
 from PIL import Image
@@ -93,17 +94,17 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         height: 100%;
-        min-height: 85vh; /* Pushes footer to bottom */
+        min-height: 85vh; 
     }
     
     .sidebar-menu {
         display: flex;
         flex-direction: column;
-        flex-grow: 1; /* Takes up remaining space */
+        flex-grow: 1; 
     }
     
     .sidebar-footer {
-        margin-top: auto; /* Pushes footer to the bottom */
+        margin-top: auto; 
         padding-bottom: 20px;
     }
 
@@ -188,7 +189,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- 5. CUSTOM SIDEBAR (HTML) ---
-sidebar_html = """
+# We use textwrap.dedent to completely remove indentation so Streamlit doesn't treat it as code
+sidebar_html = textwrap.dedent("""
 <div class="sidebar-container">
     <div style="text-align: center; margin-bottom: 30px;">
         <h1 style='font-family: Cinzel; color: #cda34f; font-size: 60px; margin-bottom: 0;'>MP</h1>
@@ -234,7 +236,7 @@ sidebar_html = """
         </div>
     </div>
 </div>
-"""
+""")
 
 with st.sidebar:
     st.markdown(sidebar_html, unsafe_allow_html=True)
