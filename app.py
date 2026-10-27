@@ -81,8 +81,9 @@ st.markdown("""
         background: transparent !important;
     }
     
+    /* --- SIDEBAR: CHANGED TO DARK GREY --- */
     [data-testid="stSidebar"] {
-        background-color: rgba(10, 17, 40, 0.85) !important; 
+        background-color: #1a1a1a !important; /* Dark Grey */
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
         z-index: 10;
@@ -125,8 +126,7 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* --- FIX FOR THE BLACK BOTTOM BAR --- */
-    /* Target EVERY possible container Streamlit uses for the bottom bar */
+    /* --- FIX FOR THE CHAT BAR BOTTOM --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"],
     .stChatFloatingInputContainer {
@@ -135,7 +135,6 @@ st.markdown("""
         border-top: none !important;
     }
 
-    /* The Chat Input Pill */
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
         border-radius: 50px !important; 
@@ -147,7 +146,6 @@ st.markdown("""
         z-index: 100;
     }
     
-    /* Ensure the text area inside the chat input is also dark blue */
     [data-testid="stChatInput"] > div {
         border: none !important;
         background: transparent !important;
