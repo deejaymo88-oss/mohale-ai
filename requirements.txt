@@ -1,7 +1,4 @@
 streamlit
-openai
-tavily-python
-pypdf
-Pillow
 python-dotenv
-google-genai
+pillow
+google-genai>=2.28.0
