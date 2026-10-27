@@ -10,7 +10,6 @@ from PIL import Image
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 
 # --- 2. ROUTING LOGIC ---
-# Read the page from the URL. Default to 'dashboard'
 page = st.query_params.get("page", "dashboard")
 
 # --- 3. CONVERT WALLPAPER TO BASE64 ---
@@ -67,7 +66,7 @@ st.markdown(f"""
 <div class="gold-frame"></div>
 """, unsafe_allow_html=True)
 
-# --- 5. APP STYLING (Custom HTML Sidebar, Chat) ---
+# --- 5. APP STYLING ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -79,7 +78,7 @@ st.markdown("""
         background: transparent !important;
     }
     
-    /* --- SIDEBAR: DARK GREY --- */
+    /* --- SIDEBAR --- */
     [data-testid="stSidebar"] {
         background-color: #1a1a1a !important; 
         border-right: 1px solid #cda34f;
@@ -92,7 +91,6 @@ st.markdown("""
         flex-direction: column;
     }
 
-    /* --- FLEXBOX LAYOUT --- */
     .sidebar-container {
         display: flex;
         flex-direction: column;
@@ -111,7 +109,6 @@ st.markdown("""
         padding-bottom: 20px;
     }
 
-    /* Menu Items (Now clickable links) */
     .menu-item {
         display: flex;
         align-items: center;
@@ -121,7 +118,7 @@ st.markdown("""
         color: #d1d5db;
         font-family: 'Inter', sans-serif;
         font-size: 16px;
-        text-decoration: none; /* Removes underline from links */
+        text-decoration: none !important; 
         transition: 0.3s;
         white-space: nowrap;
     }
@@ -129,10 +126,8 @@ st.markdown("""
     .menu-item:hover {
         color: #cda34f;
         background-color: rgba(205, 163, 79, 0.05);
-        text-decoration: none;
     }
     
-    /* Active Page State */
     .menu-item.active {
         background-color: #2a2a2a;
         border-left: 3px solid #cda34f;
@@ -151,7 +146,7 @@ st.markdown("""
         stroke-linejoin: round;
     }
 
-    /* --- CHAT BAR --- */
+    /* --- CHAT BAR & PLUS SIGN --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"],
     .stChatFloatingInputContainer {
@@ -181,6 +176,11 @@ st.markdown("""
         margin-top: 5px !important; 
     }
 
+    /* Style the native Plus (+) button inside the chat bar */
+    [data-testid="stChatInput"] button {
+        color: #cda34f !important; /* Gold color for the plus sign */
+    }
+
     .hero-section {
         display: flex;
         flex-direction: column;
@@ -192,7 +192,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- 6. CUSTOM SIDEBAR (HTML) ---
-# We dynamically check the URL to see which button should be highlighted
 raw_html = f"""
 <div class="sidebar-container">
     <div style="text-align: center; margin-bottom: 30px;">
@@ -277,7 +276,6 @@ elif page == "chats":
 elif page == "document":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Document Analysis</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color: #a0a0a0; text-align: center;'>Upload a document to get started.</p>", unsafe_allow_html=True)
-    # You can add st.file_uploader here later!
 
 elif page == "meeting":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Meeting Notes</h1>", unsafe_allow_html=True)
@@ -295,8 +293,8 @@ elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color: #a0a0a0; text-align: center;'>You have been logged out.</p>", unsafe_allow_html=True)
 
-# --- 8. CHAT LOGIC ---
-# This stays global so the chat bar works on every page!
+
+# --- 8. CHAT LOGIC WITH WORKING PLUS (+) FILE UPLOAD ---
 load_dotenv()
 
 if "messages" not in st.session_state:
@@ -306,21 +304,40 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if prompt := st.chat_input("Ask anything..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
+# WE ADD accept_file=True HERE! This adds the working + button.
+if prompt := st.chat_input("Ask anything...", accept_file=True):
+    
+    # Handle the text and the uploaded files
+    text_input = prompt.text if prompt.text else ""
+    uploaded_files = prompt.files
+    
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": text_input})
     with st.chat_message("user"):
-        st.markdown(prompt)
+        st.markdown(text_input)
+        if uploaded_files:
+            for file in uploaded_files:
+                st.info(f"📎 Attached File: {file.name}")
 
+    # Generate AI response
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
-                client = genai.Client(api_key=api_key)
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt
-                )
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
+                # If a file was uploaded, we just acknowledge it for now
+                if uploaded_files:
+                    file_names = ", ".join([f.name for f in uploaded_files])
+                    response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
+                else:
+                    # Standard text response from Gemini
+                    api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
+                    client = genai.Client(api_key=api_key)
+                    response = client.models.generate_content(
+                        model="gemini-2.5-flash",
+                        contents=text_input
+                    )
+                    response_text = response.text
+                
+                st.markdown(response_text)
+                st.session_state.messages.append({"role": "assistant", "content": response_text})
             except Exception as e:
                 st.error(f"Error: Check your API key. Details: {e}")
