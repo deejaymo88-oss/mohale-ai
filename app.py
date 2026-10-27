@@ -62,10 +62,9 @@ st.markdown(f"""
 <div class="gold-frame"></div>
 """, unsafe_allow_html=True)
 
-# --- 4. APP STYLING (Sidebar, Chat) ---
+# --- 4. APP STYLING (Custom HTML Sidebar, Chat) ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     [data-testid="stHeader"] { display: none !important; }
 
@@ -79,77 +78,59 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background-color: #1a1a1a !important; 
         border-right: 1px solid #cda34f;
+    }
+    
+    /* Hide the default Streamlit sidebar toggle and padding */
+    [data-testid="stSidebar"] > div:first-child {
         padding-top: 2rem;
-        z-index: 10;
-    }
-    
-    /* General Sidebar Button Styling */
-    [data-testid="stSidebar"] button {
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        padding: 12px 20px !important;
-        width: 100% !important;
-        display: flex !important;
-        justify-content: flex-start !important; /* Forces button content left */
-        text-align: left !important;
-    }
-    
-    [data-testid="stSidebar"] button:hover {
-        background-color: rgba(205, 163, 79, 0.05) !important;
+        height: 100vh;
+        position: relative;
     }
 
-    /* Force text container inside button to align left */
-    [data-testid="stSidebar"] button div[data-testid="stMarkdownContainer"] {
-        display: flex !important;
-        justify-content: flex-start !important;
+    /* --- CUSTOM HTML MENU STYLING --- */
+    .sidebar-menu {
+        display: flex;
+        flex-direction: column;
         width: 100%;
     }
-
-    [data-testid="stSidebar"] button p {
-        text-align: left !important;
-        justify-content: flex-start !important;
-        display: flex !important;
-        align-items: center !important;
-        width: 100% !important;
-        font-size: 16px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        color: #d1d5db !important;
+    
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        cursor: pointer;
+        color: #d1d5db;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        transition: 0.3s;
+    }
+    
+    .menu-item:hover {
+        color: #cda34f;
+        background-color: rgba(205, 163, 79, 0.05);
+    }
+    
+    /* Active State */
+    .menu-item.active {
+        background-color: #2a2a2a;
+        border-left: 3px solid #cda34f;
+        color: #ffffff;
+    }
+    
+    .menu-item.active svg {
+        stroke: #cda34f;
     }
 
-    /* Base icon styling */
-    [data-testid="stSidebar"] button p::before {
-        font-family: "Font Awesome 6 Free" !important;
-        font-weight: 900 !important;
-        margin-right: 15px !important;
-        font-size: 18px !important;
-        color: #a0a0a0;
-        width: 20px !important; 
-        text-align: center !important;
-        display: inline-block !important;
-    }
-
-    /* Target specific buttons using nth-child on the main vertical block */
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(4) button p::before { content: "\f015"; } /* Dashboard */
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(5) button p::before { content: "\f086"; } /* All Chats */
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(6) button p::before { content: "\f15c"; } /* Document Analysis */
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(7) button p::before { content: "\f133"; } /* Meeting Notes */
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(8) button p::before { content: "\f013"; } /* Settings */
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(9) button p::before { content: "\f059"; } /* Get Help */
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(13) button p::before { content: "\f2f5"; } /* Logout */
-
-    /* --- ACTIVE BUTTON HIGHLIGHT (Dashboard) --- */
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(4) button {
-        background-color: #2a2a2a !important; 
-        border-left: 3px solid #cda34f !important;
-    }
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(4) button p {
-        color: #ffffff !important;
-    }
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(4) button p::before {
-        color: #cda34f !important;
+    /* Icons */
+    .menu-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 15px;
+        stroke: #a0a0a0;
+        stroke-width: 2;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
     /* --- CHAT BAR SURROUNDING AREA --- */
@@ -161,7 +142,7 @@ st.markdown("""
         border-top: none !important;
     }
 
-    /* --- CHAT BAR PILL --- */
+    /* --- CHAT BAR PILL (Dark Grey Inside) --- */
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
         border-radius: 50px !important; 
@@ -193,31 +174,65 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 5. SIDEBAR ---
+# --- 5. CUSTOM SIDEBAR (HTML) ---
 with st.sidebar:
-    st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel; margin-bottom: 30px;'>Mohale M. Professional</p>", unsafe_allow_html=True)
-    
-    st.button("Dashboard", use_container_width=True)
-    st.button("All Chats", use_container_width=True)
-    st.button("Document Analysis", use_container_width=True)
-    st.button("Meeting Notes", use_container_width=True)
-    st.button("Settings", use_container_width=True)
-    st.button("Get Help", use_container_width=True)
-    
-    st.write("<br><br><br>", unsafe_allow_html=True) 
-    
-    st.markdown("---")
-    
-    # Custom Profile Section
     st.markdown("""
-        <div style="display: flex; align-items: center; padding: 10px 0;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style='font-family: Cinzel; color: #cda34f; font-size: 60px; margin-bottom: 0;'>MP</h1>
+        <p style='color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>
+    </div>
+
+    <div class="sidebar-menu">
+        <!-- Dashboard (Active) -->
+        <div class="menu-item active">
+            <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Dashboard
+        </div>
+        
+        <!-- All Chats -->
+        <div class="menu-item">
+            <svg class="menu-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            All Chats
+        </div>
+        
+        <!-- Document Analysis -->
+        <div class="menu-item">
+            <svg class="menu-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Document Analysis
+        </div>
+        
+        <!-- Meeting Notes -->
+        <div class="menu-item">
+            <svg class="menu-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Meeting Notes
+        </div>
+        
+        <!-- Settings -->
+        <div class="menu-item">
+            <svg class="menu-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            Settings
+        </div>
+        
+        <!-- Get Help -->
+        <div class="menu-item">
+            <svg class="menu-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            Get Help
+        </div>
+    </div>
+
+    <!-- Bottom Profile Section -->
+    <div style="position: absolute; bottom: 20px; width: 100%; left: 0;">
+        <hr style="border-color: #333; margin: 0 20px 15px 20px;">
+        <div style="display: flex; align-items: center; padding: 10px 20px; margin-bottom: 5px;">
             <img src="https://i.pravatar.cc/150?img=11" style="border-radius: 50%; width: 35px; height: 35px; margin-right: 15px; border: 1px solid #cda34f;">
             <span style="color: #e0d0b0; font-size: 15px; font-family: 'Inter', sans-serif;">M. Mohale</span>
         </div>
+        <div class="menu-item">
+            <svg class="menu-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Logout
+        </div>
+    </div>
     """, unsafe_allow_html=True)
-    
-    st.button("Logout", use_container_width=True)
 
 # --- 6. MAIN CONTENT ---
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
