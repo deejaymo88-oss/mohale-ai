@@ -19,30 +19,43 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
     
-    /* --- THE LOCKED FRAME & THE WIREFRAME GLOBE BACKGROUND --- */
+    /* --- THE LOCKED FRAME --- */
     .main {
-        /* The exact subtle wireframe globe pattern from your 1st picture */
-        background-image: 
-            radial-gradient(circle at 50% 40%, rgba(21, 34, 68, 0.8) 0%, rgba(10, 17, 40, 1) 70%),
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23cda34f' stroke-width='1' fill='none' opacity='0.15' transform='translate(500,350)'%3E%3Cellipse cx='0' cy='-300' rx='200' ry='50'/%3E%3Cellipse cx='0' cy='-150' rx='350' ry='90'/%3E%3Cellipse cx='0' cy='0' rx='500' ry='130'/%3E%3Cellipse cx='0' cy='150' rx='350' ry='90'/%3E%3Cellipse cx='0' cy='300' rx='200' ry='50'/%3E%3Cellipse cx='0' cy='0' rx='80' ry='400'/%3E%3Cellipse cx='0' cy='0' rx='200' ry='450'/%3E%3Cellipse cx='0' cy='0' rx='350' ry='450'/%3E%3Cellipse cx='0' cy='0' rx='500' ry='450'/%3E%3Cline x1='-500' y1='0' x2='500' y2='0'/%3E%3Cline x1='0' y1='-450' x2='0' y2='450'/%3E%3C/g%3E%3C/svg%3E");
-        background-size: cover;
-        background-position: center top;
-        background-repeat: no-repeat;
-        
-        /* Lock the frame so it NEVER moves */
         border: 1px solid #cda34f;
         border-radius: 8px;
         height: calc(100vh - 2rem); 
         margin: 1rem;
         overflow: hidden; 
+        position: relative; /* Required for the background overlay */
+        background: radial-gradient(circle at 50% 30%, #152244 0%, #0a1128 60%, #050a1f 100%);
+    }
+
+    /* --- THE WIREFRAME WEB BACKGROUND (Guaranteed to show) --- */
+    .main::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* Highly visible SVG wireframe globe */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23cda34f' stroke-width='1.5' fill='none' opacity='0.25' transform='translate(500,350)'%3E%3Cellipse cx='0' cy='-300' rx='200' ry='50'/%3E%3Cellipse cx='0' cy='-150' rx='350' ry='90'/%3E%3Cellipse cx='0' cy='0' rx='500' ry='130'/%3E%3Cellipse cx='0' cy='150' rx='350' ry='90'/%3E%3Cellipse cx='0' cy='300' rx='200' ry='50'/%3E%3Cellipse cx='0' cy='0' rx='80' ry='400'/%3E%3Cellipse cx='0' cy='0' rx='200' ry='450'/%3E%3Cellipse cx='0' cy='0' rx='350' ry='450'/%3E%3Cellipse cx='0' cy='0' rx='500' ry='450'/%3E%3Cline x1='-500' y1='0' x2='500' y2='0'/%3E%3Cline x1='0' y1='-450' x2='0' y2='450'/%3E%3C/g%3E%3C/svg%3E");
+        background-size: cover;
+        background-position: center top;
+        background-repeat: no-repeat;
+        z-index: 0;
+        pointer-events: none; /* So you can click through it */
     }
     
     /* Inner scrolling area */
     .main .block-container {
+        position: relative;
+        z-index: 1; /* Keeps your text above the web */
         height: 100%;
         overflow-y: auto; 
         padding: 3rem 3rem 8rem 3rem !important;
         max-width: 100% !important;
+        background: transparent !important; /* Ensures the web shows through */
     }
     
     /* Sidebar Background and Border */
@@ -50,6 +63,7 @@ st.markdown("""
         background-color: #0a1128 !important;
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
+        z-index: 2;
     }
     
     /* --- SIDEBAR BUTTONS --- */
