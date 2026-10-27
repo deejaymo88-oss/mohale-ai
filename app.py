@@ -109,13 +109,13 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* --- AGGRESSIVE CROP TO REMOVE IMAGE TEXT --- */
+    /* --- AGGRESSIVE CROP TO REMOVE IMAGE TEXT COMPLETELY --- */
     .main [data-testid="stImage"] img {
-        clip-path: inset(0 0 38% 0) !important; 
-        margin-bottom: -36% !important; 
+        clip-path: inset(0 0 45% 0) !important; /* Cuts off the bottom 45% where text is */
+        margin-bottom: -43% !important; /* Pulls the clean text up tightly */
     }
     
-    /* --- THE PERFECT FLOATING PILL CHAT BAR --- */
+    /* --- THE PERFECT FLOATING PILL CHAT BAR (Moved up inside the frame) --- */
     [data-testid="stBottom"], .stChatInputContainer {
         background-color: transparent !important;
         background: transparent !important;
@@ -126,7 +126,7 @@ st.markdown("""
         border-radius: 50px !important; 
         background-color: rgba(10, 17, 40, 0.95) !important;
         max-width: 85% !important;
-        margin: 0 auto 1.5rem auto !important;
+        margin: 0 auto 3rem auto !important; /* Pushes the chat bar UP so it doesn't hide the bottom border */
         padding: 5px 15px !important;
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6);
         z-index: 100;
