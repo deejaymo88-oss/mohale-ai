@@ -2,13 +2,10 @@ import streamlit as st
 import os
 import base64
 import re
+import time
 import requests
 from dotenv import load_dotenv
 from PIL import Image
-
-# --- 1. PAGE SETUP ---
-st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
-
 # Load environment variables
 load_dotenv()
 
