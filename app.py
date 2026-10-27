@@ -32,6 +32,11 @@ st.markdown(f"""
         background: transparent !important;
     }}
 
+    /* Set the body background to dark blue to prevent black flashes */
+    html, body {{
+        background-color: #0a1128 !important;
+    }}
+
     /* YOUR REAL WALLPAPER */
     .web-bg {{
         position: fixed;
@@ -120,16 +125,21 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* --- CHANGED: FIXED THE BLACK BACKGROUND AT THE BOTTOM --- */
-    [data-testid="stBottom"], .stChatInputContainer {
-        background-color: #0a1128 !important; /* Changed to dark blue */
+    /* --- FIX FOR THE BLACK BOTTOM BAR --- */
+    /* Target EVERY possible container Streamlit uses for the bottom bar */
+    [data-testid="stBottom"], 
+    [data-testid="stBottomBlockContainer"],
+    .stChatFloatingInputContainer {
+        background-color: #0a1128 !important; 
         background: #0a1128 !important;
+        border-top: none !important;
     }
 
+    /* The Chat Input Pill */
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
         border-radius: 50px !important; 
-        background-color: #0a1128 !important; /* Changed to dark blue */
+        background-color: #0a1128 !important; 
         max-width: 85% !important;
         margin: 0 auto 3rem auto !important; 
         padding: 5px 15px !important;
@@ -137,6 +147,7 @@ st.markdown("""
         z-index: 100;
     }
     
+    /* Ensure the text area inside the chat input is also dark blue */
     [data-testid="stChatInput"] > div {
         border: none !important;
         background: transparent !important;
