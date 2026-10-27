@@ -328,18 +328,29 @@ def get_ai_response(api_key, user_text):
         }]
     }
 
-    try:
-        response = requests.post(url, headers=headers, json=payload, timeout=15)
-        response_data = response.json()
+    # Try up to 3 times if Google's servers are busy
+    for attempt in range(3):
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=15)
+            response_data = response.json()
 
-        if "candidates" in response_data:
-            return response_data["candidates"][0]["content"]["parts"][0]["text"]
-        else:
+            if "candidates" in response_data:
+                return response_data["candidates"][0]["content"]["parts"][0]["text"]
+            
+            # If Google is busy (503), wait 2 seconds and retry
+            if response.status_code == 503:
+                if attempt < 2:
+                    time.sleep(2)
+                    continue
+                else:
+                    return "Google's servers are super busy right now. Please wait a minute and try again."
+            
             return f"API Error: {response_data}"
-    except requests.exceptions.Timeout:
-        return "Timeout error: Google's servers took too long to respond."
-    except Exception as e:
-        return f"Connection Error: {str(e)}"
+            
+        except requests.exceptions.Timeout:
+            return "Timeout error: Google's servers took too long to respond."
+        except Exception as e:
+            return f"Connection Error: {str(e)}"
 
 if prompt := st.chat_input("Ask anything...", accept_file=True):
     
