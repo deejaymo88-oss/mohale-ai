@@ -84,26 +84,24 @@ st.markdown("""
     
     /* --- SIDEBAR: DARK GREY --- */
     [data-testid="stSidebar"] {
-        background-color: #1a1a1a !important; /* Kept Dark Grey */
+        background-color: #1a1a1a !important; 
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
         z-index: 10;
     }
     
-    /* General Sidebar Button Styling */
+    /* General Sidebar Button Styling & Alignment */
     [data-testid="stSidebar"] button {
         background-color: transparent !important;
         border: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
         color: #d1d5db !important; 
-        text-align: left !important;
-        justify-content: flex-start !important;
         padding: 12px 20px !important;
-        font-size: 16px !important;
         width: 100%;
-        display: flex;
-        align-items: center;
+        display: flex !important;
+        align-items: center !important; /* Centers vertically */
+        justify-content: flex-start !important; /* Aligns left */
         transition: 0.3s;
     }
     
@@ -113,34 +111,46 @@ st.markdown("""
         background-color: rgba(205, 163, 79, 0.05) !important;
     }
     
+    /* Target the text container inside the button to fix alignment */
+    [data-testid="stSidebar"] button div[data-testid="stMarkdownContainer"] {
+        display: flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     [data-testid="stSidebar"] button p {
         text-align: left !important;
-        justify-content: flex-start !important;
         font-size: 16px !important;
         margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
     }
 
     /* --- CUSTOM ICONS --- */
     [data-testid="stSidebar"] button::before {
-        font-family: "Font Awesome 6 Free";
-        font-weight: 900;
-        margin-right: 15px;
-        font-size: 18px;
+        font-family: "Font Awesome 6 Free" !important;
+        font-weight: 900 !important;
+        margin-right: 15px !important;
+        font-size: 18px !important;
         color: #a0a0a0;
+        width: 20px !important; /* Fixed width keeps all text perfectly aligned */
+        text-align: center !important;
+        display: inline-block !important;
     }
     
     /* Specific icons */
-    [data-testid="stSidebar"] button:nth-of-type(1)::before { content: "\f015"; } /* Home */
-    [data-testid="stSidebar"] button:nth-of-type(2)::before { content: "\f086"; } /* Chat */
-    [data-testid="stSidebar"] button:nth-of-type(3)::before { content: "\f15c"; } /* Document */
-    [data-testid="stSidebar"] button:nth-of-type(4)::before { content: "\f133"; } /* Calendar */
-    [data-testid="stSidebar"] button:nth-of-type(5)::before { content: "\f013"; } /* Settings */
-    [data-testid="stSidebar"] button:nth-of-type(6)::before { content: "\f059"; } /* Help */
-    [data-testid="stSidebar"] button:nth-of-type(7)::before { content: "\f2f5"; } /* Logout */
+    [data-testid="stSidebar"] button:nth-of-type(1)::before { content: "\f015"; } 
+    [data-testid="stSidebar"] button:nth-of-type(2)::before { content: "\f086"; } 
+    [data-testid="stSidebar"] button:nth-of-type(3)::before { content: "\f15c"; } 
+    [data-testid="stSidebar"] button:nth-of-type(4)::before { content: "\f133"; } 
+    [data-testid="stSidebar"] button:nth-of-type(5)::before { content: "\f013"; } 
+    [data-testid="stSidebar"] button:nth-of-type(6)::before { content: "\f059"; } 
+    [data-testid="stSidebar"] button:nth-of-type(7)::before { content: "\f2f5"; } 
 
     /* --- ACTIVE BUTTON HIGHLIGHT (Dashboard) --- */
     [data-testid="stSidebar"] button:nth-of-type(1) {
-        background-color: #2a2a2a !important; /* Slightly lighter grey for active state */
+        background-color: #2a2a2a !important; 
         border-left: 3px solid #cda34f !important;
         color: #ffffff !important;
     }
@@ -167,13 +177,17 @@ st.markdown("""
         padding: 5px 15px !important;
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6);
         z-index: 100;
+        display: flex;
+        align-items: center;
     }
     
+    /* Ensure text area aligns properly */
     [data-testid="stChatInput"] > div, 
     [data-testid="stChatInput"] textarea {
         border: none !important;
         background-color: transparent !important;
         color: #ffffff !important;
+        margin-top: 5px !important; /* Aligns text vertically in the pill */
     }
 
     .hero-section {
@@ -191,7 +205,6 @@ with st.sidebar:
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel; margin-bottom: 30px;'>Mohale M. Professional</p>", unsafe_allow_html=True)
     
-    # Text without Emojis (CSS handles the icons)
     st.button("Dashboard", use_container_width=True)
     st.button("All Chats", use_container_width=True)
     st.button("Document Analysis", use_container_width=True)
