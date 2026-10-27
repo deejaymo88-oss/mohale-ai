@@ -2,10 +2,8 @@ import streamlit as st
 import os
 import base64
 import re
-import time
-import concurrent.futures
+import requests
 from dotenv import load_dotenv
-from google import genai
 from PIL import Image
 
 # --- 1. PAGE SETUP ---
@@ -310,7 +308,7 @@ elif page == "logout":
     st.markdown("<p style='color: #a0a0a0; text-align: center;'>You have been logged out.</p>", unsafe_allow_html=True)
 
 
-# --- 8. CHAT LOGIC (UPDATED FOR INTERACTIONS API) ---
+# --- 8. DIRECT REST API CHAT LOGIC (NO HANGING) ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -319,13 +317,27 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 def get_ai_response(api_key, user_text):
-    client = genai.Client(api_key=api_key)
-    # Using the new Interactions API and gemini-3.8-flash
-    interaction = client.interactions.create(
-        model="gemini-3.8-flash", 
-        input=user_text
-    )
-    return interaction.output_text
+    # Using REST API directly to bypass SDK bugs
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    headers = {'Content-Type': 'application/json'}
+    payload = {
+        "contents": [{
+            "parts":[{"text": user_text}]
+        }]
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=15)
+        response_data = response.json()
+        
+        if 'candidates' in response_data:
+            return response_data['candidates'][0]['content']['parts'][0]['text']
+        else:
+            return f"API Error: {response_data}"
+    except requests.exceptions.Timeout:
+        return "Timeout error: Google's servers took too long to respond."
+    except Exception as e:
+        return f"Connection Error: {str(e)}"
 
 if prompt := st.chat_input("Ask anything...", accept_file=True):
     
@@ -341,21 +353,16 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
 
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            try:
-                if uploaded_files:
-                    file_names = ", ".join([f.name for f in uploaded_files])
-                    response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
+            if uploaded_files:
+                file_names = ", ".join([f.name for f in uploaded_files])
+                response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
+            else:
+                api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
+                
+                if not api_key:
+                    response_text = "Error: No API key found. Please check your Streamlit Secrets."
                 else:
-                    api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
-                    
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
-                        future = executor.submit(get_ai_response, api_key, text_input)
-                        response_text = future.result(timeout=15)
-                
-                st.markdown(response_text)
-                st.session_state.messages.append({"role": "assistant", "content": response_text})
-                
-            except concurrent.futures.TimeoutError:
-                st.error("The AI is taking too long to respond. Google's servers might be busy. Please try again.")
-            except Exception as e:
-                st.error(f"Error: {e}")
+                    response_text = get_ai_response(api_key, text_input)
+            
+            st.markdown(response_text)
+            st.session_state.messages.append({"role": "assistant", "content": response_text})
