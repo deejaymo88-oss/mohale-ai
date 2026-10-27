@@ -10,50 +10,49 @@ st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_s
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-    /* 1. Base Background */
+    /* Hide Streamlit's default top bar */
+    [data-testid="stHeader"] { display: none !important; }
+
+    /* Base App Background */
     .stApp { 
         background-color: #0a1128;
         font-family: 'Inter', sans-serif;
     }
     
-    /* Hide Streamlit's top bar completely */
-    [data-testid="stHeader"] { display: none !important; }
-
-    /* 2. THE LOCKED GOLD FRAME */
-    /* This fixes the border to the screen so it NEVER moves */
+    /* --- THE LOCKED FRAME & THE WIREFRAME GLOBE BACKGROUND --- */
     .main {
+        /* The exact subtle wireframe globe pattern from your 1st picture */
+        background-image: 
+            radial-gradient(circle at 50% 40%, rgba(21, 34, 68, 0.8) 0%, rgba(10, 17, 40, 1) 70%),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23cda34f' stroke-width='1' fill='none' opacity='0.15' transform='translate(500,350)'%3E%3Cellipse cx='0' cy='-300' rx='200' ry='50'/%3E%3Cellipse cx='0' cy='-150' rx='350' ry='90'/%3E%3Cellipse cx='0' cy='0' rx='500' ry='130'/%3E%3Cellipse cx='0' cy='150' rx='350' ry='90'/%3E%3Cellipse cx='0' cy='300' rx='200' ry='50'/%3E%3Cellipse cx='0' cy='0' rx='80' ry='400'/%3E%3Cellipse cx='0' cy='0' rx='200' ry='450'/%3E%3Cellipse cx='0' cy='0' rx='350' ry='450'/%3E%3Cellipse cx='0' cy='0' rx='500' ry='450'/%3E%3Cline x1='-500' y1='0' x2='500' y2='0'/%3E%3Cline x1='0' y1='-450' x2='0' y2='450'/%3E%3C/g%3E%3C/svg%3E");
+        background-size: cover;
+        background-position: center top;
+        background-repeat: no-repeat;
+        
+        /* Lock the frame so it NEVER moves */
         border: 1px solid #cda34f;
         border-radius: 8px;
-        
-        /* Lock the height and margins */
         height: calc(100vh - 2rem); 
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        margin-right: 1rem;
-        margin-left: 1rem;
-        overflow: hidden; /* Stops the whole page from scrolling */
-        
-        /* The subtle background glow inside the frame */
-        background: radial-gradient(circle at 50% 30%, #152244 0%, #0a1128 70%);
+        margin: 1rem;
+        overflow: hidden; 
     }
     
-    /* 3. THE INNER SCROLLING AREA */
-    /* Only the content inside the frame scrolls */
+    /* Inner scrolling area */
     .main .block-container {
         height: 100%;
         overflow-y: auto; 
-        padding: 2rem 3rem 8rem 3rem !important;
+        padding: 3rem 3rem 8rem 3rem !important;
         max-width: 100% !important;
     }
     
-    /* 4. SIDEBAR (Matches the dark blue background) */
+    /* Sidebar Background and Border */
     [data-testid="stSidebar"] {
         background-color: #0a1128 !important;
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
     }
     
-    /* Sidebar Buttons */
+    /* --- SIDEBAR BUTTONS --- */
     [data-testid="stSidebar"] button {
         background-color: transparent !important;
         border: none !important;
@@ -93,18 +92,18 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* 5. CROP THE TEXT OUT OF THE LOGO IMAGE */
+    /* --- CROP THE TEXT OUT OF THE LOGO IMAGE --- */
     .main [data-testid="stImage"] img {
-        clip-path: inset(0 0 28% 0); /* Chops off the bottom text */
-        margin-bottom: -24%; /* Pulls the new text up perfectly */
+        clip-path: inset(0 0 32% 0) !important; 
+        margin-bottom: -30% !important; 
     }
     
-    /* 6. THE STICKY PILL CHAT BAR */
+    /* --- THE PERFECT PILL CHAT BAR --- */
     [data-testid="stChatInput"] {
         position: sticky;
-        bottom: 2rem; /* Sticks to the bottom of the frame */
+        bottom: 2rem;
         border: 1px solid #cda34f !important;
-        border-radius: 50px !important; /* Perfect Pill Shape */
+        border-radius: 50px !important; 
         background-color: rgba(10, 17, 40, 0.95) !important;
         max-width: 85% !important;
         margin: 0 auto !important;
@@ -113,7 +112,6 @@ st.markdown("""
         z-index: 100;
     }
     
-    /* Removes Streamlit's inner box borders so the pill looks smooth */
     [data-testid="stChatInput"] > div {
         border: none !important;
         background: transparent !important;
@@ -157,7 +155,7 @@ else:
 
 # TEXT BELOW LOGO 
 st.markdown("""
-        <p style='font-family: "Cinzel", serif; color: #e0d0b0; text-align: center; font-size: 20px; margin-top: 5px;'>Mohale M. Professional</p>
+        <p style='font-family: "Cinzel", serif; color: #e0d0b0; text-align: center; font-size: 20px; margin-top: 10px;'>Mohale M. Professional</p>
         <br><br>
         <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; text-align: center; margin-top: 10px;'>HI, I'M MOHALE</h1>
         <p style='color: #a0a0a0; font-size: 16px; text-align: center; margin-bottom: 50px;'>How can I assist you today?</p>
