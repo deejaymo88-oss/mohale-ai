@@ -27,17 +27,12 @@ else:
 # --- 3. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
 st.markdown(f"""
 <style>
-    /* Make the main app transparent */
     .stApp, [data-testid="stAppViewContainer"] {{
         background: transparent !important;
     }}
-
-    /* Set the body background to dark blue to prevent black flashes */
     html, body {{
         background-color: #0a1128 !important;
     }}
-
-    /* YOUR REAL WALLPAPER */
     .web-bg {{
         position: fixed;
         top: 0;
@@ -51,8 +46,6 @@ st.markdown(f"""
         background-repeat: no-repeat;
         pointer-events: none;
     }}
-
-    /* THE LOCKED GOLD BORDER */
     .gold-frame {{
         position: fixed;
         top: 1rem;
@@ -90,75 +83,76 @@ st.markdown("""
         z-index: 10;
     }
     
-    /* General Sidebar Button Styling & Alignment */
+    /* General Sidebar Button Styling */
     [data-testid="stSidebar"] button {
         background-color: transparent !important;
         border: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
-        color: #d1d5db !important; 
         padding: 12px 20px !important;
-        width: 100%;
+        width: 100% !important;
         display: flex !important;
-        align-items: center !important; /* Centers vertically */
-        justify-content: flex-start !important; /* Aligns left */
-        transition: 0.3s;
+        justify-content: flex-start !important; /* Forces button content left */
+        text-align: left !important;
     }
     
-    /* Hover state */
     [data-testid="stSidebar"] button:hover {
-        color: #cda34f !important;
         background-color: rgba(205, 163, 79, 0.05) !important;
     }
-    
-    /* Target the text container inside the button to fix alignment */
+
+    /* Force text container inside button to align left */
     [data-testid="stSidebar"] button div[data-testid="stMarkdownContainer"] {
         display: flex !important;
-        align-items: center !important;
-        margin: 0 !important;
-        padding: 0 !important;
+        justify-content: flex-start !important;
+        width: 100%;
     }
 
     [data-testid="stSidebar"] button p {
         text-align: left !important;
+        justify-content: flex-start !important;
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
         font-size: 16px !important;
         margin: 0 !important;
         padding: 0 !important;
-        line-height: 1 !important;
+        color: #d1d5db !important;
     }
 
-    /* --- CUSTOM ICONS --- */
-    [data-testid="stSidebar"] button::before {
+    /* Base icon styling */
+    [data-testid="stSidebar"] button p::before {
         font-family: "Font Awesome 6 Free" !important;
         font-weight: 900 !important;
         margin-right: 15px !important;
         font-size: 18px !important;
         color: #a0a0a0;
-        width: 20px !important; /* Fixed width keeps all text perfectly aligned */
+        width: 20px !important; 
         text-align: center !important;
         display: inline-block !important;
     }
-    
-    /* Specific icons */
-    [data-testid="stSidebar"] button:nth-of-type(1)::before { content: "\f015"; } 
-    [data-testid="stSidebar"] button:nth-of-type(2)::before { content: "\f086"; } 
-    [data-testid="stSidebar"] button:nth-of-type(3)::before { content: "\f15c"; } 
-    [data-testid="stSidebar"] button:nth-of-type(4)::before { content: "\f133"; } 
-    [data-testid="stSidebar"] button:nth-of-type(5)::before { content: "\f013"; } 
-    [data-testid="stSidebar"] button:nth-of-type(6)::before { content: "\f059"; } 
-    [data-testid="stSidebar"] button:nth-of-type(7)::before { content: "\f2f5"; } 
+
+    /* Target specific buttons using nth-child on the main vertical block */
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(4) button p::before { content: "\f015"; } /* Dashboard */
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(5) button p::before { content: "\f086"; } /* All Chats */
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(6) button p::before { content: "\f15c"; } /* Document Analysis */
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(7) button p::before { content: "\f133"; } /* Meeting Notes */
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(8) button p::before { content: "\f013"; } /* Settings */
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(9) button p::before { content: "\f059"; } /* Get Help */
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(13) button p::before { content: "\f2f5"; } /* Logout */
 
     /* --- ACTIVE BUTTON HIGHLIGHT (Dashboard) --- */
-    [data-testid="stSidebar"] button:nth-of-type(1) {
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(4) button {
         background-color: #2a2a2a !important; 
         border-left: 3px solid #cda34f !important;
+    }
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(4) button p {
         color: #ffffff !important;
     }
-    [data-testid="stSidebar"] button:nth-of-type(1)::before {
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:nth-child(4) button p::before {
         color: #cda34f !important;
     }
 
-    /* --- CHAT BAR SURROUNDING AREA (Dark Blue) --- */
+    /* --- CHAT BAR SURROUNDING AREA --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"],
     .stChatFloatingInputContainer {
@@ -167,7 +161,7 @@ st.markdown("""
         border-top: none !important;
     }
 
-    /* --- CHAT BAR PILL (Dark Grey Inside) --- */
+    /* --- CHAT BAR PILL --- */
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
         border-radius: 50px !important; 
@@ -181,13 +175,12 @@ st.markdown("""
         align-items: center;
     }
     
-    /* Ensure text area aligns properly */
     [data-testid="stChatInput"] > div, 
     [data-testid="stChatInput"] textarea {
         border: none !important;
         background-color: transparent !important;
         color: #ffffff !important;
-        margin-top: 5px !important; /* Aligns text vertically in the pill */
+        margin-top: 5px !important; 
     }
 
     .hero-section {
