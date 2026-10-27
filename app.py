@@ -7,32 +7,40 @@ from PIL import Image
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
-st.markdown("""
+# --- 2. DETECT YOUR WALLPAPER IMAGE ---
+# This checks if your image is a .jpg or .png and sets it automatically
+wallpaper_file = "wallpaper.jpg"
+if os.path.exists("wallpaper.png"):
+    wallpaper_file = "wallpaper.png"
+elif os.path.exists("wallpaper.jpeg"):
+    wallpaper_file = "wallpaper.jpeg"
+
+# --- 3. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
+st.markdown(f"""
 <style>
     /* Make the main app transparent */
-    .stApp, [data-testid="stAppViewContainer"] {
+    .stApp, [data-testid="stAppViewContainer"] {{
         background: transparent !important;
-    }
+    }}
 
     /* YOUR REAL WALLPAPER */
-    .web-bg {
+    .web-bg {{
         position: fixed;
         top: 0;
         left: 0;
         width: 100vw; 
         height: 100vh;
         z-index: -2;
-        /* It will look for your wallpaper.jpg file in the folder */
-        background-image: url('wallpaper.jpg'); 
+        /* It will load your image file here */
+        background-image: url('{wallpaper_file}'); 
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
         pointer-events: none;
-    }
+    }}
 
     /* THE LOCKED GOLD BORDER */
-    .gold-frame {
+    .gold-frame {{
         position: fixed;
         top: 1rem;
         bottom: 1rem;
@@ -42,13 +50,13 @@ st.markdown("""
         border-radius: 8px;
         pointer-events: none; 
         z-index: 9999;
-    }
+    }}
 </style>
 <div class="web-bg"></div>
 <div class="gold-frame"></div>
 """, unsafe_allow_html=True)
 
-# --- 3. APP STYLING (Sidebar, Chat) ---
+# --- 4. APP STYLING (Sidebar, Chat) ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -61,7 +69,7 @@ st.markdown("""
     }
     
     [data-testid="stSidebar"] {
-        background-color: rgba(10, 17, 40, 0.85) !important; /* Slight transparency to show wallpaper */
+        background-color: rgba(10, 17, 40, 0.85) !important; /* Slight transparency */
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
         z-index: 10;
@@ -127,7 +135,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 4. SIDEBAR ---
+# --- 5. SIDEBAR ---
 with st.sidebar:
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; text-align: center; font-size: 60px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>", unsafe_allow_html=True)
@@ -147,7 +155,7 @@ with st.sidebar:
     st.markdown("👤 **M. Mohale**")
     st.button("🚪  Logout", use_container_width=True)
 
-# --- 5. MAIN CONTENT ---
+# --- 6. MAIN CONTENT ---
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
 
 # MIDDLE LOGO (Python Crop applied)
@@ -155,7 +163,6 @@ logo_exists = os.path.exists("logo.png")
 if logo_exists:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        # Physically crop the bottom 30% (removing the text)
         img = Image.open("logo.png")
         width, height = img.size
         crop_height = int(height * 0.70) 
@@ -173,7 +180,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- 6. CHAT LOGIC ---
+# --- 7. CHAT LOGIC ---
 load_dotenv()
 
 if "messages" not in st.session_state:
