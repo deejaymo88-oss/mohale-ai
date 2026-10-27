@@ -6,28 +6,29 @@ from google import genai
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. INJECT THE FIXED WEB BACKGROUND ---
-# This creates an absolute layer behind everything that cannot be covered by Streamlit's default colors
+# --- 2. THE WATER RIPPLE + COLOR BACKGROUND ---
 st.markdown("""
 <style>
-    /* Force all Streamlit containers to be transparent */
-    .stApp, [data-testid="stAppViewContainer"], .main, .block-container {
+    /* Make the main app transparent so the fixed background shows through */
+    .stApp, [data-testid="stAppViewContainer"] {
         background: transparent !important;
-        background-color: transparent !important;
     }
 
-    /* The fixed background web layer */
+    /* The fixed background layer with BOTH the glowing color and the ripples */
     .web-bg {
         position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 150vw; /* Huge to cover wide screens */
-        height: 150vw;
-        z-index: -1; /* Puts it behind everything */
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23cda34f' stroke-width='1.5' fill='none' opacity='0.2'%3E%3Ccircle cx='500' cy='500' r='100'/%3E%3Ccircle cx='500' cy='500' r='200'/%3E%3Ccircle cx='500' cy='500' r='300'/%3E%3Ccircle cx='500' cy='500' r='400'/%3E%3Ccircle cx='500' cy='500' r='500'/%3E%3Ccircle cx='500' cy='500' r='600'/%3E%3Ccircle cx='500' cy='500' r='700'/%3E%3Cline x1='500' y1='-100' x2='500' y2='1100'/%3E%3Cline x1='-100' y1='500' x2='1100' y2='500'/%3E%3Cline x1='75' y1='75' x2='925' y2='925'/%3E%3Cline x1='925' y1='75' x2='75' y2='925'/%3E%3Cline x1='200' y1='0' x2='800' y2='1000'/%3E%3Cline x1='800' y1='0' x2='200' y2='1000'/%3E%3Cline x1='0' y1='200' x2='1000' y2='800'/%3E%3Cline x1='0' y1='800' x2='1000' y2='200'/%3E%3C/g%3E%3C/svg%3E");
-        background-size: cover;
-        background-position: center;
+        top: 0;
+        left: 0;
+        width: 100vw; 
+        height: 100vh;
+        z-index: -1;
+        /* Layer 1: The SVG water ripples */
+        /* Layer 2: The rich glowing dark blue radial gradient */
+        background-image: 
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23cda34f' stroke-width='0.8' fill='none' opacity='0.15' transform='translate(500,400)'%3E%3Ccircle cx='0' cy='0' r='100'/%3E%3Ccircle cx='0' cy='0' r='200'/%3E%3Ccircle cx='0' cy='0' r='300'/%3E%3Ccircle cx='0' cy='0' r='400'/%3E%3Ccircle cx='0' cy='0' r='500'/%3E%3Ccircle cx='0' cy='0' r='600'/%3E%3Cellipse cx='0' cy='0' rx='150' ry='450'/%3E%3Cellipse cx='0' cy='0' rx='300' ry='450'/%3E%3Cellipse cx='0' cy='0' rx='150' ry='450' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='0' rx='300' ry='450' transform='rotate(45)'/%3E%3Cellipse cx='0' cy='0' rx='150' ry='450' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='0' rx='300' ry='450' transform='rotate(90)'/%3E%3Cellipse cx='0' cy='0' rx='150' ry='450' transform='rotate(135)'/%3E%3Cellipse cx='0' cy='0' rx='300' ry='450' transform='rotate(135)'/%3E%3C/g%3E%3C/svg%3E"),
+            radial-gradient(circle at 50% 30%, #152244 0%, #0a1128 60%, #050a1f 100%);
+        background-size: cover, cover;
+        background-position: center, center;
         pointer-events: none;
     }
 </style>
@@ -38,10 +39,6 @@ st.markdown("""
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-    /* Dark blue base */
-    .stApp { background-color: #0a1128; font-family: 'Inter', sans-serif; }
-    
-    /* Hide Streamlit's default top bar */
     [data-testid="stHeader"] { display: none !important; }
 
     /* --- THE LOCKED GOLD FRAME --- */
@@ -52,6 +49,7 @@ st.markdown("""
         margin: 1rem;
         overflow: hidden; 
         position: relative;
+        background: transparent !important; 
     }
     
     /* Inner scrolling area */
@@ -60,6 +58,7 @@ st.markdown("""
         overflow-y: auto; 
         padding: 3rem 3rem 8rem 3rem !important;
         max-width: 100% !important;
+        background: transparent !important;
     }
     
     /* Sidebar Background and Border */
@@ -67,6 +66,7 @@ st.markdown("""
         background-color: #0a1128 !important;
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
+        z-index: 10;
     }
     
     /* --- SIDEBAR BUTTONS --- */
@@ -109,10 +109,10 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* --- CROP THE TEXT OUT OF THE LOGO IMAGE --- */
+    /* --- AGGRESSIVE CROP TO REMOVE IMAGE TEXT --- */
     .main [data-testid="stImage"] img {
-        clip-path: inset(0 0 32% 0) !important; 
-        margin-bottom: -30% !important; 
+        clip-path: inset(0 0 34% 0) !important; 
+        margin-bottom: -32% !important; 
     }
     
     /* --- THE PERFECT PILL CHAT BAR --- */
