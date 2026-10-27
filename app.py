@@ -81,9 +81,9 @@ st.markdown("""
         background: transparent !important;
     }
     
-    /* --- SIDEBAR: CHANGED TO DARK GREY --- */
+    /* --- SIDEBAR: DARK GREY --- */
     [data-testid="stSidebar"] {
-        background-color: #1a1a1a !important; /* Dark Grey */
+        background-color: #1a1a1a !important; 
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
         z-index: 10;
@@ -126,7 +126,7 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* --- FIX FOR THE CHAT BAR BOTTOM --- */
+    /* --- CHAT BAR SURROUNDING AREA (Dark Blue) --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"],
     .stChatFloatingInputContainer {
@@ -135,10 +135,11 @@ st.markdown("""
         border-top: none !important;
     }
 
+    /* --- CHAT BAR PILL (Dark Grey Inside) --- */
     [data-testid="stChatInput"] {
         border: 1px solid #cda34f !important;
         border-radius: 50px !important; 
-        background-color: #0a1128 !important; 
+        background-color: #1a1a1a !important; /* Changed to Dark Grey */
         max-width: 85% !important;
         margin: 0 auto 3rem auto !important; 
         padding: 5px 15px !important;
@@ -146,9 +147,12 @@ st.markdown("""
         z-index: 100;
     }
     
-    [data-testid="stChatInput"] > div {
+    /* Ensure the inner text area is transparent so the grey shows */
+    [data-testid="stChatInput"] > div, 
+    [data-testid="stChatInput"] textarea {
         border: none !important;
-        background: transparent !important;
+        background-color: transparent !important;
+        color: #ffffff !important;
     }
 </style>
 """, unsafe_allow_html=True)
