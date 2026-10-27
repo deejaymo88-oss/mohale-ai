@@ -7,15 +7,15 @@ from PIL import Image
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 
-# --- 2. BACKGROUND & LOCKED GOLD FRAME ---
+# --- 2. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
 st.markdown("""
 <style>
-    /* Make the main app transparent so the fixed background shows through */
+    /* Make the main app transparent */
     .stApp, [data-testid="stAppViewContainer"] {
         background: transparent !important;
     }
 
-    /* THE WALLPAPER: Water-drop ripples + glowing dark blue color */
+    /* YOUR REAL WALLPAPER */
     .web-bg {
         position: fixed;
         top: 0;
@@ -23,11 +23,11 @@ st.markdown("""
         width: 100vw; 
         height: 100vh;
         z-index: -2;
-        background-image: 
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Cg stroke='%23cda34f' stroke-width='1' fill='none' opacity='0.1'%3E%3Ccircle cx='500' cy='500' r='100'/%3E%3Ccircle cx='500' cy='500' r='150'/%3E%3Ccircle cx='500' cy='500' r='200'/%3E%3Ccircle cx='500' cy='500' r='250'/%3E%3Ccircle cx='500' cy='500' r='300'/%3E%3Ccircle cx='500' cy='500' r='350'/%3E%3Ccircle cx='500' cy='500' r='400'/%3E%3Ccircle cx='500' cy='500' r='450'/%3E%3Ccircle cx='500' cy='500' r='500'/%3E%3Ccircle cx='500' cy='500' r='550'/%3E%3Ccircle cx='500' cy='500' r='600'/%3E%3Ccircle cx='450' cy='450' r='200'/%3E%3Ccircle cx='450' cy='450' r='250'/%3E%3Ccircle cx='450' cy='450' r='300'/%3E%3Ccircle cx='450' cy='450' r='350'/%3E%3Ccircle cx='550' cy='550' r='200'/%3E%3Ccircle cx='550' cy='550' r='250'/%3E%3Ccircle cx='550' cy='550' r='300'/%3E%3Ccircle cx='550' cy='550' r='350'/%3E%3C/g%3E%3C/svg%3E"),
-            radial-gradient(circle at 50% 40%, #152244 0%, #0a1128 60%, #050a1f 100%);
-        background-size: cover, cover;
-        background-position: center, center;
+        /* It will look for your wallpaper.jpg file in the folder */
+        background-image: url('wallpaper.jpg'); 
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
         pointer-events: none;
     }
 
@@ -52,25 +52,21 @@ st.markdown("""
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-    /* Hide Streamlit's default top header */
     [data-testid="stHeader"] { display: none !important; }
 
-    /* Inner scrolling area padding */
     .main .block-container {
         padding: 4rem 3rem 8rem 3rem !important;
         max-width: 100% !important;
         background: transparent !important;
     }
     
-    /* Sidebar Background and Border */
     [data-testid="stSidebar"] {
-        background-color: #0a1128 !important;
+        background-color: rgba(10, 17, 40, 0.85) !important; /* Slight transparency to show wallpaper */
         border-right: 1px solid #cda34f;
         padding-top: 2rem;
         z-index: 10;
     }
     
-    /* --- SIDEBAR BUTTONS --- */
     [data-testid="stSidebar"] button {
         background-color: transparent !important;
         border: none !important;
@@ -94,14 +90,12 @@ st.markdown("""
         justify-content: flex-start !important;
     }
 
-    /* Active Dashboard Button */
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div:first-child button {
         border-left: 3px solid #cda34f !important;
         background-color: rgba(205, 163, 79, 0.05) !important;
         color: #cda34f !important;
     }
 
-    /* Typography */
     .hero-section {
         display: flex;
         flex-direction: column;
@@ -113,7 +107,6 @@ st.markdown("""
     /* --- THE PERFECT FLOATING PILL CHAT BAR --- */
     [data-testid="stBottom"], .stChatInputContainer {
         background-color: transparent !important;
-        background: transparent !important;
     }
 
     [data-testid="stChatInput"] {
@@ -133,9 +126,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-# Check if the logo image exists
-logo_exists = os.path.exists("logo.png")
 
 # --- 4. SIDEBAR ---
 with st.sidebar:
@@ -160,17 +150,16 @@ with st.sidebar:
 # --- 5. MAIN CONTENT ---
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
 
-# MIDDLE LOGO (NOW CROPPED WITH PYTHON)
+# MIDDLE LOGO (Python Crop applied)
+logo_exists = os.path.exists("logo.png")
 if logo_exists:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        # Open the image and physically crop the bottom 30% (removing the text)
+        # Physically crop the bottom 30% (removing the text)
         img = Image.open("logo.png")
         width, height = img.size
-        crop_height = int(height * 0.70) # Keep top 70%
+        crop_height = int(height * 0.70) 
         cropped_img = img.crop((0, 0, width, crop_height))
-        
-        # Display the cropped image
         st.image(cropped_img, use_column_width=True)
 else:
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
