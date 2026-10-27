@@ -318,7 +318,7 @@ for message in st.session_state.messages:
 
 def get_ai_response(api_key, user_text):
     # Using REST API directly to bypass SDK bugs
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
     headers = {'Content-Type': 'application/json'}
     payload = {
         "contents": [{
