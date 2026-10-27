@@ -2,6 +2,7 @@ import streamlit as st
 import os
 from dotenv import load_dotenv
 from google import genai
+from PIL import Image
 
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
@@ -14,7 +15,7 @@ st.markdown("""
         background: transparent !important;
     }
 
-    /* THE BACKGROUND: Water-drop ripples + glowing dark blue color */
+    /* THE WALLPAPER: Water-drop ripples + glowing dark blue color */
     .web-bg {
         position: fixed;
         top: 0;
@@ -47,7 +48,7 @@ st.markdown("""
 <div class="gold-frame"></div>
 """, unsafe_allow_html=True)
 
-# --- 3. APP STYLING (Sidebar, Chat, Logo) ---
+# --- 3. APP STYLING (Sidebar, Chat) ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -109,13 +110,7 @@ st.markdown("""
         margin-top: 20px;
     }
     
-    /* --- AGGRESSIVE CROP TO REMOVE IMAGE TEXT COMPLETELY --- */
-    .main [data-testid="stImage"] img {
-        clip-path: inset(0 0 45% 0) !important; /* Cuts off the bottom 45% where text is */
-        margin-bottom: -43% !important; /* Pulls the clean text up tightly */
-    }
-    
-    /* --- THE PERFECT FLOATING PILL CHAT BAR (Moved up inside the frame) --- */
+    /* --- THE PERFECT FLOATING PILL CHAT BAR --- */
     [data-testid="stBottom"], .stChatInputContainer {
         background-color: transparent !important;
         background: transparent !important;
@@ -126,7 +121,7 @@ st.markdown("""
         border-radius: 50px !important; 
         background-color: rgba(10, 17, 40, 0.95) !important;
         max-width: 85% !important;
-        margin: 0 auto 3rem auto !important; /* Pushes the chat bar UP so it doesn't hide the bottom border */
+        margin: 0 auto 3rem auto !important; 
         padding: 5px 15px !important;
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6);
         z-index: 100;
@@ -165,11 +160,18 @@ with st.sidebar:
 # --- 5. MAIN CONTENT ---
 st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
 
-# MIDDLE LOGO
+# MIDDLE LOGO (NOW CROPPED WITH PYTHON)
 if logo_exists:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.image("logo.png", use_column_width=True)
+        # Open the image and physically crop the bottom 30% (removing the text)
+        img = Image.open("logo.png")
+        width, height = img.size
+        crop_height = int(height * 0.70) # Keep top 70%
+        cropped_img = img.crop((0, 0, width, crop_height))
+        
+        # Display the cropped image
+        st.image(cropped_img, use_column_width=True)
 else:
     st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
