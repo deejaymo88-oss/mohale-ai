@@ -2,9 +2,8 @@ import streamlit as st
 import os
 import base64
 import re
-import time
-import requests
 from dotenv import load_dotenv
+from google import genai
 from PIL import Image
 
 # --- 1. PAGE SETUP ---
@@ -309,7 +308,7 @@ elif page == "logout":
     st.markdown("<p style='color: #a0a0a0; text-align: center;'>You have been logged out.</p>", unsafe_allow_html=True)
 
 
-# --- 8. DIRECT REST API CHAT LOGIC (NO HANGING) ---
+# --- 8. SIMPLE CHAT LOGIC (BACK TO BASICS) ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -318,47 +317,12 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 def get_ai_response(api_key, user_text):
-    # Use the latest stable model alias for faster routing
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
-    headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": api_key
-    }
-    payload = {
-        "contents": [{
-            "parts": [{"text": user_text}]
-        }]
-    }
-
-    # Try up to 3 times if Google is busy or slow
-    for attempt in range(3):
-        try:
-            # INCREASED TIMEOUT TO 120 SECONDS
-            response = requests.post(url, headers=headers, json=payload, timeout=120)
-            response_data = response.json()
-
-            if "candidates" in response_data:
-                return response_data["candidates"][0]["content"]["parts"][0]["text"]
-            
-            # If Google is busy (503), wait and retry with exponential backoff
-            if response.status_code == 503:
-                if attempt < 2:
-                    time.sleep(5 * (attempt + 1)) # Waits 5s, then 10s
-                    continue
-                else:
-                    return "Google's servers are super busy right now. Please wait a minute and try again."
-            
-            return f"API Error: {response_data}"
-            
-        except requests.exceptions.Timeout:
-            # If it times out, wait and retry
-            if attempt < 2:
-                time.sleep(5 * (attempt + 1)) 
-                continue
-            else:
-                return "Timeout error: Google took too long to respond after 3 tries."
-        except Exception as e:
-            return f"Connection Error: {str(e)}"
+    client = genai.Client(api_key=api_key)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash", 
+        contents=user_text
+    )
+    return response.text
 
 if prompt := st.chat_input("Ask anything...", accept_file=True):
     
@@ -374,16 +338,15 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
 
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            if uploaded_files:
-                file_names = ", ".join([f.name for f in uploaded_files])
-                response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
-            else:
-                api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
-                
-                if not api_key:
-                    response_text = "Error: No API key found. Please check your Streamlit Secrets."
+            try:
+                if uploaded_files:
+                    file_names = ", ".join([f.name for f in uploaded_files])
+                    response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
                 else:
+                    api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
                     response_text = get_ai_response(api_key, text_input)
-            
-            st.markdown(response_text)
-            st.session_state.messages.append({"role": "assistant", "content": response_text})
+                
+                st.markdown(response_text)
+                st.session_state.messages.append({"role": "assistant", "content": response_text})
+            except Exception as e:
+                st.error(f"Error: {e}")
