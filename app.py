@@ -61,13 +61,11 @@ if "current_chat_id" not in st.session_state:
 page = st.query_params.get("page", "dashboard")
 chat_id_param = st.query_params.get("chat_id")
 
-# Load a chat from history if clicked
 if chat_id_param:
     st.session_state.current_chat_id = chat_id_param
     st.session_state.messages = load_chat_from_db(chat_id_param)
     page = "chat"
 
-# Handle "New Chat" click
 if st.query_params.get("new_chat") == "true":
     st.session_state.messages = []
     st.session_state.current_chat_id = None
@@ -115,28 +113,66 @@ st.markdown("""
 <style>
     [data-testid="stHeader"] { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
+    
     [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 1px solid #cda34f; }
     [data-testid="stSidebar"] > div:first-child { height: 100vh; padding-top: 2rem; display: flex; flex-direction: column; }
     .sidebar-container { display: flex; flex-direction: column; height: 100%; min-height: 85vh; }
     .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; }
     .sidebar-footer { margin-top: auto; padding-bottom: 20px; }
+    
     .menu-item { display: flex; align-items: center; padding: 12px 20px; margin-bottom: 5px; cursor: pointer; color: #d1d5db; font-family: 'Inter', sans-serif; font-size: 16px; text-decoration: none !important; transition: 0.3s; white-space: nowrap; }
     .menu-item:hover { color: #cda34f; background-color: rgba(205, 163, 79, 0.05); }
     .menu-item.active { background-color: #2a2a2a; border-left: 3px solid #cda34f; color: #ffffff; }
     .menu-item.active svg { stroke: #cda34f; }
     .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* CHAT HISTORY ACCORDION */
-    details.menu-item { padding: 0; }
-    details.menu-item summary { padding: 12px 20px; display: flex; align-items: center; list-style: none; cursor: pointer; }
+    /* --- FIXED CHAT HISTORY ACCORDION --- */
+    details.menu-item { 
+        padding: 0; 
+        width: 100%; 
+        box-sizing: border-box; 
+    }
+    details.menu-item summary { 
+        padding: 12px 20px; 
+        display: flex; 
+        align-items: center; 
+        list-style: none; 
+        cursor: pointer; 
+        width: 100%;
+        box-sizing: border-box;
+    }
     details.menu-item summary::-webkit-details-marker { display: none; }
     details.menu-item[open] summary { color: #cda34f; }
-    .history-list { display: flex; flex-direction: column; padding-left: 55px; max-height: 250px; overflow-y: auto; margin-bottom: 10px; }
-    .history-link { color: #a0a0a0; font-size: 14px; padding: 6px 0; text-decoration: none; font-family: 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+    
+    .history-list { 
+        display: flex; 
+        flex-direction: column; 
+        padding-left: 55px; 
+        padding-right: 15px;
+        max-height: 250px; 
+        overflow-y: auto; 
+        overflow-x: hidden;
+        margin-bottom: 10px; 
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .history-link { 
+        display: block;
+        width: 100%;
+        color: #a0a0a0; 
+        font-size: 14px; 
+        padding: 6px 0; 
+        text-decoration: none !important; 
+        font-family: 'Inter', sans-serif; 
+        white-space: nowrap; 
+        overflow: hidden; 
+        text-overflow: ellipsis; 
+    }
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* CHAT BAR */
+    /* --- CHAT BAR --- */
     [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer { background-color: #0a1128 !important; background: #0a1128 !important; border-top: none !important; }
     [data-testid="stChatInput"] { border: 1px solid #cda34f !important; border-radius: 50px !important; background-color: #1a1a1a !important; width: 85% !important; margin: 0 auto 3rem auto !important; padding: 5px 15px !important; box-shadow: 0px 4px 15px rgba(0,0,0,0.6); z-index: 100; }
     [data-testid="stChatInput"] > div { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; background-color: transparent !important; border: none !important; }
@@ -153,7 +189,6 @@ for cid, title in db_chats:
     is_active = "active" if st.session_state.current_chat_id == cid else ""
     history_items += f'<a href="?chat_id={cid}" target="_self" class="history-link {is_active}">{title}</a>'
 
-# Keep the history menu open if you are currently in a chat
 is_history_open = "open" if st.session_state.current_chat_id else ""
 
 # --- 9. CUSTOM SIDEBAR (HTML) ---
@@ -262,7 +297,6 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
     text_input = prompt.text if prompt.text else ""
     uploaded_files = prompt.files
     
-    # Add user message to screen and state
     st.session_state.messages.append({"role": "user", "content": text_input})
     with st.chat_message("user"):
         st.markdown(text_input)
@@ -291,18 +325,14 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
 
-                # --- SAVE CHAT TO SQLITE DATABASE ---
                 if st.session_state.current_chat_id is None:
-                    # Create new chat ID and Title
                     new_id = str(int(time.time()))
                     title = text_input[:20] + "..." if len(text_input) > 20 else text_input
                     st.session_state.current_chat_id = new_id
                     save_chat_to_db(new_id, title, st.session_state.messages)
                 else:
-                    # Update existing chat
                     save_chat_to_db(st.session_state.current_chat_id, "Updated Chat", st.session_state.messages)
                 
-                # Rerun to update the sidebar history instantly
                 st.rerun()
 
             except Exception as e:
