@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import base64
 import re
+import time
 from dotenv import load_dotenv
 from openai import OpenAI
 from PIL import Image
@@ -10,14 +11,33 @@ from PIL import Image
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 load_dotenv()
 
-# --- 2. NEW CHAT LOGIC ---
-if st.query_params.get("new_chat") == "true":
-    st.session_state.messages = []
-    del st.query_params["new_chat"]
-    st.rerun()
+# --- 2. STATE MANAGEMENT (Saving Chats) ---
+if "all_chats" not in st.session_state:
+    st.session_state.all_chats = {} # Dictionary to store {chat_id: messages}
+if "chat_titles" not in st.session_state:
+    st.session_state.chat_titles = {} # Dictionary to store {chat_id: title}
+if "messages" not in st.session_state:
+    st.session_state.messages = [] # Current chat messages
+if "current_chat_id" not in st.session_state:
+    st.session_state.current_chat_id = None
 
 # --- 3. ROUTING LOGIC ---
 page = st.query_params.get("page", "dashboard")
+chat_id_param = st.query_params.get("chat_id")
+
+# Load a chat from history if a chat_id is in the URL
+if chat_id_param and chat_id_param in st.session_state.all_chats:
+    st.session_state.current_chat_id = chat_id_param
+    st.session_state.messages = st.session_state.all_chats[chat_id_param]
+    if page != "dashboard": # If we load a chat, we should go to a chat view
+        page = "chat"
+
+# Handle "New Chat" click
+if st.query_params.get("new_chat") == "true":
+    st.session_state.messages = []
+    st.session_state.current_chat_id = None
+    del st.query_params["new_chat"]
+    st.rerun()
 
 # --- 4. CONVERT WALLPAPER TO BASE64 (WITH CACHING) ---
 @st.cache_data
@@ -153,6 +173,42 @@ st.markdown("""
         stroke-linejoin: round;
     }
 
+    /* --- CHAT HISTORY ACCORDION CSS --- */
+    details.menu-item { padding: 0; }
+    details.menu-item summary {
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        list-style: none;
+        cursor: pointer;
+    }
+    details.menu-item summary::-webkit-details-marker { display: none; }
+    details.menu-item[open] summary { color: #cda34f; }
+    
+    .history-list {
+        display: flex;
+        flex-direction: column;
+        padding-left: 55px;
+        max-height: 200px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+    }
+    
+    .history-link {
+        color: #a0a0a0;
+        font-size: 14px;
+        padding: 6px 0;
+        text-decoration: none;
+        font-family: 'Inter', sans-serif;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+    }
+    .history-link:hover { color: #cda34f; }
+    .history-link.active { color: #ffffff; font-weight: bold; }
+
+    /* --- CHAT BAR --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"],
     .stChatFloatingInputContainer {
@@ -206,7 +262,18 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 7. CUSTOM SIDEBAR (HTML) ---
+# --- 7. BUILD THE DYNAMIC HISTORY HTML ---
+history_items = ""
+# Show newest chats first (reversed)
+for cid in reversed(list(st.session_state.chat_titles.keys())):
+    title = st.session_state.chat_titles[cid]
+    is_active = "active" if st.session_state.current_chat_id == cid else ""
+    history_items += f'<a href="?chat_id={cid}" target="_self" class="history-link {is_active}">{title}</a>'
+
+# Determine if the accordion should be open
+is_history_open = "open" if st.session_state.current_chat_id else ""
+
+# --- 8. CUSTOM SIDEBAR (HTML) ---
 raw_html = f"""
 <div class="sidebar-container">
     <div style="text-align: center; margin-bottom: 30px;">
@@ -223,10 +290,17 @@ raw_html = f"""
             <svg class="menu-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             New Chat
         </a>
-        <a href="?page=history" target="_self" class="menu-item {'active' if page == 'history' else ''}">
-            <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline><line x1="12" y1="7" x2="12" y2="12"></line><line x1="12" y1="12" x2="16" y2="16"></line></svg>
-            Chat History
-        </a>
+        
+        <details class="menu-item" {is_history_open}>
+            <summary>
+                <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline><line x1="12" y1="7" x2="12" y2="12"></line><line x1="12" y1="12" x2="16" y2="16"></line></svg>
+                Chat History
+            </summary>
+            <div class="history-list">
+                {history_items if history_items else '<span style="color:#666; font-size:12px;">No history yet</span>'}
+            </div>
+        </details>
+
         <a href="?page=meeting" target="_self" class="menu-item {'active' if page == 'meeting' else ''}">
             <svg class="menu-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             Meeting Notes
@@ -260,7 +334,7 @@ clean_html = re.sub(r'\n\s*', '', raw_html)
 with st.sidebar:
     st.markdown(clean_html, unsafe_allow_html=True)
 
-# --- 8. MAIN CONTENT ROUTING ---
+# --- 9. MAIN CONTENT ROUTING ---
 if page == "dashboard":
     st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
     
@@ -289,8 +363,6 @@ if page == "dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-elif page == "history":
-    st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Chat History</h1>", unsafe_allow_html=True)
 elif page == "meeting":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Meeting Notes</h1>", unsafe_allow_html=True)
 elif page == "settings":
@@ -300,10 +372,7 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 9. CHAT LOGIC (OPENAI) ---
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
+# --- 10. CHAT LOGIC (OPENAI) ---
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -313,6 +382,7 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
     text_input = prompt.text if prompt.text else ""
     uploaded_files = prompt.files
     
+    # Add user message
     st.session_state.messages.append({"role": "user", "content": text_input})
     with st.chat_message("user"):
         st.markdown(text_input)
@@ -340,5 +410,21 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
+
+                # --- SAVE CHAT TO HISTORY ---
+                if st.session_state.current_chat_id is None:
+                    # Generate a new ID and Title for this chat
+                    new_id = str(int(time.time()))
+                    # Use the first 20 chars of the user's message as the title
+                    title = text_input[:20] + "..." if len(text_input) > 20 else text_input
+                    st.session_state.current_chat_id = new_id
+                    st.session_state.chat_titles[new_id] = title
+                
+                # Update the history dictionary with the latest messages
+                st.session_state.all_chats[st.session_state.current_chat_id] = st.session_state.messages.copy()
+                
+                # Force a rerun so the new chat title appears in the sidebar immediately
+                st.rerun()
+
             except Exception as e:
                 st.error(f"Error: {e}")
