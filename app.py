@@ -5,6 +5,7 @@ import re
 import time
 import sqlite3
 import json
+import pypdf
 from dotenv import load_dotenv
 from openai import OpenAI
 from PIL import Image
@@ -56,6 +57,8 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 if "current_chat_id" not in st.session_state:
     st.session_state.current_chat_id = None
+if "book_text" not in st.session_state:
+    st.session_state.book_text = "" # This stores the book memory
 
 # --- 4. ROUTING LOGIC ---
 page = st.query_params.get("page", "dashboard")
@@ -111,60 +114,20 @@ st.markdown(f"""
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-    /* FIX: Make header transparent instead of hiding it entirely */
-    [data-testid="stHeader"] { 
-        background: transparent !important; 
-        z-index: 10000 !important;
-    }
-    .stDeployButton { display: none !important; } /* Hide Deploy button */
-
+    [data-testid="stHeader"] { background: transparent !important; z-index: 10000 !important; }
+    .stDeployButton { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    [data-testid="stSidebar"] { 
-        background-color: #1a1a1a !important; 
-        border-right: 1px solid #cda34f; 
-    }
+    [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 1px solid #cda34f; }
+    [data-testid="stSidebar"] > div:first-child { height: 100vh; padding-top: 2rem; display: flex; flex-direction: column; overflow: visible !important; }
     
-    [data-testid="stSidebar"] > div:first-child { 
-        height: 100vh; 
-        padding-top: 2rem; 
-        display: flex; 
-        flex-direction: column; 
-        overflow: visible !important;
+    [data-testid="stSidebarCollapseButton"], [data-testid="collapsedControl"] {
+        display: block !important; visibility: visible !important; z-index: 100000 !important;
+        background-color: #1a1a1a !important; border: 1px solid #cda34f !important; border-radius: 8px !important; color: #cda34f !important; padding: 5px !important;
     }
-    
-    /* --- STYLING FOR BOTH OPEN AND CLOSE BUTTONS --- */
-    [data-testid="stSidebarCollapseButton"], 
-    [data-testid="collapsedControl"] {
-        display: block !important;
-        visibility: visible !important;
-        z-index: 100000 !important;
-        background-color: #1a1a1a !important;
-        border: 1px solid #cda34f !important;
-        border-radius: 8px !important;
-        color: #cda34f !important;
-        padding: 5px !important;
-    }
-    
-    /* Position the close button when sidebar is open */
-    [data-testid="stSidebarCollapseButton"] {
-        position: absolute !important;
-        right: -15px !important; 
-        top: 15px !important;
-        border-radius: 50% !important;
-    }
-    
-    /* Position the open button when sidebar is closed */
-    [data-testid="collapsedControl"] {
-        left: 10px !important;
-        top: 10px !important;
-    }
-
-    [data-testid="stSidebarCollapseButton"] svg, 
-    [data-testid="collapsedControl"] svg {
-        stroke: #cda34f !important; 
-        color: #cda34f !important;
-    }
+    [data-testid="stSidebarCollapseButton"] { position: absolute !important; right: -15px !important; top: 15px !important; border-radius: 50% !important; }
+    [data-testid="collapsedControl"] { left: 10px !important; top: 10px !important; }
+    [data-testid="stSidebarCollapseButton"] svg, [data-testid="collapsedControl"] svg { stroke: #cda34f !important; color: #cda34f !important; }
 
     .sidebar-container { display: flex; flex-direction: column; height: 100%; min-height: 85vh; }
     .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; }
@@ -176,18 +139,15 @@ st.markdown("""
     .menu-item.active svg { stroke: #cda34f; }
     .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* CHAT HISTORY ACCORDION */
     details.menu-item { padding: 0; width: 100%; box-sizing: border-box; }
     details.menu-item summary { padding: 12px 20px; display: flex; align-items: center; list-style: none; cursor: pointer; width: 100%; box-sizing: border-box; }
     details.menu-item summary::-webkit-details-marker { display: none; }
     details.menu-item[open] summary { color: #cda34f; }
-    
     .history-list { display: flex; flex-direction: column; padding-left: 55px; padding-right: 15px; max-height: 250px; overflow-y: auto; overflow-x: hidden; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
     .history-link { display: block; width: 100%; color: #a0a0a0; font-size: 14px; padding: 6px 0; text-decoration: none !important; font-family: 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* CHAT BAR */
     [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer { background-color: #0a1128 !important; background: #0a1128 !important; border-top: none !important; }
     [data-testid="stChatInput"] { border: 1px solid #cda34f !important; border-radius: 50px !important; background-color: #1a1a1a !important; width: 85% !important; margin: 0 auto 3rem auto !important; padding: 5px 15px !important; box-shadow: 0px 4px 15px rgba(0,0,0,0.6); z-index: 100; }
     [data-testid="stChatInput"] > div { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; background-color: transparent !important; border: none !important; }
@@ -293,6 +253,25 @@ if page == "dashboard":
             </div>
         </div>
     """, unsafe_allow_html=True)
+
+    # --- BOOK UPLOADER SECTION ---
+    st.markdown("<h3 style='color: #cda34f; font-family: Cinzel; text-align: center;'>Train AI with a Book</h3>", unsafe_allow_html=True)
+    uploaded_book = st.file_uploader("Upload a .txt or .pdf book to read", type=["txt", "pdf"])
+    
+    if uploaded_book is not None:
+        with st.spinner("Reading the book..."):
+            if uploaded_book.type == "application/pdf":
+                pdf_reader = pypdf.PdfReader(uploaded_book)
+                text = ""
+                for page in pdf_reader.pages:
+                    text += page.extract_text()
+            else:
+                text = uploaded_book.read().decode("utf-8")
+            
+            # Limit to ~10,000 characters so we don't crash the API
+            st.session_state.book_text = text[:10000]
+            st.success("Book read successfully! The AI will now remember this during your chat.")
+
 elif page == "meeting":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Meeting Notes</h1>", unsafe_allow_html=True)
 elif page == "settings":
@@ -322,20 +301,24 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                if uploaded_files:
-                    file_names = ", ".join([f.name for f in uploaded_files])
-                    response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
-                else:
-                    api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else os.getenv("OPENAI_API_KEY")
-                    
-                    client = OpenAI(api_key=api_key)
-                    
-                    response = client.chat.completions.create(
-                        model="gpt-4o-mini",
-                        messages=[{"role": "user", "content": text_input}]
-                    )
-                    
-                    response_text = response.choices[0].message.content
+                api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else os.getenv("OPENAI_API_KEY")
+                client = OpenAI(api_key=api_key)
+                
+                # --- INJECT THE BOOK MEMORY ---
+                system_prompt = "You are Mohale M. Professional, an elite AI assistant. Keep your answers concise and elegant."
+                if st.session_state.book_text:
+                    system_prompt += f"\n\nYou have read the following book. Use this knowledge to answer the user:\n\n{st.session_state.book_text}"
+
+                messages_payload = [{"role": "system", "content": system_prompt}]
+                for msg in st.session_state.messages:
+                    messages_payload.append({"role": msg["role"], "content": msg["content"]})
+
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=messages_payload
+                )
+                
+                response_text = response.choices[0].message.content
                 
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
