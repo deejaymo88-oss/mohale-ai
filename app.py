@@ -114,26 +114,31 @@ st.markdown("""
     [data-testid="stHeader"] { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 1px solid #cda34f; }
+    [data-testid="stSidebar"] { 
+        background-color: #1a1a1a !important; 
+        border-right: 1px solid #cda34f; 
+    }
     
     [data-testid="stSidebar"] > div:first-child { 
         height: 100vh; 
         padding-top: 2rem; 
         display: flex; 
         flex-direction: column; 
-        overflow: visible !important; /* Allows the button to spill over the line */
+        overflow: visible !important;
     }
     
     /* =========================================================
-       MOVE THE SIDEBAR COLLAPSE BUTTON OVER THE GOLD LINE
+       FIX FOR THE SIDEBAR BUTTONS (OPEN AND CLOSED STATES)
        ========================================================= */
+    
+    /* 1. When Sidebar is OPEN (The button to close it) */
     [data-testid="stSidebarCollapseButton"] {
         position: absolute !important;
-        right: -15px !important; /* Pushes it exactly over the line */
+        right: -15px !important; 
         top: 15px !important;
-        background-color: #1a1a1a !important; /* Match sidebar background */
-        border: 1px solid #cda34f !important; /* Add gold border */
-        border-radius: 50% !important; /* Make it round */
+        background-color: #1a1a1a !important; 
+        border: 1px solid #cda34f !important; 
+        border-radius: 50% !important; 
         color: #cda34f !important;
         z-index: 10000 !important;
         width: 30px !important;
@@ -145,7 +150,25 @@ st.markdown("""
     }
     
     [data-testid="stSidebarCollapseButton"] svg {
-        stroke: #cda34f !important; /* Gold arrow */
+        stroke: #cda34f !important; 
+    }
+
+    /* 2. When Sidebar is CLOSED (The button to open it) */
+    [data-testid="stSidebarCollapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+        z-index: 10000 !important;
+        background-color: #1a1a1a !important;
+        border: 1px solid #cda34f !important;
+        border-radius: 0 8px 8px 0 !important; /* Rounds the right corners */
+        top: 15px !important;
+        left: 0 !important; /* Sticks to the left edge */
+        padding: 8px 12px !important;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"] svg {
+        stroke: #cda34f !important; 
+        color: #cda34f !important;
     }
 
     .sidebar-container { display: flex; flex-direction: column; height: 100%; min-height: 85vh; }
