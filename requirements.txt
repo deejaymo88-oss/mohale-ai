@@ -2,3 +2,5 @@ streamlit
 python-dotenv
 pillow
 openai
+pypdf
+sqlite3
