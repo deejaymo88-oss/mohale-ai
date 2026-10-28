@@ -14,11 +14,13 @@ load_dotenv()
 
 # --- 2. ROUTING LOGIC ---
 page = st.query_params.get("page", "dashboard")
+
+# --- 3. CONVERT WALLPAPER TO BASE64 (WITH CACHING) ---
 @st.cache_data
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
-   return base64.b64encode(data).decode()
+    return base64.b64encode(data).decode()
 
 wallpaper_file = "wallpaper.jpg"
 if os.path.exists("wallpaper.png"):
@@ -264,11 +266,14 @@ if page == "dashboard":
     if logo_exists:
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            img = Image.open("logo.png")
-            width, height = img.size
-            crop_height = int(height * 0.70) 
-            cropped_img = img.crop((0, 0, width, crop_height))
-            st.image(cropped_img, use_column_width=True)
+            @st.cache_data
+            def load_logo():
+                img = Image.open("logo.png")
+                width, height = img.size
+                crop_height = int(height * 0.70) 
+                return img.crop((0, 0, width, crop_height))
+            
+            st.image(load_logo(), use_column_width=True)
     else:
         st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
@@ -295,13 +300,14 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 8. CHAT LOGIC (OPENROUTER) ---
+# --- 8. CHAT LOGIC (OPENAI) ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
+
 if prompt := st.chat_input("Ask anything...", accept_file=True):
     
     text_input = prompt.text if prompt.text else ""
@@ -321,7 +327,6 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                     file_names = ", ".join([f.name for f in uploaded_files])
                     response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
                 else:
-                    # Using your OpenAI API Key
                     api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else os.getenv("OPENAI_API_KEY")
                     
                     client = OpenAI(api_key=api_key)
@@ -333,9 +338,7 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                     
                     response_text = response.choices[0].message.content
                 
-                # This part is now safely outside the if/else, so it always runs
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
-                
             except Exception as e:
                 st.error(f"Error: {e}")
