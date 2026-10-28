@@ -322,21 +322,17 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 if uploaded_files:
                     file_names = ", ".join([f.name for f in uploaded_files])
                     response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
-                else:
-                    # OpenRouter uses the OpenAI format
-                    api_key = st.secrets["OPENROUTER_API_KEY"] if "OPENROUTER_API_KEY" in st.secrets else os.getenv("OPENROUTER_API_KEY")
+                                   # Using your OpenAI API Key
+                    api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else os.getenv("OPENAI_API_KEY")
                     
-                    client = OpenAI(
-                        base_url="https://openrouter.ai/api/v1",
-                        api_key=api_key,
-                    )
+                    client = OpenAI(api_key=api_key)
                     
                     response = client.chat.completions.create(
-                        model="meta-llama/llama-3.1-8b-instruct:free",
+                        model="gpt-4o-mini",
                         messages=[{"role": "user", "content": text_input}]
                     )
                     
-                    response_text = response.choices[0].message.content
+                    response_text = response.choices[0].message.content= response.choices[0].message.content
                 
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
