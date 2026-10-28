@@ -303,7 +303,6 @@ if "messages" not in st.session_state:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-
 if prompt := st.chat_input("Ask anything...", accept_file=True):
     
     text_input = prompt.text if prompt.text else ""
@@ -322,7 +321,22 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 if uploaded_files:
                     file_names = ", ".join([f.name for f in uploaded_files])
                     response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
-                                   
+                else:
+                    # Using your OpenAI API Key
+                    api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else os.getenv("OPENAI_API_KEY")
+                    
+                    client = OpenAI(api_key=api_key)
+                    
+                    response = client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[{"role": "user", "content": text_input}]
+                    )
+                    
+                    response_text = response.choices[0].message.content
+                
+                # This part is now safely outside the if/else, so it always runs
+                st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
+                
             except Exception as e:
                 st.error(f"Error: {e}")
