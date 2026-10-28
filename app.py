@@ -2,7 +2,7 @@ import streamlit as st
 import os
 import base64
 import re
-import google.generativeai as genai
+import requests
 from dotenv import load_dotenv
 from PIL import Image
 
@@ -154,7 +154,7 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 7. CHAT LOGIC (USING LEGACY LIBRARY) ---
+# --- 7. DIRECT RAW API CONNECTION (NO SDK) ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -163,15 +163,22 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 def get_ai_response(api_key, user_text):
+    # This hits the stable v1 endpoint directly
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+    headers = {'Content-Type': 'application/json'}
+    payload = {"contents": [{"parts":[{"text": user_text}]}]}
+    
     try:
-        # Configure the legacy library
-        genai.configure(api_key=api_key)
-        # Use the most stable base model
-        model = genai.GenerativeModel('gemini-pro')
-        response = model.generate_content(user_text)
-        return response.text
+        response = requests.post(url, headers=headers, json=payload, timeout=20)
+        response_data = response.json()
+        
+        if "candidates" in response_data:
+            return response_data["candidates"][0]["content"]["parts"][0]["text"]
+        else:
+            # If it fails, return the exact error so we can see what Google says
+            return f"⚠️ **Google API Error:** {response_data.get('error', {}).get('message', 'Unknown Error')}"
     except Exception as e:
-        return f"⚠️ Error: {str(e)}"
+        return f"⚠️ **Network Error:** {str(e)}"
 
 if prompt := st.chat_input("Ask anything..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
