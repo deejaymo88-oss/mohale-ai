@@ -115,7 +115,39 @@ st.markdown("""
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
     [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 1px solid #cda34f; }
-    [data-testid="stSidebar"] > div:first-child { height: 100vh; padding-top: 2rem; display: flex; flex-direction: column; }
+    
+    [data-testid="stSidebar"] > div:first-child { 
+        height: 100vh; 
+        padding-top: 2rem; 
+        display: flex; 
+        flex-direction: column; 
+        overflow: visible !important; /* Allows the button to spill over the line */
+    }
+    
+    /* =========================================================
+       MOVE THE SIDEBAR COLLAPSE BUTTON OVER THE GOLD LINE
+       ========================================================= */
+    [data-testid="stSidebarCollapseButton"] {
+        position: absolute !important;
+        right: -15px !important; /* Pushes it exactly over the line */
+        top: 15px !important;
+        background-color: #1a1a1a !important; /* Match sidebar background */
+        border: 1px solid #cda34f !important; /* Add gold border */
+        border-radius: 50% !important; /* Make it round */
+        color: #cda34f !important;
+        z-index: 10000 !important;
+        width: 30px !important;
+        height: 30px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    [data-testid="stSidebarCollapseButton"] svg {
+        stroke: #cda34f !important; /* Gold arrow */
+    }
+
     .sidebar-container { display: flex; flex-direction: column; height: 100%; min-height: 85vh; }
     .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; }
     .sidebar-footer { margin-top: auto; padding-bottom: 20px; }
@@ -126,53 +158,18 @@ st.markdown("""
     .menu-item.active svg { stroke: #cda34f; }
     .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* --- FIXED CHAT HISTORY ACCORDION --- */
-    details.menu-item { 
-        padding: 0; 
-        width: 100%; 
-        box-sizing: border-box; 
-    }
-    details.menu-item summary { 
-        padding: 12px 20px; 
-        display: flex; 
-        align-items: center; 
-        list-style: none; 
-        cursor: pointer; 
-        width: 100%;
-        box-sizing: border-box;
-    }
+    /* CHAT HISTORY ACCORDION */
+    details.menu-item { padding: 0; width: 100%; box-sizing: border-box; }
+    details.menu-item summary { padding: 12px 20px; display: flex; align-items: center; list-style: none; cursor: pointer; width: 100%; box-sizing: border-box; }
     details.menu-item summary::-webkit-details-marker { display: none; }
     details.menu-item[open] summary { color: #cda34f; }
     
-    .history-list { 
-        display: flex; 
-        flex-direction: column; 
-        padding-left: 55px; 
-        padding-right: 15px;
-        max-height: 250px; 
-        overflow-y: auto; 
-        overflow-x: hidden;
-        margin-bottom: 10px; 
-        width: 100%;
-        box-sizing: border-box;
-    }
-    
-    .history-link { 
-        display: block;
-        width: 100%;
-        color: #a0a0a0; 
-        font-size: 14px; 
-        padding: 6px 0; 
-        text-decoration: none !important; 
-        font-family: 'Inter', sans-serif; 
-        white-space: nowrap; 
-        overflow: hidden; 
-        text-overflow: ellipsis; 
-    }
+    .history-list { display: flex; flex-direction: column; padding-left: 55px; padding-right: 15px; max-height: 250px; overflow-y: auto; overflow-x: hidden; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+    .history-link { display: block; width: 100%; color: #a0a0a0; font-size: 14px; padding: 6px 0; text-decoration: none !important; font-family: 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- CHAT BAR --- */
+    /* CHAT BAR */
     [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer { background-color: #0a1128 !important; background: #0a1128 !important; border-top: none !important; }
     [data-testid="stChatInput"] { border: 1px solid #cda34f !important; border-radius: 50px !important; background-color: #1a1a1a !important; width: 85% !important; margin: 0 auto 3rem auto !important; padding: 5px 15px !important; box-shadow: 0px 4px 15px rgba(0,0,0,0.6); z-index: 100; }
     [data-testid="stChatInput"] > div { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; background-color: transparent !important; border: none !important; }
