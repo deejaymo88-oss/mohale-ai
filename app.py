@@ -3,6 +3,8 @@ import os
 import base64
 import re
 import time
+import sqlite3
+import json
 from dotenv import load_dotenv
 from openai import OpenAI
 from PIL import Image
@@ -11,26 +13,59 @@ from PIL import Image
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 load_dotenv()
 
-# --- 2. STATE MANAGEMENT (Saving Chats) ---
-if "all_chats" not in st.session_state:
-    st.session_state.all_chats = {} # Dictionary to store {chat_id: messages}
-if "chat_titles" not in st.session_state:
-    st.session_state.chat_titles = {} # Dictionary to store {chat_id: title}
+# --- 2. DATABASE SETUP (SQLite) ---
+def init_db():
+    conn = sqlite3.connect('chat_history.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS chats
+                 (id TEXT PRIMARY KEY, title TEXT, messages TEXT)''')
+    conn.commit()
+    conn.close()
+
+def save_chat_to_db(chat_id, title, messages):
+    conn = sqlite3.connect('chat_history.db')
+    c = conn.cursor()
+    messages_json = json.dumps(messages)
+    c.execute("INSERT OR REPLACE INTO chats (id, title, messages) VALUES (?, ?, ?)", 
+              (chat_id, title, messages_json))
+    conn.commit()
+    conn.close()
+
+def load_chat_from_db(chat_id):
+    conn = sqlite3.connect('chat_history.db')
+    c = conn.cursor()
+    c.execute("SELECT messages FROM chats WHERE id = ?", (chat_id,))
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return json.loads(row[0])
+    return []
+
+def get_all_chats_from_db():
+    conn = sqlite3.connect('chat_history.db')
+    c = conn.cursor()
+    c.execute("SELECT id, title FROM chats ORDER BY rowid DESC")
+    rows = c.fetchall()
+    conn.close()
+    return rows
+
+init_db()
+
+# --- 3. STATE MANAGEMENT ---
 if "messages" not in st.session_state:
-    st.session_state.messages = [] # Current chat messages
+    st.session_state.messages = []
 if "current_chat_id" not in st.session_state:
     st.session_state.current_chat_id = None
 
-# --- 3. ROUTING LOGIC ---
+# --- 4. ROUTING LOGIC ---
 page = st.query_params.get("page", "dashboard")
 chat_id_param = st.query_params.get("chat_id")
 
-# Load a chat from history if a chat_id is in the URL
-if chat_id_param and chat_id_param in st.session_state.all_chats:
+# Load a chat from history if clicked
+if chat_id_param:
     st.session_state.current_chat_id = chat_id_param
-    st.session_state.messages = st.session_state.all_chats[chat_id_param]
-    if page != "dashboard": # If we load a chat, we should go to a chat view
-        page = "chat"
+    st.session_state.messages = load_chat_from_db(chat_id_param)
+    page = "chat"
 
 # Handle "New Chat" click
 if st.query_params.get("new_chat") == "true":
@@ -39,7 +74,7 @@ if st.query_params.get("new_chat") == "true":
     del st.query_params["new_chat"]
     st.rerun()
 
-# --- 4. CONVERT WALLPAPER TO BASE64 (WITH CACHING) ---
+# --- 5. CONVERT WALLPAPER TO BASE64 ---
 @st.cache_data
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
@@ -56,224 +91,72 @@ if os.path.exists(wallpaper_file):
 else:
     bg_css = "background-color: #0a1128;"
 
-# --- 5. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
+# --- 6. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
 st.markdown(f"""
 <style>
-    .stApp, [data-testid="stAppViewContainer"] {{
-        background: transparent !important;
-    }}
-    html, body {{
-        background-color: #0a1128 !important;
-    }}
+    .stApp, [data-testid="stAppViewContainer"] {{ background: transparent !important; }}
+    html, body {{ background-color: #0a1128 !important; }}
     .web-bg {{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw; 
-        height: 100vh;
-        z-index: -2;
-        {bg_css}
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        pointer-events: none;
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+        {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
     .gold-frame {{
-        position: fixed;
-        top: 1rem;
-        bottom: 1rem;
-        left: 1rem;
-        right: 1rem;
-        border: 1px solid #cda34f;
-        border-radius: 8px;
-        pointer-events: none; 
-        z-index: 9999;
+        position: fixed; top: 1rem; bottom: 1rem; left: 1rem; right: 1rem;
+        border: 1px solid #cda34f; border-radius: 8px; pointer-events: none; z-index: 9999;
     }}
 </style>
 <div class="web-bg"></div>
 <div class="gold-frame"></div>
 """, unsafe_allow_html=True)
 
-# --- 6. APP STYLING ---
+# --- 7. APP STYLING ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
     [data-testid="stHeader"] { display: none !important; }
-
-    .main .block-container {
-        padding: 4rem 3rem 8rem 3rem !important;
-        max-width: 100% !important;
-        background: transparent !important;
-    }
-    
-    [data-testid="stSidebar"] {
-        background-color: #1a1a1a !important; 
-        border-right: 1px solid #cda34f;
-    }
-    
-    [data-testid="stSidebar"] > div:first-child {
-        height: 100vh;
-        padding-top: 2rem;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .sidebar-container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        min-height: 85vh; 
-    }
-    
-    .sidebar-menu {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1; 
-    }
-    
-    .sidebar-footer {
-        margin-top: auto; 
-        padding-bottom: 20px;
-    }
-
-    .menu-item {
-        display: flex;
-        align-items: center;
-        padding: 12px 20px;
-        margin-bottom: 5px;
-        cursor: pointer;
-        color: #d1d5db;
-        font-family: 'Inter', sans-serif;
-        font-size: 16px;
-        text-decoration: none !important; 
-        transition: 0.3s;
-        white-space: nowrap;
-    }
-    
-    .menu-item:hover {
-        color: #cda34f;
-        background-color: rgba(205, 163, 79, 0.05);
-    }
-    
-    .menu-item.active {
-        background-color: #2a2a2a;
-        border-left: 3px solid #cda34f;
-        color: #ffffff;
-    }
+    .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
+    [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 1px solid #cda34f; }
+    [data-testid="stSidebar"] > div:first-child { height: 100vh; padding-top: 2rem; display: flex; flex-direction: column; }
+    .sidebar-container { display: flex; flex-direction: column; height: 100%; min-height: 85vh; }
+    .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; }
+    .sidebar-footer { margin-top: auto; padding-bottom: 20px; }
+    .menu-item { display: flex; align-items: center; padding: 12px 20px; margin-bottom: 5px; cursor: pointer; color: #d1d5db; font-family: 'Inter', sans-serif; font-size: 16px; text-decoration: none !important; transition: 0.3s; white-space: nowrap; }
+    .menu-item:hover { color: #cda34f; background-color: rgba(205, 163, 79, 0.05); }
+    .menu-item.active { background-color: #2a2a2a; border-left: 3px solid #cda34f; color: #ffffff; }
     .menu-item.active svg { stroke: #cda34f; }
+    .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    .menu-icon {
-        width: 20px;
-        height: 20px;
-        margin-right: 15px;
-        stroke: #a0a0a0;
-        stroke-width: 2;
-        fill: none;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-
-    /* --- CHAT HISTORY ACCORDION CSS --- */
+    /* CHAT HISTORY ACCORDION */
     details.menu-item { padding: 0; }
-    details.menu-item summary {
-        padding: 12px 20px;
-        display: flex;
-        align-items: center;
-        list-style: none;
-        cursor: pointer;
-    }
+    details.menu-item summary { padding: 12px 20px; display: flex; align-items: center; list-style: none; cursor: pointer; }
     details.menu-item summary::-webkit-details-marker { display: none; }
     details.menu-item[open] summary { color: #cda34f; }
-    
-    .history-list {
-        display: flex;
-        flex-direction: column;
-        padding-left: 55px;
-        max-height: 200px;
-        overflow-y: auto;
-        margin-bottom: 10px;
-    }
-    
-    .history-link {
-        color: #a0a0a0;
-        font-size: 14px;
-        padding: 6px 0;
-        text-decoration: none;
-        font-family: 'Inter', sans-serif;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 180px;
-    }
+    .history-list { display: flex; flex-direction: column; padding-left: 55px; max-height: 250px; overflow-y: auto; margin-bottom: 10px; }
+    .history-link { color: #a0a0a0; font-size: 14px; padding: 6px 0; text-decoration: none; font-family: 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- CHAT BAR --- */
-    [data-testid="stBottom"], 
-    [data-testid="stBottomBlockContainer"],
-    .stChatFloatingInputContainer {
-        background-color: #0a1128 !important; 
-        background: #0a1128 !important;
-        border-top: none !important;
-    }
-
-    [data-testid="stChatInput"] {
-        border: 1px solid #cda34f !important;
-        border-radius: 50px !important; 
-        background-color: #1a1a1a !important; 
-        width: 85% !important; 
-        margin: 0 auto 3rem auto !important; 
-        padding: 5px 15px !important;
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.6);
-        z-index: 100;
-    }
-
-    [data-testid="stChatInput"] > div {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important; 
-        width: 100% !important;
-        background-color: transparent !important;
-        border: none !important;
-    }
-
-    [data-testid="stChatInput"] textarea {
-        flex-grow: 1 !important; 
-        text-align: left !important; 
-        border: none !important;
-        background-color: transparent !important;
-        color: #ffffff !important;
-        padding-left: 10px !important;
-    }
-
-    [data-testid="stChatInput"] button {
-        color: #cda34f !important; 
-        background-color: transparent !important;
-    }
-
-    .hero-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 20px;
-    }
+    /* CHAT BAR */
+    [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer { background-color: #0a1128 !important; background: #0a1128 !important; border-top: none !important; }
+    [data-testid="stChatInput"] { border: 1px solid #cda34f !important; border-radius: 50px !important; background-color: #1a1a1a !important; width: 85% !important; margin: 0 auto 3rem auto !important; padding: 5px 15px !important; box-shadow: 0px 4px 15px rgba(0,0,0,0.6); z-index: 100; }
+    [data-testid="stChatInput"] > div { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; background-color: transparent !important; border: none !important; }
+    [data-testid="stChatInput"] textarea { flex-grow: 1 !important; text-align: left !important; border: none !important; background-color: transparent !important; color: #ffffff !important; padding-left: 10px !important; }
+    [data-testid="stChatInput"] button { color: #cda34f !important; background-color: transparent !important; }
+    .hero-section { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 7. BUILD THE DYNAMIC HISTORY HTML ---
+# --- 8. BUILD THE DYNAMIC HISTORY HTML ---
 history_items = ""
-# Show newest chats first (reversed)
-for cid in reversed(list(st.session_state.chat_titles.keys())):
-    title = st.session_state.chat_titles[cid]
+db_chats = get_all_chats_from_db()
+for cid, title in db_chats:
     is_active = "active" if st.session_state.current_chat_id == cid else ""
     history_items += f'<a href="?chat_id={cid}" target="_self" class="history-link {is_active}">{title}</a>'
 
-# Determine if the accordion should be open
+# Keep the history menu open if you are currently in a chat
 is_history_open = "open" if st.session_state.current_chat_id else ""
 
-# --- 8. CUSTOM SIDEBAR (HTML) ---
+# --- 9. CUSTOM SIDEBAR (HTML) ---
 raw_html = f"""
 <div class="sidebar-container">
     <div style="text-align: center; margin-bottom: 30px;">
@@ -334,10 +217,9 @@ clean_html = re.sub(r'\n\s*', '', raw_html)
 with st.sidebar:
     st.markdown(clean_html, unsafe_allow_html=True)
 
-# --- 9. MAIN CONTENT ROUTING ---
+# --- 10. MAIN CONTENT ROUTING ---
 if page == "dashboard":
     st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
-    
     logo_exists = os.path.exists("logo.png")
     if logo_exists:
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -348,7 +230,6 @@ if page == "dashboard":
                 width, height = img.size
                 crop_height = int(height * 0.70) 
                 return img.crop((0, 0, width, crop_height))
-            
             st.image(load_logo(), use_column_width=True)
     else:
         st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
@@ -362,7 +243,6 @@ if page == "dashboard":
             </div>
         </div>
     """, unsafe_allow_html=True)
-
 elif page == "meeting":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Meeting Notes</h1>", unsafe_allow_html=True)
 elif page == "settings":
@@ -372,7 +252,7 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 10. CHAT LOGIC (OPENAI) ---
+# --- 11. CHAT LOGIC (OPENAI) ---
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -382,7 +262,7 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
     text_input = prompt.text if prompt.text else ""
     uploaded_files = prompt.files
     
-    # Add user message
+    # Add user message to screen and state
     st.session_state.messages.append({"role": "user", "content": text_input})
     with st.chat_message("user"):
         st.markdown(text_input)
@@ -411,19 +291,18 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
 
-                # --- SAVE CHAT TO HISTORY ---
+                # --- SAVE CHAT TO SQLITE DATABASE ---
                 if st.session_state.current_chat_id is None:
-                    # Generate a new ID and Title for this chat
+                    # Create new chat ID and Title
                     new_id = str(int(time.time()))
-                    # Use the first 20 chars of the user's message as the title
                     title = text_input[:20] + "..." if len(text_input) > 20 else text_input
                     st.session_state.current_chat_id = new_id
-                    st.session_state.chat_titles[new_id] = title
+                    save_chat_to_db(new_id, title, st.session_state.messages)
+                else:
+                    # Update existing chat
+                    save_chat_to_db(st.session_state.current_chat_id, "Updated Chat", st.session_state.messages)
                 
-                # Update the history dictionary with the latest messages
-                st.session_state.all_chats[st.session_state.current_chat_id] = st.session_state.messages.copy()
-                
-                # Force a rerun so the new chat title appears in the sidebar immediately
+                # Rerun to update the sidebar history instantly
                 st.rerun()
 
             except Exception as e:
