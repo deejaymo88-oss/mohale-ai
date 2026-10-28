@@ -332,7 +332,7 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                     )
                     
                     response = client.chat.completions.create(
-                        model="meta-llama/llama-3-8b-instruct:free",
+                        model="meta-llama/llama-3.1-8b-instruct:free",
                         messages=[{"role": "user", "content": text_input}]
                     )
                     
