@@ -8,14 +8,19 @@ from PIL import Image
 
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
-
-# Load environment variables
 load_dotenv()
 
-# --- 2. ROUTING LOGIC ---
+# --- 2. NEW CHAT LOGIC ---
+# If the user clicks "New Chat", clear the messages and reset the URL
+if st.query_params.get("new_chat") == "true":
+    st.session_state.messages = []
+    del st.query_params["new_chat"]
+    st.rerun()
+
+# --- 3. ROUTING LOGIC ---
 page = st.query_params.get("page", "dashboard")
 
-# --- 3. CONVERT WALLPAPER TO BASE64 (WITH CACHING) ---
+# --- 4. CONVERT WALLPAPER TO BASE64 (WITH CACHING) ---
 @st.cache_data
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
@@ -32,7 +37,7 @@ if os.path.exists(wallpaper_file):
 else:
     bg_css = "background-color: #0a1128;"
 
-# --- 4. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
+# --- 5. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
 st.markdown(f"""
 <style>
     .stApp, [data-testid="stAppViewContainer"] {{
@@ -70,7 +75,7 @@ st.markdown(f"""
 <div class="gold-frame"></div>
 """, unsafe_allow_html=True)
 
-# --- 5. APP STYLING ---
+# --- 6. APP STYLING ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -150,6 +155,37 @@ st.markdown("""
         stroke-linejoin: round;
     }
 
+    /* --- NEW CHAT BUTTON --- */
+    .new-chat-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #cda34f;
+        color: #0a1128 !important;
+        font-weight: bold;
+        font-family: 'Inter', sans-serif;
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-decoration: none !important;
+        margin: 0 15px 20px 15px;
+        transition: 0.3s;
+        border: 1px solid #cda34f;
+    }
+    
+    .new-chat-btn:hover {
+        background-color: transparent;
+        color: #cda34f !important;
+    }
+    
+    .new-chat-btn svg {
+        stroke: #0a1128 !important;
+        margin-right: 8px;
+    }
+    
+    .new-chat-btn:hover svg {
+        stroke: #cda34f !important;
+    }
+
     /* --- CHAT BAR --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"],
@@ -204,13 +240,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 6. CUSTOM SIDEBAR (HTML) ---
+# --- 7. CUSTOM SIDEBAR (HTML) ---
 raw_html = f"""
 <div class="sidebar-container">
     <div style="text-align: center; margin-bottom: 30px;">
         <h1 style='font-family: Cinzel; color: #cda34f; font-size: 60px; margin-bottom: 0;'>MP</h1>
         <p style='color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>
     </div>
+    
+    <!-- NEW CHAT BUTTON ADDED HERE -->
+    <a href="?new_chat=true" target="_self" class="new-chat-btn">
+        <svg class="menu-icon" viewBox="0 0 24 24" style="margin-right: 8px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        New Chat
+    </a>
     
     <div class="sidebar-menu">
         <a href="?page=dashboard" target="_self" class="menu-item {'active' if page == 'dashboard' else ''}">
@@ -258,7 +300,7 @@ clean_html = re.sub(r'\n\s*', '', raw_html)
 with st.sidebar:
     st.markdown(clean_html, unsafe_allow_html=True)
 
-# --- 7. MAIN CONTENT ROUTING ---
+# --- 8. MAIN CONTENT ROUTING ---
 if page == "dashboard":
     st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
     
@@ -300,7 +342,7 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 8. CHAT LOGIC (OPENAI) ---
+# --- 9. CHAT LOGIC (OPENAI) ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
