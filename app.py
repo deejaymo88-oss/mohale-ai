@@ -2,13 +2,14 @@ import streamlit as st
 import os
 import base64
 import re
-import requests
+import google.generativeai as genai
 from dotenv import load_dotenv
 from PIL import Image
 
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 load_dotenv()
+
 page = st.query_params.get("page", "dashboard")
 
 # --- 2. CONVERT WALLPAPER TO BASE64 ---
@@ -153,7 +154,7 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 7. CHAT LOGIC ---
+# --- 7. CHAT LOGIC (USING LEGACY LIBRARY) ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -162,21 +163,15 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 def get_ai_response(api_key, user_text):
-    # Using the -latest tag and the REST API for maximum reliability
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
-    headers = {"Content-Type": "application/json", "x-goog-api-key": api_key}
-    payload = {"contents": [{"parts":[{"text": user_text}]}]}
-    
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=20)
-        data = response.json()
-        if "candidates" in data:
-            return data["candidates"][0]["content"]["parts"][0]["text"]
-        else:
-            # If there is an API error, print the exact error to the screen
-            return f"⚠️ API Rejection: {data.get('error', {}).get('message', 'Unknown Error')}"
+        # Configure the legacy library
+        genai.configure(api_key=api_key)
+        # Use the most stable base model
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(user_text)
+        return response.text
     except Exception as e:
-        return f"⚠️ Network Error: {str(e)}"
+        return f"⚠️ Error: {str(e)}"
 
 if prompt := st.chat_input("Ask anything..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
