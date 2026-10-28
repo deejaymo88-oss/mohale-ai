@@ -14,12 +14,11 @@ load_dotenv()
 
 # --- 2. ROUTING LOGIC ---
 page = st.query_params.get("page", "dashboard")
-
-# --- 3. CONVERT WALLPAPER TO BASE64 ---
+@st.cache_data
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
-    return base64.b64encode(data).decode()
+    return base64.b64encode(data).decode())
 
 wallpaper_file = "wallpaper.jpg"
 if os.path.exists("wallpaper.png"):
