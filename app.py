@@ -9,7 +9,6 @@ from PIL import Image
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
 load_dotenv()
-
 page = st.query_params.get("page", "dashboard")
 
 # --- 2. CONVERT WALLPAPER TO BASE64 ---
@@ -154,7 +153,7 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 7. DIRECT RAW API CONNECTION (NO SDK) ---
+# --- 7. DIRECT RAW API CONNECTION (USING CURRENT MODEL) ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -163,19 +162,18 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 def get_ai_response(api_key, user_text):
-    # This hits the stable v1 endpoint directly
-    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+    # Use gemini-3.8-flash, as recommended by Google's own error message
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={api_key}"
     headers = {'Content-Type': 'application/json'}
     payload = {"contents": [{"parts":[{"text": user_text}]}]}
     
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=20)
+        response = requests.post(url, headers=headers, json=payload, timeout=30)
         response_data = response.json()
         
         if "candidates" in response_data:
             return response_data["candidates"][0]["content"]["parts"][0]["text"]
         else:
-            # If it fails, return the exact error so we can see what Google says
             return f"⚠️ **Google API Error:** {response_data.get('error', {}).get('message', 'Unknown Error')}"
     except Exception as e:
         return f"⚠️ **Network Error:** {str(e)}"
