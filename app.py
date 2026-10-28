@@ -254,7 +254,12 @@ if page == "dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-    # --- BOOK UPLOADER SECTION ---
+elif page == "settings":
+    st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Settings</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    
+    # --- MOVED BOOK UPLOADER HERE ---
     st.markdown("<h3 style='color: #cda34f; font-family: Cinzel; text-align: center;'>Train AI with a Book</h3>", unsafe_allow_html=True)
     uploaded_book = st.file_uploader("Upload a .txt or .pdf book to read", type=["txt", "pdf"])
     
@@ -274,8 +279,6 @@ if page == "dashboard":
 
 elif page == "meeting":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Meeting Notes</h1>", unsafe_allow_html=True)
-elif page == "settings":
-    st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Settings</h1>", unsafe_allow_html=True)
 elif page == "help":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Get Help</h1>", unsafe_allow_html=True)
 elif page == "logout":
