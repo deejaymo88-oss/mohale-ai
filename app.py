@@ -6,6 +6,10 @@ import time
 import requests
 from dotenv import load_dotenv
 from PIL import Image
+
+# --- 1. PAGE SETUP ---
+st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
+
 # Load environment variables
 load_dotenv()
 
@@ -314,7 +318,8 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 def get_ai_response(api_key, user_text):
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent"
+    # Use the latest stable model alias for faster routing
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
     headers = {
         "Content-Type": "application/json",
         "x-goog-api-key": api_key
@@ -325,20 +330,20 @@ def get_ai_response(api_key, user_text):
         }]
     }
 
-      # Try up to 3 times if Google's servers are busy
+    # Try up to 3 times if Google is busy or slow
     for attempt in range(3):
         try:
-            # INCREASED TIMEOUT TO 60 SECONDS
-            response = requests.post(url, headers=headers, json=payload, timeout=60)
+            # INCREASED TIMEOUT TO 120 SECONDS
+            response = requests.post(url, headers=headers, json=payload, timeout=120)
             response_data = response.json()
 
             if "candidates" in response_data:
                 return response_data["candidates"][0]["content"]["parts"][0]["text"]
             
-            # If Google is busy (503), wait 3 seconds and retry
+            # If Google is busy (503), wait and retry with exponential backoff
             if response.status_code == 503:
                 if attempt < 2:
-                    time.sleep(3)
+                    time.sleep(5 * (attempt + 1)) # Waits 5s, then 10s
                     continue
                 else:
                     return "Google's servers are super busy right now. Please wait a minute and try again."
@@ -346,34 +351,12 @@ def get_ai_response(api_key, user_text):
             return f"API Error: {response_data}"
             
         except requests.exceptions.Timeout:
-            # If it times out, wait 3 seconds and try again
+            # If it times out, wait and retry
             if attempt < 2:
-                time.sleep(3)
+                time.sleep(5 * (attempt + 1)) 
                 continue
             else:
                 return "Timeout error: Google took too long to respond after 3 tries."
-        except Exception as e:
-            return f"Connection Error: {str(e)}"  # Try up to 3 times if Google's servers are busy
-    for attempt in range(3):
-        try:
-            response = requests.post(url, headers=headers, json=payload, timeout=15)
-            response_data = response.json()
-
-            if "candidates" in response_data:
-                return response_data["candidates"][0]["content"]["parts"][0]["text"]
-            
-            # If Google is busy (503), wait 2 seconds and retry
-            if response.status_code == 503:
-                if attempt < 2:
-                    time.sleep(2)
-                    continue
-                else:
-                    return "Google's servers are super busy right now. Please wait a minute and try again."
-            
-            return f"API Error: {response_data}"
-            
-        except requests.exceptions.Timeout:
-            return "Timeout error: Google's servers took too long to respond."
         except Exception as e:
             return f"Connection Error: {str(e)}"
 
