@@ -111,7 +111,13 @@ st.markdown(f"""
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-    [data-testid="stHeader"] { display: none !important; }
+    /* FIX: Make header transparent instead of hiding it entirely */
+    [data-testid="stHeader"] { 
+        background: transparent !important; 
+        z-index: 10000 !important;
+    }
+    .stDeployButton { display: none !important; } /* Hide Deploy button */
+
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
     [data-testid="stSidebar"] { 
@@ -127,46 +133,35 @@ st.markdown("""
         overflow: visible !important;
     }
     
-    /* =========================================================
-       FIX FOR THE SIDEBAR BUTTONS (OPEN AND CLOSED STATES)
-       ========================================================= */
+    /* --- STYLING FOR BOTH OPEN AND CLOSE BUTTONS --- */
+    [data-testid="stSidebarCollapseButton"], 
+    [data-testid="collapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+        z-index: 100000 !important;
+        background-color: #1a1a1a !important;
+        border: 1px solid #cda34f !important;
+        border-radius: 8px !important;
+        color: #cda34f !important;
+        padding: 5px !important;
+    }
     
-    /* 1. When Sidebar is OPEN (The button to close it) */
+    /* Position the close button when sidebar is open */
     [data-testid="stSidebarCollapseButton"] {
         position: absolute !important;
         right: -15px !important; 
         top: 15px !important;
-        background-color: #1a1a1a !important; 
-        border: 1px solid #cda34f !important; 
-        border-radius: 50% !important; 
-        color: #cda34f !important;
-        z-index: 10000 !important;
-        width: 30px !important;
-        height: 30px !important;
-        padding: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        border-radius: 50% !important;
     }
     
-    [data-testid="stSidebarCollapseButton"] svg {
-        stroke: #cda34f !important; 
+    /* Position the open button when sidebar is closed */
+    [data-testid="collapsedControl"] {
+        left: 10px !important;
+        top: 10px !important;
     }
 
-    /* 2. When Sidebar is CLOSED (The button to open it) */
-    [data-testid="stSidebarCollapsedControl"] {
-        display: block !important;
-        visibility: visible !important;
-        z-index: 10000 !important;
-        background-color: #1a1a1a !important;
-        border: 1px solid #cda34f !important;
-        border-radius: 0 8px 8px 0 !important; /* Rounds the right corners */
-        top: 15px !important;
-        left: 0 !important; /* Sticks to the left edge */
-        padding: 8px 12px !important;
-    }
-    
-    [data-testid="stSidebarCollapsedControl"] svg {
+    [data-testid="stSidebarCollapseButton"] svg, 
+    [data-testid="collapsedControl"] svg {
         stroke: #cda34f !important; 
         color: #cda34f !important;
     }
