@@ -11,7 +11,6 @@ st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_s
 load_dotenv()
 
 # --- 2. NEW CHAT LOGIC ---
-# If the user clicks "New Chat", clear the messages and reset the URL
 if st.query_params.get("new_chat") == "true":
     st.session_state.messages = []
     del st.query_params["new_chat"]
@@ -87,7 +86,6 @@ st.markdown("""
         background: transparent !important;
     }
     
-    /* --- SIDEBAR --- */
     [data-testid="stSidebar"] {
         background-color: #1a1a1a !important; 
         border-right: 1px solid #cda34f;
@@ -155,38 +153,6 @@ st.markdown("""
         stroke-linejoin: round;
     }
 
-    /* --- NEW CHAT BUTTON --- */
-    .new-chat-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #cda34f;
-        color: #0a1128 !important;
-        font-weight: bold;
-        font-family: 'Inter', sans-serif;
-        padding: 12px 20px;
-        border-radius: 8px;
-        text-decoration: none !important;
-        margin: 0 15px 20px 15px;
-        transition: 0.3s;
-        border: 1px solid #cda34f;
-    }
-    
-    .new-chat-btn:hover {
-        background-color: transparent;
-        color: #cda34f !important;
-    }
-    
-    .new-chat-btn svg {
-        stroke: #0a1128 !important;
-        margin-right: 8px;
-    }
-    
-    .new-chat-btn:hover svg {
-        stroke: #cda34f !important;
-    }
-
-    /* --- CHAT BAR --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"],
     .stChatFloatingInputContainer {
@@ -248,20 +214,14 @@ raw_html = f"""
         <p style='color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>
     </div>
     
-    <!-- NEW CHAT BUTTON ADDED HERE -->
-    <a href="?new_chat=true" target="_self" class="new-chat-btn">
-        <svg class="menu-icon" viewBox="0 0 24 24" style="margin-right: 8px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        New Chat
-    </a>
-    
     <div class="sidebar-menu">
         <a href="?page=dashboard" target="_self" class="menu-item {'active' if page == 'dashboard' else ''}">
             <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             Dashboard
         </a>
-        <a href="?page=chats" target="_self" class="menu-item {'active' if page == 'chats' else ''}">
+        <a href="?new_chat=true" target="_self" class="menu-item">
             <svg class="menu-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            All Chats
+            New Chat
         </a>
         <a href="?page=document" target="_self" class="menu-item {'active' if page == 'document' else ''}">
             <svg class="menu-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -329,8 +289,6 @@ if page == "dashboard":
         </div>
     """, unsafe_allow_html=True)
 
-elif page == "chats":
-    st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>All Chats</h1>", unsafe_allow_html=True)
 elif page == "document":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Document Analysis</h1>", unsafe_allow_html=True)
 elif page == "meeting":
