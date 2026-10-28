@@ -2,78 +2,215 @@ import streamlit as st
 import os
 import base64
 import re
-import requests
 from dotenv import load_dotenv
+from openai import OpenAI
 from PIL import Image
 
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="Mohale M. Professional", layout="wide", initial_sidebar_state="expanded")
+
+# Load environment variables
 load_dotenv()
+
+# --- 2. ROUTING LOGIC ---
 page = st.query_params.get("page", "dashboard")
 
-# --- 2. CONVERT WALLPAPER TO BASE64 ---
+# --- 3. CONVERT WALLPAPER TO BASE64 ---
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
-wallpaper_file = "wallpaper.jpg" if os.path.exists("wallpaper.jpg") else "wallpaper.png"
+wallpaper_file = "wallpaper.jpg"
+if os.path.exists("wallpaper.png"):
+    wallpaper_file = "wallpaper.png"
+
 if os.path.exists(wallpaper_file):
     img_base64 = get_base64_of_bin_file(wallpaper_file)
     bg_css = f"background-image: url('data:image/jpeg;base64,{img_base64}');"
 else:
     bg_css = "background-color: #0a1128;"
 
-# --- 3. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
+# --- 4. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
 st.markdown(f"""
 <style>
-    .stApp, [data-testid="stAppViewContainer"] {{ background: transparent !important; }}
-    html, body {{ background-color: #0a1128 !important; }}
+    .stApp, [data-testid="stAppViewContainer"] {{
+        background: transparent !important;
+    }}
+    html, body {{
+        background-color: #0a1128 !important;
+    }}
     .web-bg {{
-        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
-        {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw; 
+        height: 100vh;
+        z-index: -2;
+        {bg_css}
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        pointer-events: none;
     }}
     .gold-frame {{
-        position: fixed; top: 1rem; bottom: 1rem; left: 1rem; right: 1rem;
-        border: 1px solid #cda34f; border-radius: 8px; pointer-events: none; z-index: 9999;
+        position: fixed;
+        top: 1rem;
+        bottom: 1rem;
+        left: 1rem;
+        right: 1rem;
+        border: 1px solid #cda34f;
+        border-radius: 8px;
+        pointer-events: none; 
+        z-index: 9999;
     }}
 </style>
 <div class="web-bg"></div>
 <div class="gold-frame"></div>
 """, unsafe_allow_html=True)
 
-# --- 4. APP STYLING ---
+# --- 5. APP STYLING ---
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
     [data-testid="stHeader"] { display: none !important; }
-    .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
-    [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 1px solid #cda34f; }
-    [data-testid="stSidebar"] > div:first-child { height: 100vh; padding-top: 2rem; display: flex; flex-direction: column; }
-    .sidebar-container { display: flex; flex-direction: column; height: 100%; min-height: 85vh; }
-    .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; }
-    .sidebar-footer { margin-top: auto; padding-bottom: 20px; }
-    .menu-item { display: flex; align-items: center; padding: 12px 20px; margin-bottom: 5px; cursor: pointer; color: #d1d5db; font-family: 'Inter', sans-serif; font-size: 16px; text-decoration: none !important; transition: 0.3s; white-space: nowrap; }
-    .menu-item:hover { color: #cda34f; background-color: rgba(205, 163, 79, 0.05); }
-    .menu-item.active { background-color: #2a2a2a; border-left: 3px solid #cda34f; color: #ffffff; }
+
+    .main .block-container {
+        padding: 4rem 3rem 8rem 3rem !important;
+        max-width: 100% !important;
+        background: transparent !important;
+    }
+    
+    /* --- SIDEBAR --- */
+    [data-testid="stSidebar"] {
+        background-color: #1a1a1a !important; 
+        border-right: 1px solid #cda34f;
+    }
+    
+    [data-testid="stSidebar"] > div:first-child {
+        height: 100vh;
+        padding-top: 2rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 85vh; 
+    }
+    
+    .sidebar-menu {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; 
+    }
+    
+    .sidebar-footer {
+        margin-top: auto; 
+        padding-bottom: 20px;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        margin-bottom: 5px;
+        cursor: pointer;
+        color: #d1d5db;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        text-decoration: none !important; 
+        transition: 0.3s;
+        white-space: nowrap;
+    }
+    
+    .menu-item:hover {
+        color: #cda34f;
+        background-color: rgba(205, 163, 79, 0.05);
+    }
+    
+    .menu-item.active {
+        background-color: #2a2a2a;
+        border-left: 3px solid #cda34f;
+        color: #ffffff;
+    }
     .menu-item.active svg { stroke: #cda34f; }
-    .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer { background-color: #0a1128 !important; background: #0a1128 !important; border-top: none !important; }
-    [data-testid="stChatInput"] { border: 1px solid #cda34f !important; border-radius: 50px !important; background-color: #1a1a1a !important; width: 85% !important; margin: 0 auto 3rem auto !important; padding: 5px 15px !important; box-shadow: 0px 4px 15px rgba(0,0,0,0.6); z-index: 100; }
-    [data-testid="stChatInput"] > div { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; background-color: transparent !important; border: none !important; }
-    [data-testid="stChatInput"] textarea { flex-grow: 1 !important; text-align: left !important; border: none !important; background-color: transparent !important; color: #ffffff !important; padding-left: 10px !important; }
-    [data-testid="stChatInput"] button { color: #cda34f !important; background-color: transparent !important; }
-    .hero-section { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px; }
+
+    .menu-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 15px;
+        stroke: #a0a0a0;
+        stroke-width: 2;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    /* --- CHAT BAR --- */
+    [data-testid="stBottom"], 
+    [data-testid="stBottomBlockContainer"],
+    .stChatFloatingInputContainer {
+        background-color: #0a1128 !important; 
+        background: #0a1128 !important;
+        border-top: none !important;
+    }
+
+    [data-testid="stChatInput"] {
+        border: 1px solid #cda34f !important;
+        border-radius: 50px !important; 
+        background-color: #1a1a1a !important; 
+        width: 85% !important; 
+        margin: 0 auto 3rem auto !important; 
+        padding: 5px 15px !important;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.6);
+        z-index: 100;
+    }
+
+    [data-testid="stChatInput"] > div {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important; 
+        width: 100% !important;
+        background-color: transparent !important;
+        border: none !important;
+    }
+
+    [data-testid="stChatInput"] textarea {
+        flex-grow: 1 !important; 
+        text-align: left !important; 
+        border: none !important;
+        background-color: transparent !important;
+        color: #ffffff !important;
+        padding-left: 10px !important;
+    }
+
+    [data-testid="stChatInput"] button {
+        color: #cda34f !important; 
+        background-color: transparent !important;
+    }
+
+    .hero-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 5. CUSTOM SIDEBAR (HTML) ---
+# --- 6. CUSTOM SIDEBAR (HTML) ---
 raw_html = f"""
 <div class="sidebar-container">
     <div style="text-align: center; margin-bottom: 30px;">
         <h1 style='font-family: Cinzel; color: #cda34f; font-size: 60px; margin-bottom: 0;'>MP</h1>
         <p style='color: #a0a0a0; font-size: 13px; margin-top: -10px; font-family: Cinzel;'>Mohale M. Professional</p>
     </div>
+    
     <div class="sidebar-menu">
         <a href="?page=dashboard" target="_self" class="menu-item {'active' if page == 'dashboard' else ''}">
             <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -100,6 +237,7 @@ raw_html = f"""
             Get Help
         </a>
     </div>
+
     <div class="sidebar-footer">
         <hr style="border-color: #333; margin: 0 20px 15px 20px;">
         <div style="display: flex; align-items: center; padding: 10px 20px; margin-bottom: 5px;">
@@ -113,13 +251,16 @@ raw_html = f"""
     </div>
 </div>
 """
+
 clean_html = re.sub(r'\n\s*', '', raw_html)
+
 with st.sidebar:
     st.markdown(clean_html, unsafe_allow_html=True)
 
-# --- 6. MAIN CONTENT ROUTING ---
+# --- 7. MAIN CONTENT ROUTING ---
 if page == "dashboard":
     st.markdown("<div class='hero-section'>", unsafe_allow_html=True)
+    
     logo_exists = os.path.exists("logo.png")
     if logo_exists:
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -131,6 +272,7 @@ if page == "dashboard":
             st.image(cropped_img, use_column_width=True)
     else:
         st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
+
     st.markdown("""
             <div style='text-align: center; margin-top: 20px;'>
                 <p style='font-family: "Cinzel", serif; color: #e0d0b0; font-size: 20px;'>Mohale M. Professional</p>
@@ -140,6 +282,7 @@ if page == "dashboard":
             </div>
         </div>
     """, unsafe_allow_html=True)
+
 elif page == "chats":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>All Chats</h1>", unsafe_allow_html=True)
 elif page == "document":
@@ -153,7 +296,7 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 7. DIRECT RAW API CONNECTION (USING CURRENT MODEL) ---
+# --- 8. CHAT LOGIC (OPENROUTER) ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -161,34 +304,41 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-def get_ai_response(api_key, user_text):
-    # Use gemini-3.8-flash, as recommended by Google's own error message
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={api_key}"
-    headers = {'Content-Type': 'application/json'}
-    payload = {"contents": [{"parts":[{"text": user_text}]}]}
+if prompt := st.chat_input("Ask anything...", accept_file=True):
     
-    try:
-        response = requests.post(url, headers=headers, json=payload, timeout=30)
-        response_data = response.json()
-        
-        if "candidates" in response_data:
-            return response_data["candidates"][0]["content"]["parts"][0]["text"]
-        else:
-            return f"⚠️ **Google API Error:** {response_data.get('error', {}).get('message', 'Unknown Error')}"
-    except Exception as e:
-        return f"⚠️ **Network Error:** {str(e)}"
-
-if prompt := st.chat_input("Ask anything..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    text_input = prompt.text if prompt.text else ""
+    uploaded_files = prompt.files
+    
+    st.session_state.messages.append({"role": "user", "content": text_input})
     with st.chat_message("user"):
-        st.markdown(prompt)
+        st.markdown(text_input)
+        if uploaded_files:
+            for file in uploaded_files:
+                st.info(f"📎 Attached File: {file.name}")
 
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            api_key = st.secrets["GEMINI_API_KEY"] if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
-            if not api_key:
-                st.error("API Key is missing. Please check your Streamlit Secrets.")
-            else:
-                response_text = get_ai_response(api_key, prompt)
+            try:
+                if uploaded_files:
+                    file_names = ", ".join([f.name for f in uploaded_files])
+                    response_text = f"I see you uploaded: **{file_names}**! I am currently configured to just read text, but soon you will be able to analyze documents right here."
+                else:
+                    # OpenRouter uses the OpenAI format
+                    api_key = st.secrets["OPENROUTER_API_KEY"] if "OPENROUTER_API_KEY" in st.secrets else os.getenv("OPENROUTER_API_KEY")
+                    
+                    client = OpenAI(
+                        base_url="https://openrouter.ai/api/v1",
+                        api_key=api_key,
+                    )
+                    
+                    response = client.chat.completions.create(
+                        model="meta-llama/llama-3-8b-instruct:free",
+                        messages=[{"role": "user", "content": text_input}]
+                    )
+                    
+                    response_text = response.choices[0].message.content
+                
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
+            except Exception as e:
+                st.error(f"Error: {e}")
