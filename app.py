@@ -152,9 +152,9 @@ st.markdown("""
     .menu-item.active svg { stroke: #cda34f; }
     .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
-    /* --- FIXED CHAT HISTORY ACCORDION (STACKS VERTICALLY) --- */
+    /* --- FIXED CHAT HISTORY ACCORDION --- */
     details.menu-item { 
-        display: block !important; /* Forces list to drop below */
+        display: block !important; 
         padding: 0; 
         width: 100%; 
         box-sizing: border-box; 
@@ -392,9 +392,18 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
 
+                # --- UPDATED TITLE LOGIC: Pulls from the FIRST text written in the chat ---
                 if st.session_state.current_chat_id is None:
                     new_id = str(int(time.time()))
-                    title = text_input[:20] + "..." if len(text_input) > 20 else (text_input if text_input else "Image Upload")
+                    
+                    # Find the first text message the user sent
+                    first_text = "New Chat"
+                    for msg in st.session_state.messages:
+                        if msg["role"] == "user" and msg["content"] and msg["content"].strip():
+                            first_text = msg["content"].strip()
+                            break
+                            
+                    title = first_text[:25] + "..." if len(first_text) > 25 else first_text
                     st.session_state.current_chat_id = new_id
                     save_chat_to_db(new_id, title, st.session_state.messages)
                 else:
