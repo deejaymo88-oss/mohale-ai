@@ -123,7 +123,7 @@ st.markdown(f"""
         left: 15px; 
         right: 15px;
         border: 2px solid #666666; /* Inner line */
-        box-shadow: 0 0 0 4px #0a1128, 0 0 0 6px #666666; /* Gap, then outer line */
+        box-shadow: 0 0 0 5px #0a1128, 0 0 0 7px #666666; /* Gap, then outer line */
         border-radius: 8px; 
         pointer-events: none; 
         z-index: 9999999 !important; 
@@ -139,9 +139,23 @@ st.markdown("""
 <style>
     [data-testid="stHeader"] { background: transparent !important; z-index: 10000 !important; outline: none !important; }
     .stDeployButton { display: none !important; }
-    .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    /* Sidebar - No border on the right so we don't get a double line */
+    /* --- SHADE THE INSIDE OF THE FRAME WITH GREY --- */
+    .main {
+        background-color: #1e1e1e !important; /* Dark grey shade inside */
+        border-radius: 8px !important;
+        margin: 1rem !important;
+        height: calc(100vh - 2rem) !important;
+        overflow-y: auto !important;
+    }
+    
+    .main .block-container { 
+        padding: 4rem 3rem 8rem 3rem !important; 
+        max-width: 100% !important; 
+        background: transparent !important; 
+    }
+    
+    /* Sidebar - Matches the inside shade so it looks seamless */
     [data-testid="stSidebar"] { 
         background-color: #1a1a1a !important; 
         border-right: none !important; 
