@@ -164,10 +164,11 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- FIXED: TRANSPARENT BOTTOM SO FRAME SHOWS --- */
+    /* --- FIXED: FULLY TRANSPARENT BOTTOM CONTAINER --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"], 
-    .stChatFloatingInputContainer { 
+    .stChatFloatingInputContainer,
+    [data-testid="stBottom"] > div { 
         background-color: transparent !important; 
         background: transparent !important; 
         border-top: none !important; 
@@ -178,14 +179,14 @@ st.markdown("""
         z-index: 99999 !important;
     }
 
-    /* --- NARROWER, CENTERED CHAT BAR INSIDE FRAME --- */
+    /* --- CENTERED CHAT BAR INSIDE FRAME --- */
     [data-testid="stChatInput"] { 
         border: 1px solid #cda34f !important; 
         border-radius: 50px !important; 
         background-color: #1a1a1a !important; 
         width: 80% !important; 
         max-width: 900px !important;
-        margin: 0 auto 3.5rem auto !important; 
+        margin: 0 auto 2rem auto !important; /* 2rem keeps it inside the 1rem gold border */
         padding: 5px 15px !important; 
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
         z-index: 100000 !important; 
