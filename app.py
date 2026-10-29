@@ -105,10 +105,9 @@ if os.path.exists(wallpaper_file):
 else:
     bg_css = "background-color: #0a1128;"
 
-# --- 6. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
+# --- 6. REAL WALLPAPER BACKGROUND & GREY FRAME ---
 st.markdown(f"""
 <style>
-    /* Force everything transparent so the wallpaper shows through */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer {{
         background: transparent !important;
         background-color: transparent !important;
@@ -122,21 +121,21 @@ st.markdown(f"""
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
     
-    /* THE GOLD FRAME (Highest possible Z-Index so it's never covered) */
-    .gold-frame {{
+    /* THE GREY FRAME */
+    .grey-frame {{
         position: fixed; 
         top: 1rem; 
         bottom: 1rem; 
         left: 1rem; 
         right: 1rem;
-        border: 1px solid #cda34f; 
+        border: 1px solid #666666; 
         border-radius: 8px; 
         pointer-events: none; 
         z-index: 999999999 !important; 
     }}
 </style>
 <div class="web-bg"></div>
-<div class="gold-frame"></div>
+<div class="grey-frame"></div>
 """, unsafe_allow_html=True)
 
 # --- 7. APP STYLING ---
@@ -147,16 +146,16 @@ st.markdown("""
     .stDeployButton { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 1px solid #cda34f; }
+    [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 1px solid #666666; }
     [data-testid="stSidebar"] > div:first-child { height: 100vh; padding-top: 2rem; display: flex; flex-direction: column; overflow: visible !important; }
     
     [data-testid="stSidebarCollapseButton"], [data-testid="collapsedControl"] {
         display: block !important; visibility: visible !important; z-index: 100000 !important;
-        background-color: #1a1a1a !important; border: 1px solid #cda34f !important; border-radius: 8px !important; color: #cda34f !important; padding: 5px !important;
+        background-color: #1a1a1a !important; border: 1px solid #666666 !important; border-radius: 8px !important; color: #666666 !important; padding: 5px !important;
     }
     [data-testid="stSidebarCollapseButton"] { position: absolute !important; right: -15px !important; top: 15px !important; border-radius: 50% !important; }
     [data-testid="collapsedControl"] { left: 10px !important; top: 10px !important; }
-    [data-testid="stSidebarCollapseButton"] svg, [data-testid="collapsedControl"] svg { stroke: #cda34f !important; color: #cda34f !important; }
+    [data-testid="stSidebarCollapseButton"] svg, [data-testid="collapsedControl"] svg { stroke: #666666 !important; color: #666666 !important; }
 
     .sidebar-container { display: flex; flex-direction: column; height: 100%; min-height: 85vh; width: 100%; overflow-x: hidden; }
     .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; width: 100%; overflow-x: hidden; }
@@ -164,7 +163,7 @@ st.markdown("""
     
     .menu-item { display: flex; align-items: center; padding: 12px 20px; margin-bottom: 5px; cursor: pointer; color: #d1d5db; font-family: 'Inter', sans-serif; font-size: 16px; text-decoration: none !important; transition: 0.3s; white-space: nowrap; width: 100%; box-sizing: border-box; }
     .menu-item:hover { color: #cda34f; background-color: rgba(205, 163, 79, 0.05); }
-    .menu-item.active { background-color: #2a2a2a; border-left: 3px solid #cda34f; color: #ffffff; }
+    .menu-item.active { background-color: #2a2a2a; border-left: 3px solid #666666; color: #ffffff; }
     .menu-item.active svg { stroke: #cda34f; }
     .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
@@ -191,12 +190,12 @@ st.markdown("""
     }
 
     [data-testid="stChatInput"] { 
-        border: 1px solid #cda34f !important; 
+        border: 1px solid #666666 !important; /* Grey border for chat bar */
         border-radius: 50px !important; 
         background-color: #1a1a1a !important; 
         width: 85% !important; 
         max-width: 900px !important;
-        margin: 0 auto 2.5rem auto !important; /* 2.5rem pushes it safely above the bottom border */
+        margin: 0 auto 2.5rem auto !important; 
         padding: 5px 15px !important; 
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
         z-index: 100000 !important; 
@@ -265,7 +264,7 @@ raw_html = f"""
     <div class="sidebar-footer">
         <hr style="border-color: #333; margin: 0 20px 15px 20px;">
         <div style="display: flex; align-items: center; padding: 10px 20px; margin-bottom: 5px;">
-            <img src="https://i.pravatar.cc/150?img=11" style="border-radius: 50%; width: 35px; height: 35px; margin-right: 15px; border: 1px solid #cda34f;">
+            <img src="https://i.pravatar.cc/150?img=11" style="border-radius: 50%; width: 35px; height: 35px; margin-right: 15px; border: 1px solid #666666;">
             <span style="color: #e0d0b0; font-size: 15px; font-family: 'Inter', sans-serif;">M. Mohale</span>
         </div>
         <a href="?page=logout" target="_self" class="menu-item">
