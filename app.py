@@ -163,11 +163,37 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer { background-color: #0a1128 !important; background: #0a1128 !important; border-top: none !important; }
-    [data-testid="stChatInput"] { border: 1px solid #cda34f !important; border-radius: 50px !important; background-color: #1a1a1a !important; width: 85% !important; margin: 0 auto 3rem auto !important; padding: 5px 15px !important; box-shadow: 0px 4px 15px rgba(0,0,0,0.6); z-index: 100; }
+    /* --- FIXED: CENTERED CHAT BAR --- */
+    [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer { 
+        background-color: #0a1128 !important; 
+        background: #0a1128 !important; 
+        border-top: none !important; 
+    }
+    
+    [data-testid="stBottomBlockContainer"] {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    [data-testid="stChatInput"] { 
+        border: 1px solid #cda34f !important; 
+        border-radius: 50px !important; 
+        background-color: #1a1a1a !important; 
+        width: 85% !important; 
+        max-width: 900px !important;
+        margin: 0 0 3rem 0 !important; 
+        padding: 5px 15px !important; 
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
+        z-index: 100; 
+    }
+    
     [data-testid="stChatInput"] > div { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; background-color: transparent !important; border: none !important; }
     [data-testid="stChatInput"] textarea { flex-grow: 1 !important; text-align: left !important; border: none !important; background-color: transparent !important; color: #ffffff !important; padding-left: 10px !important; }
     [data-testid="stChatInput"] button { color: #cda34f !important; background-color: transparent !important; }
+    
     .hero-section { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px; }
 </style>
 """, unsafe_allow_html=True)
@@ -260,7 +286,6 @@ if page == "dashboard":
     else:
         st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
-    # ADJUSTED: Changed margin-top to -10px so it doesn't overlap
     st.markdown("""
             <div style='text-align: center; margin-top: -10px;'>
                 <p style='font-family: "Cinzel", serif; color: #e0d0b0; font-size: 20px; letter-spacing: 1px;'>MOHALE M. PROFESSIONAL</p>
@@ -361,7 +386,6 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
 
-                # --- PULLS TITLE FROM THE FIRST TEXT WRITTEN ---
                 if st.session_state.current_chat_id is None:
                     new_id = str(int(time.time()))
                     
