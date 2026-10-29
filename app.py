@@ -105,16 +105,32 @@ if os.path.exists(wallpaper_file):
 else:
     bg_css = "background-color: #0a1128;"
 
-# --- 6. REAL WALLPAPER BACKGROUND ---
+# --- 6. REAL WALLPAPER BACKGROUND & DOUBLE FRAME ---
 st.markdown(f"""
 <style>
     html, body, .stApp {{ background-color: #0a1128 !important; }}
+    
     .web-bg {{
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
+    
+    /* THE DOUBLE GREY FRAME */
+    .custom-frame {{
+        position: fixed; 
+        top: 15px; 
+        bottom: 15px; 
+        left: 15px; 
+        right: 15px;
+        border: 2px solid #666666; /* Inner line */
+        box-shadow: 0 0 0 4px #0a1128, 0 0 0 6px #666666; /* Gap, then outer line */
+        border-radius: 8px; 
+        pointer-events: none; 
+        z-index: 9999999 !important; 
+    }}
 </style>
 <div class="web-bg"></div>
+<div class="custom-frame"></div>
 """, unsafe_allow_html=True)
 
 # --- 7. APP STYLING ---
@@ -123,6 +139,7 @@ st.markdown("""
 <style>
     [data-testid="stHeader"] { background: transparent !important; z-index: 10000 !important; outline: none !important; }
     .stDeployButton { display: none !important; }
+    .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
     /* Sidebar - No border on the right so we don't get a double line */
     [data-testid="stSidebar"] { 
@@ -140,23 +157,6 @@ st.markdown("""
     [data-testid="stSidebarCollapseButton"] { position: absolute !important; right: -15px !important; top: 15px !important; border-radius: 50% !important; }
     [data-testid="collapsedControl"] { left: 10px !important; top: 10px !important; }
     [data-testid="stSidebarCollapseButton"] svg, [data-testid="collapsedControl"] svg { stroke: #666666 !important; color: #666666 !important; }
-
-    /* --- THE DOUBLE BORDER FRAME AROUND MAIN CONTENT --- */
-    .main {
-        border: 2px solid #666666 !important; /* Inner Line */
-        box-shadow: 0 0 0 6px #0a1128, 0 0 0 8px #666666 !important; /* Gap, then Outer Line */
-        border-radius: 8px !important;
-        margin: 1.5rem !important; /* Spacing from edges */
-        height: calc(100vh - 3rem) !important;
-        overflow-y: auto !important;
-        background: transparent !important;
-    }
-    
-    .main .block-container {
-        padding: 4rem 3rem 8rem 3rem !important;
-        max-width: 100% !important;
-        background: transparent !important;
-    }
 
     .sidebar-container { display: flex; flex-direction: column; height: 100%; min-height: 85vh; width: 100%; overflow-x: hidden; }
     .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; width: 100%; overflow-x: hidden; }
@@ -190,7 +190,7 @@ st.markdown("""
         width: 100% !important;
         padding: 0 !important;
         z-index: 99999 !important;
-        bottom: 2rem !important; /* Pushes it above the bottom border */
+        bottom: 2rem !important;
     }
 
     [data-testid="stChatInput"] { 
