@@ -163,19 +163,17 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- FIXED: CENTERED CHAT BAR --- */
-    [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer { 
+    /* --- FIXED: PERFECTLY CENTERED CHAT BAR --- */
+    [data-testid="stBottom"], 
+    [data-testid="stBottomBlockContainer"], 
+    .stChatFloatingInputContainer { 
         background-color: #0a1128 !important; 
         background: #0a1128 !important; 
         border-top: none !important; 
-    }
-    
-    [data-testid="stBottomBlockContainer"] {
         display: flex !important;
         justify-content: center !important;
         width: 100% !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        padding: 0 !important;
     }
 
     [data-testid="stChatInput"] { 
@@ -184,7 +182,7 @@ st.markdown("""
         background-color: #1a1a1a !important; 
         width: 85% !important; 
         max-width: 900px !important;
-        margin: 0 0 3rem 0 !important; 
+        margin: 0 auto 3rem auto !important; 
         padding: 5px 15px !important; 
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
         z-index: 100; 
