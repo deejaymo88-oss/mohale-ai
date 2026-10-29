@@ -105,7 +105,7 @@ if os.path.exists(wallpaper_file):
 else:
     bg_css = "background-color: #0a1128;"
 
-# --- 6. REAL WALLPAPER BACKGROUND & SINGLE OVERLAY FRAME ---
+# --- 6. REAL WALLPAPER BACKGROUND & DOUBLE OVERLAY FRAME ---
 st.markdown(f"""
 <style>
     /* Set background */
@@ -117,14 +117,15 @@ st.markdown(f"""
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
     
-    /* THE WIDER GREY FRAME (Increased to 5px) */
+    /* THE DOUBLE GREY FRAME */
     .custom-frame {{
         position: fixed; 
         top: 10px; 
         bottom: 10px; 
         left: 10px; 
         right: 10px;
-        border: 5px solid #666666; 
+        border: 2px solid #666666; /* Inner Line */
+        box-shadow: 0 0 0 4px #0a1128, 0 0 0 6px #666666; /* Gap (matching background), then Outer Line */
         border-radius: 8px; 
         pointer-events: none; 
         z-index: 9999999 !important; 
@@ -142,7 +143,7 @@ st.markdown("""
     .stDeployButton { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    /* Sidebar - No border on the right so we don't get a double line */
+    /* Sidebar - No border on the right to keep it clean */
     [data-testid="stSidebar"] { 
         background-color: #1a1a1a !important; 
         border-right: none !important; 
@@ -165,7 +166,7 @@ st.markdown("""
     
     .menu-item { display: flex; align-items: center; padding: 12px 20px; margin-bottom: 5px; cursor: pointer; color: #d1d5db; font-family: 'Inter', sans-serif; font-size: 16px; text-decoration: none !important; transition: 0.3s; white-space: nowrap; width: 100%; box-sizing: border-box; }
     .menu-item:hover { color: #cda34f; background-color: rgba(205, 163, 79, 0.05); }
-    .menu-item.active { background-color: #2a2a2a; border-left: 4px solid #666666; color: #ffffff; }
+    .menu-item.active { background-color: #2a2a2a; border-left: 3px solid #666666; color: #ffffff; }
     .menu-item.active svg { stroke: #cda34f; }
     .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
@@ -194,12 +195,12 @@ st.markdown("""
     }
 
     [data-testid="stChatInput"] { 
-        border: 3px solid #666666 !important; /* Wider chat border to match */
+        border: 2px solid #666666 !important; 
         border-radius: 50px !important; 
         background-color: #1a1a1a !important; 
         width: 85% !important; 
         max-width: 900px !important;
-        margin: 0 auto 1.5rem auto !important; 
+        margin: 0 auto 2rem auto !important; 
         padding: 5px 15px !important; 
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
         z-index: 100000 !important; 
