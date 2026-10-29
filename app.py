@@ -24,9 +24,15 @@ def init_db():
     conn.close()
 
 def save_chat_to_db(chat_id, title, messages):
+    # Strip out heavy image data before saving to database to keep it fast
+    clean_messages = []
+    for msg in messages:
+        clean_msg = {"role": msg["role"], "content": msg["content"]}
+        clean_messages.append(clean_msg)
+        
     conn = sqlite3.connect('chat_history.db')
     c = conn.cursor()
-    messages_json = json.dumps(messages)
+    messages_json = json.dumps(clean_messages)
     c.execute("INSERT OR REPLACE INTO chats (id, title, messages) VALUES (?, ?, ?)", 
               (chat_id, title, messages_json))
     conn.commit()
@@ -280,7 +286,7 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 11. CHAT LOGIC (OPENAI WITH VISION) ---
+# --- 11. CHAT LOGIC (OPENAI WITH IMAGE MEMORY) ---
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -290,8 +296,20 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
     text_input = prompt.text if prompt.text else ""
     uploaded_files = prompt.files
     
-    # Add the user's text to history
-    st.session_state.messages.append({"role": "user", "content": text_input})
+    # Process and store uploaded image data
+    image_data_list = []
+    if uploaded_files:
+        for file in uploaded_files:
+            file_bytes = file.read()
+            base64_image = base64.b64encode(file_bytes).decode('utf-8')
+            image_data_list.append((file.type, base64_image))
+    
+    # Create the new user message dictionary
+    user_message = {"role": "user", "content": text_input}
+    if image_data_list:
+        user_message["image_data"] = image_data_list
+        
+    st.session_state.messages.append(user_message)
     
     with st.chat_message("user"):
         st.markdown(text_input)
@@ -305,39 +323,25 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else os.getenv("OPENAI_API_KEY")
                 client = OpenAI(api_key=api_key)
                 
-                # Build the system prompt
                 system_prompt = "You are Mohale M. Professional, an elite AI assistant. Keep your answers concise and elegant."
                 if st.session_state.book_text:
                     system_prompt += f"\n\nCRITICAL INSTRUCTION: You have been provided with a text excerpt from a book. You cannot open external files because the text has already been pasted into your memory. If the user asks you to 'open' the book or asks about something not in the text, explain that you are currently reading a text excerpt and answer based ONLY on what is provided in the excerpt below:\n\n{st.session_state.book_text}"
 
                 messages_payload = [{"role": "system", "content": system_prompt}]
                 
-                # Add previous messages to history (excluding the current one to handle it specially)
-                for msg in st.session_state.messages[:-1]:
-                    messages_payload.append({"role": msg["role"], "content": msg["content"]})
+                # Reconstruct the entire chat history, including the images
+                for msg in st.session_state.messages:
+                    if "image_data" in msg and msg["image_data"]:
+                        content_list = [{"type": "text", "text": msg["content"] if msg["content"] else "Describe this image."}]
+                        for img_type, img_b64 in msg["image_data"]:
+                            content_list.append({
+                                "type": "image_url",
+                                "image_url": {"url": f"data:{img_type};base64,{img_b64}"}
+                            })
+                        messages_payload.append({"role": msg["role"], "content": content_list})
+                    else:
+                        messages_payload.append({"role": msg["role"], "content": msg["content"]})
 
-                # --- HANDLE IMAGES (VISION) ---
-                if uploaded_files:
-                    # Create a multi-modal payload
-                    user_content = [{"type": "text", "text": text_input if text_input else "Describe this image."}]
-                    
-                    for file in uploaded_files:
-                        # Read file and convert to base64
-                        file_bytes = file.read()
-                        base64_image = base64.b64encode(file_bytes).decode('utf-8')
-                        
-                        # Append image data
-                        user_content.append({
-                            "type": "image_url",
-                            "image_url": {"url": f"data:{file.type};base64,{base64_image}"}
-                        })
-                    
-                    messages_payload.append({"role": "user", "content": user_content})
-                else:
-                    # Standard text message
-                    messages_payload.append({"role": "user", "content": text_input})
-
-                # Send to OpenAI (gpt-4o-mini is vision capable)
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=messages_payload
