@@ -117,14 +117,14 @@ st.markdown(f"""
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
     
-    /* THE SINGLE CLEAN GREY FRAME (Sits on top of everything) */
+    /* THE WIDER GREY FRAME (Increased to 5px) */
     .custom-frame {{
         position: fixed; 
         top: 10px; 
         bottom: 10px; 
         left: 10px; 
         right: 10px;
-        border: 2px solid #666666; 
+        border: 5px solid #666666; 
         border-radius: 8px; 
         pointer-events: none; 
         z-index: 9999999 !important; 
@@ -165,7 +165,7 @@ st.markdown("""
     
     .menu-item { display: flex; align-items: center; padding: 12px 20px; margin-bottom: 5px; cursor: pointer; color: #d1d5db; font-family: 'Inter', sans-serif; font-size: 16px; text-decoration: none !important; transition: 0.3s; white-space: nowrap; width: 100%; box-sizing: border-box; }
     .menu-item:hover { color: #cda34f; background-color: rgba(205, 163, 79, 0.05); }
-    .menu-item.active { background-color: #2a2a2a; border-left: 3px solid #666666; color: #ffffff; }
+    .menu-item.active { background-color: #2a2a2a; border-left: 4px solid #666666; color: #ffffff; }
     .menu-item.active svg { stroke: #cda34f; }
     .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
@@ -194,7 +194,7 @@ st.markdown("""
     }
 
     [data-testid="stChatInput"] { 
-        border: 2px solid #666666 !important; 
+        border: 3px solid #666666 !important; /* Wider chat border to match */
         border-radius: 50px !important; 
         background-color: #1a1a1a !important; 
         width: 85% !important; 
