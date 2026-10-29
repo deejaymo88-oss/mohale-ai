@@ -105,41 +105,28 @@ if os.path.exists(wallpaper_file):
 else:
     bg_css = "background-color: #0a1128;"
 
-# --- 6. REAL WALLPAPER BACKGROUND & GREY FRAME ---
+# --- 6. REAL WALLPAPER BACKGROUND & SINGLE OUTER FRAME ---
 st.markdown(f"""
 <style>
-    .stApp, [data-testid="stAppViewContainer"], [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer {{
-        background: transparent !important;
-        background-color: transparent !important;
-        border: none !important;
-        outline: none !important;
-        box-shadow: none !important;
-    }}
+    /* Set background */
+    html, body, .stApp {{ background-color: #0a1128 !important; }}
     
-    html, body {{ background-color: #0a1128 !important; }}
-    
+    /* Wallpaper */
     .web-bg {{
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
     
-    /* THE SINGLE CLEAN GREY FRAME */
-    .grey-frame {{
-        position: fixed; 
-        top: 1rem; 
-        bottom: 1rem; 
-        left: 1rem; 
-        right: 1rem;
-        border: 3px solid #666666; 
-        border-radius: 8px; 
-        pointer-events: none; 
-        z-index: 999999999 !important; 
-        outline: none !important;
-        box-shadow: none !important;
+    /* THE SINGLE CLEAN OUTER FRAME */
+    [data-testid="stAppViewContainer"] {{
+        border: 2px solid #666666 !important;
+        border-radius: 8px !important;
+        margin: 1rem !important;
+        overflow: hidden !important;
+        background: transparent !important;
     }}
 </style>
 <div class="web-bg"></div>
-<div class="grey-frame"></div>
 """, unsafe_allow_html=True)
 
 # --- 7. APP STYLING ---
@@ -150,10 +137,10 @@ st.markdown("""
     .stDeployButton { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    /* SINGLE CLEAN SIDEBAR BORDER */
+    /* Removed the sidebar's inner border so there is no double line */
     [data-testid="stSidebar"] { 
         background-color: #1a1a1a !important; 
-        border-right: 3px solid #666666 !important; 
+        border-right: none !important; 
         outline: none !important;
         box-shadow: none !important;
     }
@@ -188,24 +175,29 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- FORCE CHAT BAR TO FLOAT ABOVE THE BOTTOM LINE --- */
-    [data-testid="stBottom"], 
+    /* --- ALIGN CHAT BAR INSIDE THE NEW BORDER --- */
+    [data-testid="stBottom"] { 
+        bottom: 1rem !important; /* Pushes it up to sit inside the bottom border */
+        background-color: transparent !important;
+        z-index: 99999 !important;
+    }
+    
     [data-testid="stBottomBlockContainer"], 
     .stChatFloatingInputContainer { 
         display: flex !important;
         justify-content: center !important;
         width: 100% !important;
         padding: 0 !important;
-        z-index: 99999 !important;
+        background-color: transparent !important;
     }
 
     [data-testid="stChatInput"] { 
-        border: 2px solid #666666 !important; /* Clean chat bar border */
+        border: 2px solid #666666 !important; 
         border-radius: 50px !important; 
         background-color: #1a1a1a !important; 
         width: 85% !important; 
         max-width: 900px !important;
-        margin: 0 auto 2.5rem auto !important; 
+        margin: 0 auto 2rem auto !important; 
         padding: 5px 15px !important; 
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
         z-index: 100000 !important; 
