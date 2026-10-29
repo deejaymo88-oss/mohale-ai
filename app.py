@@ -260,9 +260,9 @@ if page == "dashboard":
     else:
         st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
-    # ADJUSTED: Pulled text up with negative margin-top and removed the <br>
+    # ADJUSTED: Changed margin-top to -10px so it doesn't overlap
     st.markdown("""
-            <div style='text-align: center; margin-top: -40px;'>
+            <div style='text-align: center; margin-top: -10px;'>
                 <p style='font-family: "Cinzel", serif; color: #e0d0b0; font-size: 20px; letter-spacing: 1px;'>MOHALE M. PROFESSIONAL</p>
                 <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; margin-top: 10px;'>HI, I'M MOHALE</h1>
                 <p style='color: #a0a0a0; font-size: 16px; margin-bottom: 50px;'>How can I assist you today?</p>
