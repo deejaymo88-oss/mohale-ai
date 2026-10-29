@@ -114,9 +114,10 @@ st.markdown(f"""
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
+    /* FIXED GOLD FRAME */
     .gold-frame {{
         position: fixed; top: 1rem; bottom: 1rem; left: 1rem; right: 1rem;
-        border: 1px solid #cda34f; border-radius: 8px; pointer-events: none; z-index: 9999;
+        border: 1px solid #cda34f; border-radius: 8px; pointer-events: none; z-index: 100000 !important;
     }}
 </style>
 <div class="web-bg"></div>
@@ -163,29 +164,31 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- FIXED: PERFECTLY CENTERED CHAT BAR --- */
+    /* --- FIXED: TRANSPARENT BOTTOM SO FRAME SHOWS --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"], 
     .stChatFloatingInputContainer { 
-        background-color: #0a1128 !important; 
-        background: #0a1128 !important; 
+        background-color: transparent !important; 
+        background: transparent !important; 
         border-top: none !important; 
         display: flex !important;
         justify-content: center !important;
         width: 100% !important;
         padding: 0 !important;
+        z-index: 99999 !important;
     }
 
+    /* --- NARROWER, CENTERED CHAT BAR INSIDE FRAME --- */
     [data-testid="stChatInput"] { 
         border: 1px solid #cda34f !important; 
         border-radius: 50px !important; 
         background-color: #1a1a1a !important; 
-        width: 85% !important; 
+        width: 80% !important; 
         max-width: 900px !important;
-        margin: 0 auto 3rem auto !important; 
+        margin: 0 auto 3.5rem auto !important; 
         padding: 5px 15px !important; 
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
-        z-index: 100; 
+        z-index: 100000 !important; 
     }
     
     [data-testid="stChatInput"] > div { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; background-color: transparent !important; border: none !important; }
