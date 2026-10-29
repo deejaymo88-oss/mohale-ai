@@ -152,14 +152,43 @@ st.markdown("""
     .menu-item.active svg { stroke: #cda34f; }
     .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
-    /* --- FIXED CHAT HISTORY ACCORDION (NO WHITE BOX, NO SPILLOVER) --- */
-    details.menu-item { padding: 0; width: 100%; box-sizing: border-box; overflow: hidden; outline: none !important; border: none !important; }
-    details.menu-item summary { padding: 12px 20px; display: flex; align-items: center; list-style: none; cursor: pointer; width: 100%; box-sizing: border-box; outline: none !important; border: none !important; }
+    /* --- FIXED CHAT HISTORY ACCORDION (STACKS VERTICALLY) --- */
+    details.menu-item { 
+        display: block !important; /* Forces list to drop below */
+        padding: 0; 
+        width: 100%; 
+        box-sizing: border-box; 
+        overflow: hidden; 
+        outline: none !important; 
+        border: none !important; 
+    }
+    details.menu-item summary { 
+        padding: 12px 20px; 
+        display: flex; 
+        align-items: center; 
+        list-style: none; 
+        cursor: pointer; 
+        width: 100%; 
+        box-sizing: border-box; 
+        outline: none !important; 
+        border: none !important; 
+    }
     details.menu-item summary:focus { outline: none !important; border: none !important; }
     details.menu-item summary::-webkit-details-marker { display: none; }
     details.menu-item[open] summary { color: #cda34f; }
     
-    .history-list { display: flex; flex-direction: column; padding-left: 45px; padding-right: 15px; max-height: 250px; overflow-y: auto; overflow-x: hidden; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+    .history-list { 
+        display: flex; 
+        flex-direction: column; 
+        padding-left: 45px; 
+        padding-right: 15px; 
+        max-height: 250px; 
+        overflow-y: auto; 
+        overflow-x: hidden; 
+        margin-bottom: 10px; 
+        width: 100%; 
+        box-sizing: border-box; 
+    }
     .history-link { display: block; width: 100%; color: #a0a0a0; font-size: 14px; padding: 6px 0; text-decoration: none !important; font-family: 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-sizing: border-box; }
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
