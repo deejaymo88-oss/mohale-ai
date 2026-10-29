@@ -109,7 +109,7 @@ else:
 st.markdown(f"""
 <style>
     /* Force base transparent */
-    html, body, .stApp, [data-testid="stAppViewContainer"] {{ 
+    html, body, .stApp, [data-testid="stAppViewContainer"], .main {{ 
         background: transparent !important; 
         background-color: transparent !important;
     }}
@@ -192,18 +192,27 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- FORCE CHAT BAR TO BE INSIDE THE FRAME (TRANSPARENT BACKING) --- */
+    /* --- FORCE CHAT BAR TO BE COMPLETELY TRANSPARENT SO FRAME SHOWS --- */
     [data-testid="stBottom"], 
+    [data-testid="stBottom"] > div,
     [data-testid="stBottomBlockContainer"], 
-    .stChatFloatingInputContainer { 
+    .stChatFloatingInputContainer,
+    .stChatFloatingInputContainer > div { 
         background: transparent !important;
         background-color: transparent !important;
+        border-top: none !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    /* Ensure chat bar floats perfectly inside the frame */
+    [data-testid="stBottom"] {
         display: flex !important;
         justify-content: center !important;
         width: 100% !important;
-        padding: 0 !important;
+        bottom: 2rem !important; /* Pushes it up above the bottom line */
         z-index: 99999 !important;
-        bottom: 2rem !important;
     }
 
     [data-testid="stChatInput"] { 
