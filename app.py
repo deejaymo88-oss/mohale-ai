@@ -114,10 +114,11 @@ st.markdown(f"""
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
-    /* FIXED GOLD FRAME */
+    /* AGGRESSIVE GOLD FRAME (ALWAYS ON TOP) */
     .gold-frame {{
         position: fixed; top: 1rem; bottom: 1rem; left: 1rem; right: 1rem;
-        border: 1px solid #cda34f; border-radius: 8px; pointer-events: none; z-index: 100000 !important;
+        border: 1px solid #cda34f; border-radius: 8px; pointer-events: none; 
+        z-index: 9999999 !important; 
     }}
 </style>
 <div class="web-bg"></div>
@@ -164,7 +165,7 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- FIXED: FULLY TRANSPARENT BOTTOM CONTAINER --- */
+    /* --- FULLY TRANSPARENT BOTTOM CONTAINER --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"], 
     .stChatFloatingInputContainer,
@@ -186,7 +187,7 @@ st.markdown("""
         background-color: #1a1a1a !important; 
         width: 80% !important; 
         max-width: 900px !important;
-        margin: 0 auto 2rem auto !important; /* 2rem keeps it inside the 1rem gold border */
+        margin: 0 auto 2.5rem auto !important; 
         padding: 5px 15px !important; 
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
         z-index: 100000 !important; 
