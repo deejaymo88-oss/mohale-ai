@@ -105,12 +105,11 @@ if os.path.exists(wallpaper_file):
 else:
     bg_css = "background-color: #0a1128;"
 
-# --- 6. REAL WALLPAPER BACKGROUND & SINGLE FRAME ---
+# --- 6. REAL WALLPAPER BACKGROUND & SINGLE OVERLAY FRAME ---
 st.markdown(f"""
 <style>
-    /* Make entire app transparent */
-    .stApp {{ background: transparent !important; }}
-    html, body {{ background-color: #0a1128 !important; }}
+    /* Set background */
+    html, body, .stApp {{ background-color: #0a1128 !important; }}
     
     /* Wallpaper */
     .web-bg {{
@@ -118,17 +117,21 @@ st.markdown(f"""
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
     
-    /* THE SINGLE CLEAN FRAME AROUND MAIN CONTENT */
-    .main {{
-        border: 2px solid #666666 !important;
-        border-radius: 8px !important;
-        margin: 1rem !important;
-        height: calc(100vh - 2rem) !important;
-        overflow-y: auto !important;
-        background: transparent !important;
+    /* THE SINGLE CLEAN GREY FRAME (Sits on top of everything) */
+    .custom-frame {{
+        position: fixed; 
+        top: 10px; 
+        bottom: 10px; 
+        left: 10px; 
+        right: 10px;
+        border: 2px solid #666666; 
+        border-radius: 8px; 
+        pointer-events: none; 
+        z-index: 9999999 !important; 
     }}
 </style>
 <div class="web-bg"></div>
+<div class="custom-frame"></div>
 """, unsafe_allow_html=True)
 
 # --- 7. APP STYLING ---
@@ -139,7 +142,7 @@ st.markdown("""
     .stDeployButton { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    /* Sidebar - No border on the right to prevent double lines */
+    /* Sidebar - No border on the right so we don't get a double line */
     [data-testid="stSidebar"] { 
         background-color: #1a1a1a !important; 
         border-right: none !important; 
@@ -177,7 +180,7 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- FORCE CHAT BAR TO FLOAT ABOVE THE BOTTOM LINE --- */
+    /* --- FORCE CHAT BAR TO BE TRANSPARENT SO FRAME SHOWS --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"], 
     .stChatFloatingInputContainer { 
@@ -196,7 +199,7 @@ st.markdown("""
         background-color: #1a1a1a !important; 
         width: 85% !important; 
         max-width: 900px !important;
-        margin: 0 auto 2rem auto !important; 
+        margin: 0 auto 1.5rem auto !important; 
         padding: 5px 15px !important; 
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
         z-index: 100000 !important; 
