@@ -109,7 +109,7 @@ else:
 st.markdown(f"""
 <style>
     /* Force base transparent */
-    html, body, .stApp, [data-testid="stAppViewContainer"], .main {{ 
+    html, body, .stApp, [data-testid="stAppViewContainer"] {{ 
         background: transparent !important; 
         background-color: transparent !important;
     }}
@@ -124,7 +124,7 @@ st.markdown(f"""
     .inner-shade {{
         position: fixed;
         top: 20px; bottom: 20px; left: 20px; right: 20px;
-        background-color: #1e1e1e; /* The grey inside */
+        background-color: #1e1e1e; /* The dark grey inside */
         border-radius: 6px;
         z-index: -2;
         pointer-events: none;
@@ -135,7 +135,7 @@ st.markdown(f"""
         position: fixed; 
         top: 20px; bottom: 20px; left: 20px; right: 20px;
         border: 2px solid #666666; /* Inner line */
-        box-shadow: 0 0 0 4px #0a1128, 0 0 0 6px #666666; /* Gap, then outer line */
+        box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 6px #666666; /* Gap, then outer line */
         border-radius: 6px; 
         pointer-events: none; 
         z-index: 9999999 !important; 
@@ -156,8 +156,8 @@ st.markdown("""
     
     /* Sidebar - Matches the inside shade so it looks seamless */
     [data-testid="stSidebar"] { 
-        background-color: #1a1a1a !important; 
-        border-right: none !important; 
+        background-color: #1e1e1e !important; 
+        border-right: 1px solid #333333 !important; 
         outline: none !important;
         box-shadow: none !important;
     }
@@ -165,7 +165,7 @@ st.markdown("""
     
     [data-testid="stSidebarCollapseButton"], [data-testid="collapsedControl"] {
         display: block !important; visibility: visible !important; z-index: 100000 !important;
-        background-color: #1a1a1a !important; border: 2px solid #666666 !important; border-radius: 8px !important; color: #666666 !important; padding: 5px !important;
+        background-color: #1e1e1e !important; border: 2px solid #666666 !important; border-radius: 8px !important; color: #666666 !important; padding: 5px !important;
     }
     [data-testid="stSidebarCollapseButton"] { position: absolute !important; right: -15px !important; top: 15px !important; border-radius: 50% !important; }
     [data-testid="collapsedControl"] { left: 10px !important; top: 10px !important; }
@@ -192,7 +192,7 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- FORCE CHAT BAR TO BE INSIDE THE FRAME --- */
+    /* --- FORCE CHAT BAR TO BE INSIDE THE FRAME (TRANSPARENT BACKING) --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"], 
     .stChatFloatingInputContainer { 
