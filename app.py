@@ -121,14 +121,14 @@ st.markdown(f"""
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
     
-    /* THE GREY FRAME */
+    /* THE THICKER GREY FRAME */
     .grey-frame {{
         position: fixed; 
         top: 1rem; 
         bottom: 1rem; 
         left: 1rem; 
         right: 1rem;
-        border: 1px solid #666666; 
+        border: 3px solid #666666; /* Increased thickness to 3px */
         border-radius: 8px; 
         pointer-events: none; 
         z-index: 999999999 !important; 
@@ -146,12 +146,12 @@ st.markdown("""
     .stDeployButton { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 1px solid #666666; }
+    [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 3px solid #666666; } /* Thicker sidebar border */
     [data-testid="stSidebar"] > div:first-child { height: 100vh; padding-top: 2rem; display: flex; flex-direction: column; overflow: visible !important; }
     
     [data-testid="stSidebarCollapseButton"], [data-testid="collapsedControl"] {
         display: block !important; visibility: visible !important; z-index: 100000 !important;
-        background-color: #1a1a1a !important; border: 1px solid #666666 !important; border-radius: 8px !important; color: #666666 !important; padding: 5px !important;
+        background-color: #1a1a1a !important; border: 2px solid #666666 !important; border-radius: 8px !important; color: #666666 !important; padding: 5px !important;
     }
     [data-testid="stSidebarCollapseButton"] { position: absolute !important; right: -15px !important; top: 15px !important; border-radius: 50% !important; }
     [data-testid="collapsedControl"] { left: 10px !important; top: 10px !important; }
@@ -190,7 +190,7 @@ st.markdown("""
     }
 
     [data-testid="stChatInput"] { 
-        border: 1px solid #666666 !important; /* Grey border for chat bar */
+        border: 2px solid #666666 !important; /* Thicker chat bar border */
         border-radius: 50px !important; 
         background-color: #1a1a1a !important; 
         width: 85% !important; 
@@ -264,7 +264,7 @@ raw_html = f"""
     <div class="sidebar-footer">
         <hr style="border-color: #333; margin: 0 20px 15px 20px;">
         <div style="display: flex; align-items: center; padding: 10px 20px; margin-bottom: 5px;">
-            <img src="https://i.pravatar.cc/150?img=11" style="border-radius: 50%; width: 35px; height: 35px; margin-right: 15px; border: 1px solid #666666;">
+            <img src="https://i.pravatar.cc/150?img=11" style="border-radius: 50%; width: 35px; height: 35px; margin-right: 15px; border: 2px solid #666666;">
             <span style="color: #e0d0b0; font-size: 15px; font-family: 'Inter', sans-serif;">M. Mohale</span>
         </div>
         <a href="?page=logout" target="_self" class="menu-item">
