@@ -112,6 +112,8 @@ st.markdown(f"""
         background: transparent !important;
         background-color: transparent !important;
         border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
     }}
     
     html, body {{ background-color: #0a1128 !important; }}
@@ -121,17 +123,19 @@ st.markdown(f"""
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
     
-    /* THE THICKER GREY FRAME */
+    /* THE SINGLE CLEAN GREY FRAME */
     .grey-frame {{
         position: fixed; 
         top: 1rem; 
         bottom: 1rem; 
         left: 1rem; 
         right: 1rem;
-        border: 3px solid #666666; /* Increased thickness to 3px */
+        border: 3px solid #666666; 
         border-radius: 8px; 
         pointer-events: none; 
         z-index: 999999999 !important; 
+        outline: none !important;
+        box-shadow: none !important;
     }}
 </style>
 <div class="web-bg"></div>
@@ -142,11 +146,17 @@ st.markdown(f"""
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-    [data-testid="stHeader"] { background: transparent !important; z-index: 10000 !important; }
+    [data-testid="stHeader"] { background: transparent !important; z-index: 10000 !important; outline: none !important; }
     .stDeployButton { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    [data-testid="stSidebar"] { background-color: #1a1a1a !important; border-right: 3px solid #666666; } /* Thicker sidebar border */
+    /* SINGLE CLEAN SIDEBAR BORDER */
+    [data-testid="stSidebar"] { 
+        background-color: #1a1a1a !important; 
+        border-right: 3px solid #666666 !important; 
+        outline: none !important;
+        box-shadow: none !important;
+    }
     [data-testid="stSidebar"] > div:first-child { height: 100vh; padding-top: 2rem; display: flex; flex-direction: column; overflow: visible !important; }
     
     [data-testid="stSidebarCollapseButton"], [data-testid="collapsedControl"] {
@@ -190,7 +200,7 @@ st.markdown("""
     }
 
     [data-testid="stChatInput"] { 
-        border: 2px solid #666666 !important; /* Thicker chat bar border */
+        border: 2px solid #666666 !important; /* Clean chat bar border */
         border-radius: 50px !important; 
         background-color: #1a1a1a !important; 
         width: 85% !important; 
@@ -199,10 +209,11 @@ st.markdown("""
         padding: 5px 15px !important; 
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
         z-index: 100000 !important; 
+        outline: none !important;
     }
     
     [data-testid="stChatInput"] > div { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; background-color: transparent !important; border: none !important; }
-    [data-testid="stChatInput"] textarea { flex-grow: 1 !important; text-align: left !important; border: none !important; background-color: transparent !important; color: #ffffff !important; padding-left: 10px !important; }
+    [data-testid="stChatInput"] textarea { flex-grow: 1 !important; text-align: left !important; border: none !important; background-color: transparent !important; color: #ffffff !important; padding-left: 10px !important; outline: none !important; }
     [data-testid="stChatInput"] button { color: #cda34f !important; background-color: transparent !important; }
     
     .hero-section { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px; }
