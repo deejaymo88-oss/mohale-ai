@@ -24,7 +24,6 @@ def init_db():
     conn.close()
 
 def save_chat_to_db(chat_id, title, messages):
-    # Strip out heavy image data before saving to database to keep it fast
     clean_messages = []
     for msg in messages:
         clean_msg = {"role": msg["role"], "content": msg["content"]}
@@ -55,6 +54,14 @@ def get_all_chats_from_db():
     rows = c.fetchall()
     conn.close()
     return rows
+
+def get_chat_title_from_db(chat_id):
+    conn = sqlite3.connect('chat_history.db')
+    c = conn.cursor()
+    c.execute("SELECT title FROM chats WHERE id = ?", (chat_id,))
+    row = c.fetchone()
+    conn.close()
+    return row[0] if row else "Saved Chat"
 
 init_db()
 
@@ -135,22 +142,25 @@ st.markdown("""
     [data-testid="collapsedControl"] { left: 10px !important; top: 10px !important; }
     [data-testid="stSidebarCollapseButton"] svg, [data-testid="collapsedControl"] svg { stroke: #cda34f !important; color: #cda34f !important; }
 
-    .sidebar-container { display: flex; flex-direction: column; height: 100%; min-height: 85vh; }
-    .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; }
+    .sidebar-container { display: flex; flex-direction: column; height: 100%; min-height: 85vh; width: 100%; overflow-x: hidden; }
+    .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; width: 100%; overflow-x: hidden; }
     .sidebar-footer { margin-top: auto; padding-bottom: 20px; }
     
-    .menu-item { display: flex; align-items: center; padding: 12px 20px; margin-bottom: 5px; cursor: pointer; color: #d1d5db; font-family: 'Inter', sans-serif; font-size: 16px; text-decoration: none !important; transition: 0.3s; white-space: nowrap; }
+    .menu-item { display: flex; align-items: center; padding: 12px 20px; margin-bottom: 5px; cursor: pointer; color: #d1d5db; font-family: 'Inter', sans-serif; font-size: 16px; text-decoration: none !important; transition: 0.3s; white-space: nowrap; width: 100%; box-sizing: border-box; }
     .menu-item:hover { color: #cda34f; background-color: rgba(205, 163, 79, 0.05); }
     .menu-item.active { background-color: #2a2a2a; border-left: 3px solid #cda34f; color: #ffffff; }
     .menu-item.active svg { stroke: #cda34f; }
-    .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
-    details.menu-item { padding: 0; width: 100%; box-sizing: border-box; }
-    details.menu-item summary { padding: 12px 20px; display: flex; align-items: center; list-style: none; cursor: pointer; width: 100%; box-sizing: border-box; }
+    /* --- FIXED CHAT HISTORY ACCORDION (NO WHITE BOX, NO SPILLOVER) --- */
+    details.menu-item { padding: 0; width: 100%; box-sizing: border-box; overflow: hidden; outline: none !important; border: none !important; }
+    details.menu-item summary { padding: 12px 20px; display: flex; align-items: center; list-style: none; cursor: pointer; width: 100%; box-sizing: border-box; outline: none !important; border: none !important; }
+    details.menu-item summary:focus { outline: none !important; border: none !important; }
     details.menu-item summary::-webkit-details-marker { display: none; }
     details.menu-item[open] summary { color: #cda34f; }
-    .history-list { display: flex; flex-direction: column; padding-left: 55px; padding-right: 15px; max-height: 250px; overflow-y: auto; overflow-x: hidden; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
-    .history-link { display: block; width: 100%; color: #a0a0a0; font-size: 14px; padding: 6px 0; text-decoration: none !important; font-family: 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .history-list { display: flex; flex-direction: column; padding-left: 45px; padding-right: 15px; max-height: 250px; overflow-y: auto; overflow-x: hidden; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+    .history-link { display: block; width: 100%; color: #a0a0a0; font-size: 14px; padding: 6px 0; text-decoration: none !important; font-family: 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-sizing: border-box; }
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
@@ -168,7 +178,9 @@ history_items = ""
 db_chats = get_all_chats_from_db()
 for cid, title in db_chats:
     is_active = "active" if st.session_state.current_chat_id == cid else ""
-    history_items += f'<a href="?chat_id={cid}" target="_self" class="history-link {is_active}">{title}</a>'
+    # Ensure title is truncated cleanly if it's too long
+    display_title = title[:18] + "..." if len(title) > 18 else title
+    history_items += f'<a href="?chat_id={cid}" target="_self" class="history-link {is_active}">{display_title}</a>'
 
 is_history_open = "open" if st.session_state.current_chat_id else ""
 
@@ -286,7 +298,7 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 11. CHAT LOGIC (OPENAI WITH IMAGE MEMORY) ---
+# --- 11. CHAT LOGIC ---
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -296,7 +308,6 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
     text_input = prompt.text if prompt.text else ""
     uploaded_files = prompt.files
     
-    # Process and store uploaded image data
     image_data_list = []
     if uploaded_files:
         for file in uploaded_files:
@@ -304,7 +315,6 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
             base64_image = base64.b64encode(file_bytes).decode('utf-8')
             image_data_list.append((file.type, base64_image))
     
-    # Create the new user message dictionary
     user_message = {"role": "user", "content": text_input}
     if image_data_list:
         user_message["image_data"] = image_data_list
@@ -324,12 +334,13 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 client = OpenAI(api_key=api_key)
                 
                 system_prompt = "You are Mohale M. Professional, an elite AI assistant. Keep your answers concise and elegant."
+                system_prompt += "\n\nIf the user provides an image, you must analyze it carefully, even if it contains small text, charts, or tables. Read the text directly from the image to answer the user."
+                
                 if st.session_state.book_text:
                     system_prompt += f"\n\nCRITICAL INSTRUCTION: You have been provided with a text excerpt from a book. You cannot open external files because the text has already been pasted into your memory. If the user asks you to 'open' the book or asks about something not in the text, explain that you are currently reading a text excerpt and answer based ONLY on what is provided in the excerpt below:\n\n{st.session_state.book_text}"
 
                 messages_payload = [{"role": "system", "content": system_prompt}]
                 
-                # Reconstruct the entire chat history, including the images
                 for msg in st.session_state.messages:
                     if "image_data" in msg and msg["image_data"]:
                         content_list = [{"type": "text", "text": msg["content"] if msg["content"] else "Describe this image."}]
@@ -343,7 +354,7 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                         messages_payload.append({"role": msg["role"], "content": msg["content"]})
 
                 response = client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model="gpt-4o",
                     messages=messages_payload
                 )
                 
@@ -358,7 +369,8 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                     st.session_state.current_chat_id = new_id
                     save_chat_to_db(new_id, title, st.session_state.messages)
                 else:
-                    save_chat_to_db(st.session_state.current_chat_id, "Updated Chat", st.session_state.messages)
+                    original_title = get_chat_title_from_db(st.session_state.current_chat_id)
+                    save_chat_to_db(st.session_state.current_chat_id, original_title, st.session_state.messages)
                 
                 st.rerun()
 
