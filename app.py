@@ -105,11 +105,12 @@ if os.path.exists(wallpaper_file):
 else:
     bg_css = "background-color: #0a1128;"
 
-# --- 6. REAL WALLPAPER BACKGROUND & SINGLE OUTER FRAME ---
+# --- 6. REAL WALLPAPER BACKGROUND & SINGLE FRAME ---
 st.markdown(f"""
 <style>
-    /* Set background */
-    html, body, .stApp {{ background-color: #0a1128 !important; }}
+    /* Make entire app transparent */
+    .stApp {{ background: transparent !important; }}
+    html, body {{ background-color: #0a1128 !important; }}
     
     /* Wallpaper */
     .web-bg {{
@@ -117,12 +118,13 @@ st.markdown(f"""
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
     
-    /* THE SINGLE CLEAN OUTER FRAME */
-    [data-testid="stAppViewContainer"] {{
+    /* THE SINGLE CLEAN FRAME AROUND MAIN CONTENT */
+    .main {{
         border: 2px solid #666666 !important;
         border-radius: 8px !important;
         margin: 1rem !important;
-        overflow: hidden !important;
+        height: calc(100vh - 2rem) !important;
+        overflow-y: auto !important;
         background: transparent !important;
     }}
 </style>
@@ -137,7 +139,7 @@ st.markdown("""
     .stDeployButton { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    /* Removed the sidebar's inner border so there is no double line */
+    /* Sidebar - No border on the right to prevent double lines */
     [data-testid="stSidebar"] { 
         background-color: #1a1a1a !important; 
         border-right: none !important; 
@@ -175,20 +177,17 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- ALIGN CHAT BAR INSIDE THE NEW BORDER --- */
-    [data-testid="stBottom"] { 
-        bottom: 1rem !important; /* Pushes it up to sit inside the bottom border */
-        background-color: transparent !important;
-        z-index: 99999 !important;
-    }
-    
+    /* --- FORCE CHAT BAR TO FLOAT ABOVE THE BOTTOM LINE --- */
+    [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"], 
     .stChatFloatingInputContainer { 
+        background: transparent !important;
+        background-color: transparent !important;
         display: flex !important;
         justify-content: center !important;
         width: 100% !important;
         padding: 0 !important;
-        background-color: transparent !important;
+        z-index: 99999 !important;
     }
 
     [data-testid="stChatInput"] { 
