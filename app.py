@@ -108,17 +108,31 @@ else:
 # --- 6. REAL WALLPAPER BACKGROUND & GOLD FRAME ---
 st.markdown(f"""
 <style>
-    .stApp, [data-testid="stAppViewContainer"] {{ background: transparent !important; }}
+    /* Force everything transparent so the wallpaper shows through */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stBottom"], [data-testid="stBottomBlockContainer"], .stChatFloatingInputContainer {{
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+    }}
+    
     html, body {{ background-color: #0a1128 !important; }}
+    
     .web-bg {{
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
-    /* AGGRESSIVE GOLD FRAME (ALWAYS ON TOP) */
+    
+    /* THE GOLD FRAME (Highest possible Z-Index so it's never covered) */
     .gold-frame {{
-        position: fixed; top: 1rem; bottom: 1rem; left: 1rem; right: 1rem;
-        border: 1px solid #cda34f; border-radius: 8px; pointer-events: none; 
-        z-index: 9999999 !important; 
+        position: fixed; 
+        top: 1rem; 
+        bottom: 1rem; 
+        left: 1rem; 
+        right: 1rem;
+        border: 1px solid #cda34f; 
+        border-radius: 8px; 
+        pointer-events: none; 
+        z-index: 999999999 !important; 
     }}
 </style>
 <div class="web-bg"></div>
@@ -165,14 +179,10 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- FULLY TRANSPARENT BOTTOM CONTAINER --- */
+    /* --- FORCE CHAT BAR TO FLOAT ABOVE THE BOTTOM LINE --- */
     [data-testid="stBottom"], 
     [data-testid="stBottomBlockContainer"], 
-    .stChatFloatingInputContainer,
-    [data-testid="stBottom"] > div { 
-        background-color: transparent !important; 
-        background: transparent !important; 
-        border-top: none !important; 
+    .stChatFloatingInputContainer { 
         display: flex !important;
         justify-content: center !important;
         width: 100% !important;
@@ -180,14 +190,13 @@ st.markdown("""
         z-index: 99999 !important;
     }
 
-    /* --- CENTERED CHAT BAR INSIDE FRAME --- */
     [data-testid="stChatInput"] { 
         border: 1px solid #cda34f !important; 
         border-radius: 50px !important; 
         background-color: #1a1a1a !important; 
-        width: 80% !important; 
+        width: 85% !important; 
         max-width: 900px !important;
-        margin: 0 auto 2.5rem auto !important; 
+        margin: 0 auto 2.5rem auto !important; /* 2.5rem pushes it safely above the bottom border */
         padding: 5px 15px !important; 
         box-shadow: 0px 4px 15px rgba(0,0,0,0.6); 
         z-index: 100000 !important; 
