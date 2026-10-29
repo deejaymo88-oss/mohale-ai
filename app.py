@@ -105,44 +105,31 @@ if os.path.exists(wallpaper_file):
 else:
     bg_css = "background-color: #0a1128;"
 
-# --- 6. REAL WALLPAPER BACKGROUND, GREY SHADE, & DOUBLE FRAME ---
+# --- 6. REAL WALLPAPER BACKGROUND & DOUBLE FRAME ---
 st.markdown(f"""
 <style>
-    /* Force base transparent */
-    html, body, .stApp, [data-testid="stAppViewContainer"], .main {{ 
-        background: transparent !important; 
-        background-color: transparent !important;
-    }}
+    html, body, .stApp {{ background-color: #0a1128 !important; }}
     
-    /* Layer 1: The Wallpaper */
     .web-bg {{
-        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3;
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
         {bg_css} background-size: cover; background-position: center; background-repeat: no-repeat; pointer-events: none;
     }}
     
-    /* Layer 2: The Grey Shade inside the frame */
-    .inner-shade {{
-        position: fixed;
-        top: 20px; bottom: 20px; left: 20px; right: 20px;
-        background-color: #1e1e1e; /* The dark grey inside */
-        border-radius: 6px;
-        z-index: -2;
-        pointer-events: none;
-    }}
-    
-    /* Layer 3: The Double Grey Frame */
+    /* THE DOUBLE GREY FRAME */
     .custom-frame {{
         position: fixed; 
-        top: 20px; bottom: 20px; left: 20px; right: 20px;
+        top: 15px; 
+        bottom: 15px; 
+        left: 15px; 
+        right: 15px;
         border: 2px solid #666666; /* Inner line */
-        box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 6px #666666; /* Gap, then outer line */
-        border-radius: 6px; 
+        box-shadow: 0 0 0 4px #0a1128, 0 0 0 6px #666666; /* Gap, then outer line */
+        border-radius: 8px; 
         pointer-events: none; 
         z-index: 9999999 !important; 
     }}
 </style>
 <div class="web-bg"></div>
-<div class="inner-shade"></div>
 <div class="custom-frame"></div>
 """, unsafe_allow_html=True)
 
@@ -154,10 +141,10 @@ st.markdown("""
     .stDeployButton { display: none !important; }
     .main .block-container { padding: 4rem 3rem 8rem 3rem !important; max-width: 100% !important; background: transparent !important; }
     
-    /* Sidebar - Matches the inside shade so it looks seamless */
+    /* Sidebar - No border on the right so we don't get a double line */
     [data-testid="stSidebar"] { 
-        background-color: #1e1e1e !important; 
-        border-right: 1px solid #333333 !important; 
+        background-color: #1a1a1a !important; 
+        border-right: none !important; 
         outline: none !important;
         box-shadow: none !important;
     }
@@ -165,7 +152,7 @@ st.markdown("""
     
     [data-testid="stSidebarCollapseButton"], [data-testid="collapsedControl"] {
         display: block !important; visibility: visible !important; z-index: 100000 !important;
-        background-color: #1e1e1e !important; border: 2px solid #666666 !important; border-radius: 8px !important; color: #666666 !important; padding: 5px !important;
+        background-color: #1a1a1a !important; border: 2px solid #666666 !important; border-radius: 8px !important; color: #666666 !important; padding: 5px !important;
     }
     [data-testid="stSidebarCollapseButton"] { position: absolute !important; right: -15px !important; top: 15px !important; border-radius: 50% !important; }
     [data-testid="collapsedControl"] { left: 10px !important; top: 10px !important; }
@@ -192,27 +179,18 @@ st.markdown("""
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
 
-    /* --- FORCE CHAT BAR TO BE COMPLETELY TRANSPARENT SO FRAME SHOWS --- */
+    /* --- FORCE CHAT BAR TO BE INSIDE THE FRAME --- */
     [data-testid="stBottom"], 
-    [data-testid="stBottom"] > div,
     [data-testid="stBottomBlockContainer"], 
-    .stChatFloatingInputContainer,
-    .stChatFloatingInputContainer > div { 
+    .stChatFloatingInputContainer { 
         background: transparent !important;
         background-color: transparent !important;
-        border-top: none !important;
-        border-bottom: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-    }
-
-    /* Ensure chat bar floats perfectly inside the frame */
-    [data-testid="stBottom"] {
         display: flex !important;
         justify-content: center !important;
         width: 100% !important;
-        bottom: 2rem !important; /* Pushes it up above the bottom line */
+        padding: 0 !important;
         z-index: 99999 !important;
+        bottom: 2rem !important;
     }
 
     [data-testid="stChatInput"] { 
