@@ -58,7 +58,7 @@ if "messages" not in st.session_state:
 if "current_chat_id" not in st.session_state:
     st.session_state.current_chat_id = None
 if "book_text" not in st.session_state:
-    st.session_state.book_text = "" # This stores the book memory
+    st.session_state.book_text = ""
 
 # --- 4. ROUTING LOGIC ---
 page = st.query_params.get("page", "dashboard")
@@ -256,10 +256,7 @@ if page == "dashboard":
 
 elif page == "settings":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Settings</h1>", unsafe_allow_html=True)
-    
     st.markdown("<br><br>", unsafe_allow_html=True)
-    
-    # --- MOVED BOOK UPLOADER HERE ---
     st.markdown("<h3 style='color: #cda34f; font-family: Cinzel; text-align: center;'>Train AI with a Book</h3>", unsafe_allow_html=True)
     uploaded_book = st.file_uploader("Upload a .txt or .pdf book to read", type=["txt", "pdf"])
     
@@ -273,8 +270,7 @@ elif page == "settings":
             else:
                 text = uploaded_book.read().decode("utf-8")
             
-            # Limit to ~10,000 characters so we don't crash the API
-            st.session_state.book_text = text[:10000]
+            st.session_state.book_text = text[:25000]
             st.success("Book read successfully! The AI will now remember this during your chat.")
 
 elif page == "meeting":
@@ -284,7 +280,7 @@ elif page == "help":
 elif page == "logout":
     st.markdown("<h1 style='color: white; font-family: Cinzel; text-align: center; margin-top: 50px;'>Logged Out</h1>", unsafe_allow_html=True)
 
-# --- 11. CHAT LOGIC (OPENAI) ---
+# --- 11. CHAT LOGIC (OPENAI WITH VISION) ---
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -294,7 +290,9 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
     text_input = prompt.text if prompt.text else ""
     uploaded_files = prompt.files
     
+    # Add the user's text to history
     st.session_state.messages.append({"role": "user", "content": text_input})
+    
     with st.chat_message("user"):
         st.markdown(text_input)
         if uploaded_files:
@@ -307,15 +305,39 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else os.getenv("OPENAI_API_KEY")
                 client = OpenAI(api_key=api_key)
                 
-                # --- INJECT THE BOOK MEMORY ---
+                # Build the system prompt
                 system_prompt = "You are Mohale M. Professional, an elite AI assistant. Keep your answers concise and elegant."
                 if st.session_state.book_text:
-                    system_prompt += f"\n\nYou have read the following book. Use this knowledge to answer the user:\n\n{st.session_state.book_text}"
+                    system_prompt += f"\n\nCRITICAL INSTRUCTION: You have been provided with a text excerpt from a book. You cannot open external files because the text has already been pasted into your memory. If the user asks you to 'open' the book or asks about something not in the text, explain that you are currently reading a text excerpt and answer based ONLY on what is provided in the excerpt below:\n\n{st.session_state.book_text}"
 
                 messages_payload = [{"role": "system", "content": system_prompt}]
-                for msg in st.session_state.messages:
+                
+                # Add previous messages to history (excluding the current one to handle it specially)
+                for msg in st.session_state.messages[:-1]:
                     messages_payload.append({"role": msg["role"], "content": msg["content"]})
 
+                # --- HANDLE IMAGES (VISION) ---
+                if uploaded_files:
+                    # Create a multi-modal payload
+                    user_content = [{"type": "text", "text": text_input if text_input else "Describe this image."}]
+                    
+                    for file in uploaded_files:
+                        # Read file and convert to base64
+                        file_bytes = file.read()
+                        base64_image = base64.b64encode(file_bytes).decode('utf-8')
+                        
+                        # Append image data
+                        user_content.append({
+                            "type": "image_url",
+                            "image_url": {"url": f"data:{file.type};base64,{base64_image}"}
+                        })
+                    
+                    messages_payload.append({"role": "user", "content": user_content})
+                else:
+                    # Standard text message
+                    messages_payload.append({"role": "user", "content": text_input})
+
+                # Send to OpenAI (gpt-4o-mini is vision capable)
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=messages_payload
@@ -328,7 +350,7 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
 
                 if st.session_state.current_chat_id is None:
                     new_id = str(int(time.time()))
-                    title = text_input[:20] + "..." if len(text_input) > 20 else text_input
+                    title = text_input[:20] + "..." if len(text_input) > 20 else (text_input if text_input else "Image Upload")
                     st.session_state.current_chat_id = new_id
                     save_chat_to_db(new_id, title, st.session_state.messages)
                 else:
