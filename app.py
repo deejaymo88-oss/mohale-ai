@@ -152,43 +152,13 @@ st.markdown("""
     .menu-item.active svg { stroke: #cda34f; }
     .menu-icon { width: 20px; height: 20px; margin-right: 15px; stroke: #a0a0a0; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
-    /* --- FIXED CHAT HISTORY ACCORDION --- */
-    details.menu-item { 
-        display: block !important; 
-        padding: 0; 
-        width: 100%; 
-        box-sizing: border-box; 
-        overflow: hidden; 
-        outline: none !important; 
-        border: none !important; 
-    }
-    details.menu-item summary { 
-        padding: 12px 20px; 
-        display: flex; 
-        align-items: center; 
-        list-style: none; 
-        cursor: pointer; 
-        width: 100%; 
-        box-sizing: border-box; 
-        outline: none !important; 
-        border: none !important; 
-    }
+    details.menu-item { display: block !important; padding: 0; width: 100%; box-sizing: border-box; overflow: hidden; outline: none !important; border: none !important; }
+    details.menu-item summary { padding: 12px 20px; display: flex; align-items: center; list-style: none; cursor: pointer; width: 100%; box-sizing: border-box; outline: none !important; border: none !important; }
     details.menu-item summary:focus { outline: none !important; border: none !important; }
     details.menu-item summary::-webkit-details-marker { display: none; }
     details.menu-item[open] summary { color: #cda34f; }
     
-    .history-list { 
-        display: flex; 
-        flex-direction: column; 
-        padding-left: 45px; 
-        padding-right: 15px; 
-        max-height: 250px; 
-        overflow-y: auto; 
-        overflow-x: hidden; 
-        margin-bottom: 10px; 
-        width: 100%; 
-        box-sizing: border-box; 
-    }
+    .history-list { display: flex; flex-direction: column; padding-left: 45px; padding-right: 15px; max-height: 250px; overflow-y: auto; overflow-x: hidden; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
     .history-link { display: block; width: 100%; color: #a0a0a0; font-size: 14px; padding: 6px 0; text-decoration: none !important; font-family: 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-sizing: border-box; }
     .history-link:hover { color: #cda34f; }
     .history-link.active { color: #ffffff; font-weight: bold; }
@@ -207,7 +177,6 @@ history_items = ""
 db_chats = get_all_chats_from_db()
 for cid, title in db_chats:
     is_active = "active" if st.session_state.current_chat_id == cid else ""
-    # Ensure title is truncated cleanly if it's too long
     display_title = title[:18] + "..." if len(title) > 18 else title
     history_items += f'<a href="?chat_id={cid}" target="_self" class="history-link {is_active}">{display_title}</a>'
 
@@ -291,11 +260,11 @@ if page == "dashboard":
     else:
         st.markdown("<h1 style='font-family: Cinzel; color: #cda34f; font-size: 120px; margin-bottom: 0;'>MP</h1>", unsafe_allow_html=True)
 
+    # ADJUSTED: Pulled text up with negative margin-top and removed the <br>
     st.markdown("""
-            <div style='text-align: center; margin-top: 20px;'>
-                <p style='font-family: "Cinzel", serif; color: #e0d0b0; font-size: 20px;'>Mohale M. Professional</p>
-                <br>
-                <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px;'>HI, I'M MOHALE</h1>
+            <div style='text-align: center; margin-top: -40px;'>
+                <p style='font-family: "Cinzel", serif; color: #e0d0b0; font-size: 20px; letter-spacing: 1px;'>MOHALE M. PROFESSIONAL</p>
+                <h1 style='font-family: Cinzel; color: #cda34f; font-size: 45px; letter-spacing: 2px; margin-top: 10px;'>HI, I'M MOHALE</h1>
                 <p style='color: #a0a0a0; font-size: 16px; margin-bottom: 50px;'>How can I assist you today?</p>
             </div>
         </div>
@@ -392,11 +361,10 @@ if prompt := st.chat_input("Ask anything...", accept_file=True):
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
 
-                # --- UPDATED TITLE LOGIC: Pulls from the FIRST text written in the chat ---
+                # --- PULLS TITLE FROM THE FIRST TEXT WRITTEN ---
                 if st.session_state.current_chat_id is None:
                     new_id = str(int(time.time()))
                     
-                    # Find the first text message the user sent
                     first_text = "New Chat"
                     for msg in st.session_state.messages:
                         if msg["role"] == "user" and msg["content"] and msg["content"].strip():
